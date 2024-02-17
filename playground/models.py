@@ -1,5 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from decimal import Decimal
+from datetime import datetime, timedelta
 
 class Order(models.Model):
     order_no = models.CharField(max_length=100)
@@ -24,8 +27,9 @@ class Order(models.Model):
 
 class Lab(models.Model):
     name = models.CharField(max_length=255)
-    address = models.TextField()
+    address = models.CharField(max_length=255)
     lab_type = models.CharField(max_length=255)
+    departments = models.ManyToManyField('Department', related_name='labs')
 
     def __str__(self):
         return self.name
@@ -35,3 +39,15 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+
+class WarrantyClaim(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    part_to_replace = models.CharField(max_length=255)
+    specification = models.TextField()
+    price_without_gst = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    quotation_status = models.CharField(max_length=20, choices=[('approved', 'Approved'), ('not_approved', 'Not Approved')])
+    quotation_from_company_status = models.CharField(max_length=20, choices=[('received', 'Received'), ('not_received', 'Not Received')])
+    price_with_gst = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return f"{self.order.order_no} - {self.part_to_replace}"
