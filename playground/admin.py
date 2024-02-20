@@ -1,29 +1,40 @@
-from django.contrib import admin,messages
+from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from datetime import datetime, timedelta
 from decimal import Decimal
 from django.http import HttpResponseRedirect
-from django.urls import reverse
-from .models import Order, Lab, Department, WarrantyClaim
+from .models import Order, Lab, Department, WarrantyClaim, OrderItem
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_no', 'item_name', 'model', 'price', 'lab', 'department',
-                    'warranty_period', 'warranty_type', 'warranty_provider',
-                    'ordered_date', 'installation_date', 'manufacturer')
-    list_filter = ('lab', 'department', 'warranty_type')
-    search_fields = ('order_no', 'item_name', 'model', 'manufacturer')
+    inlines = [OrderItemInline]
+    list_display = ('order_no', 'get_total_quantity', 'lab', 'department', 'ordered_date')
+    list_filter = ('lab', 'department')
+    search_fields = ('order_no',)
     date_hierarchy = 'ordered_date'
+
+    def get_total_quantity(self, obj):
+        return sum(item.quantity for item in obj.items.all())
+    get_total_quantity.short_description = 'Total Quantity'
+
+    def save_model(self, request, obj, form, change):
+        obj.total_quantity = self.get_total_quantity(obj)
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'lab_type')
-    filter_horizontal = ('departments',)
+    list_display = ('name',)
+    search_fields = ('name',)
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'lab')
     search_fields = ('name',)
 
 @admin.register(WarrantyClaim)
@@ -34,10 +45,6 @@ class WarrantyClaimAdmin(admin.ModelAdmin):
     search_fields = ('order__order_no', 'part_to_replace')
 
     def message_user(self, request, message, level=messages.INFO, extra_tags='', fail_silently=False):
-        """
-        Override message_user method to customize message display behavior.
-        Only display the message if it is a warning or an error.
-        """
         if level in [messages.WARNING, messages.ERROR]:
             super().message_user(request, message, level, extra_tags, fail_silently)
 
@@ -63,7 +70,7 @@ class WarrantyClaimAdmin(admin.ModelAdmin):
             self.message_user(request, warning_message, level=messages.WARNING)
             return
 
-        obj.save()
+        super().save_model(request, obj, form, change)
 
     def response_post_save_add(self, request, obj):
         return self.response_post_save_change(request, obj)
