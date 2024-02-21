@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+       
+    <meta charset="UTF-8" />
+       
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+       
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+       
+    <title>letter format 4</title>
+  </head>
+  <body class="font-times text-sm">
+    <div class="border border-solid border-black border-2 m-4 relative">
+      <div class="img">
+        {% load static%}
+        <img
+          src="{% static '/images/header1.jpg' %}"
+          alt="Description of the image"
+          class="w-full h-64 rounded-lg shadow-md"
+        />
+      </div>
+      <div class="float-left">
+        <p class="font-bold m-8 p-4">जावक क्र./No. :</p>
+      </div>
+      <div class="float-right">
+        <p class="font-bold float-right m-8  pr-20 mr-12">दिनांक/Date:</p>
+      </div>
+      <br><br><br>
+
+      <div class="text-1xl text-left m-8 p-8">
+        
+        <p>
+          To. <br />
+          M/s, Chromline Equipment Company. <br />
+          17 & 17A, Ground Floor, Udyog Bhavan, <br />
+          Sonavala Road, Goregaon (E.) <br />Mumbai- 400 063.
+        </p>
+
+        <div>
+            <div class="flex justify-center p-6">
+              <p>
+                <b>Sub:-</b> Quotation for supply of Spare for GCHS Instrument. <br />
+                <b>Ref:-</b> Your Service report dated 01/04/2024.
+              </p>
+            </div>
+            <div class="w-[600] ml-20 text-left">
+                  Please submit your lowest quotation immediately to this Mumbai office for the supply and installation of spare for GCHS (Make-DANI) located at Deputy Director, Regional Forensic Science Laboratory. Pune.
+              </div>
+          </div>
+          <div class="flex justify-center p-6">
+            <table class="table-auto">
+              <thead>
+                <tr>
+                  <th class="border px-4 py-2">Sr.No</th>
+                  <th class="border px-4 py-2">Description</th>
+                  <th class="border px-4 py-2">Req Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border px-4 py-2 text-left">1</td>
+                  <td class="border px-4 py-2 text-left">
+                    Spare for Master VH Power Supply Specification –(Input
+                    AC230V/Output DC 12V and 6Amp 72Watt Power Supply)
+                  </td>
+                  <td class="border px-4 py-2">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div><br><br><br><br><br><br>
+      </div>
+        <div class="ml-12 bottom-0 right-0 absolute">
+            <b><p>(Dr. S.V. Ghumatkar) <br>Director.</p>
+            <br />
+            <p>Directorate of Forensic Science Laboratories,</p>
+            <p>M.S..and Chemical Analyser to Government.</p></b>
+          </div>
+
+         
+    </div>
+  </body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+       
+    <meta charset="UTF-8" />
+       
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+       
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+       
+    <title>letter format 4</title>
+  </head>
+  <body class="font-times text-sm">
+    <div class="border border-solid border-black border-2 m-4 max-w-screen">
+      <div class="img">
+        {% load static%}
+        <img
+          src="{% static '/images/header1.jpg' %}"
+          alt="Description of the image"
+          class="w-full h-56 rounded-lg"
+        />
+      </div>
+      <div class="float-left">
+        <p class="font-bold m-4 ">जावक क्र./No. :</p>
+      </div>
+      <div class="float-right">
+        <p class="font-bold float-right mt-2 pr-20 mr-12">दिनांक/Date:</p>
+
+      </div>
+      <br><br><br>
+
+      <div class="text-1xl text-left m-2 p-2">
+        <p>
+          To. <br />
+          M/s, Chromline Equipment Company. <br />
+          17 & 17A, Ground Floor, Udyog Bhavan, <br />
+          Sonavala Road, Goregaon (E.) <br />Mumbai- 400 063.
+        </p>
+
+        <div>
+            <div class="flex justify-center p-4">
+              <p>
+                <b>Sub:-</b> Supply of consumable for GCHS Instrument. (Make-DANI, Sr. No. 650N5060103)
+              </p>
+            </div>
+            <div class="w-[600] text-left">
+                <!-- <div class="text-left"> -->
+                   <p>Sir,<br>With reference to your quotation No.- QUO/AN//1540/2024dated-01.02.2024, please supply & install the following items for the best performance of the equipment at Regional Forensic Science Laboratory, Pune & submit your invoice along with delivery challan & report to this department immediately.</p>
+
+                    <!-- </div> -->
+              </div>
+          </div>
+          <div class="flex justify-center p-10 ">
+            <table class="border border-collapse w-auto">
+                <tr>
+                  <th class="border p-8 m-2">Part No & Description</th>
+                  <th class="border p-8 m-2">Qty</th>
+                  <th class="border p-8 m-2">Unit Price in INR</th>
+                  <th class="border p-8  m-2">Total Price in INR</th>
+                </tr>
+                <tr>
+                  <td class="border">Spare for Master VH Power Supply <br> Specification-<br> (Input AC230V/Output DC 12V and 6Amp 72 Watt Power Supply)</td>
+                  <td class="border text-center">1</td>
+                  <td class="border p-10 m-2">22500.00</td>
+                  <td class="border p-10 m-2">22500.00</td>
+                </tr>
+                <tr>
+                  <td colspan="2" class="border"></td>
+                  <th class="border">Total Basic Price in INR</th>
+                  <td class="border">22500.00</td>
+                </tr>
+                <tr>
+                  <td colspan="2" class="border"></td>
+                  <th class="border">+18% GST</th>
+                  <td class="border">4050.00</td>
+                </tr>
+                <tr>
+                  <td colspan="2" class="border"></td>
+                  <th class="border">Total Price inclusive of GST</th>
+                  <td class="border">26550.00</td>
+                </tr>
+              </table>
+              
+              
+          </div><br>
+      </div>
+        
+        <div class="float-right">
+            <p>(Dr. S.V. Ghumatkar) Director</p><br>
+            <p>Directorate of Forensic Science Laboratories,</p>
+            <p>M.S.and Chemical Analyser to Government.</p>
+          </div><br>
+
+
+          <div>
+            <p> Copy to:-</p>
+                <p>The Deputy Director,Regional Forensic Science Laboratory,</p>
+                <p>M.S, Ganesh Khind, Pune- 411007.for information.</p>
+          </div>
+    </div>
+  </body>
+</html>
