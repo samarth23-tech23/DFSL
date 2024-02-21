@@ -14,3 +14,12 @@ def load_vendorId(request):
 
 def load_vendorBankDetails(request):
     return render(request,'vendorBank.html')
+
+def load_letter1(request):
+    return render(request,'letter1.html')
+
+def load_letter4(request):
+    return render(request,'letter4.html')
+
+def load_letter(request):
+    return render(request,'letter.html')
