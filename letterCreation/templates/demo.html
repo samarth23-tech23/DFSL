@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product with Subproducts</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* Replace 'Arial' with your desired font */
+        }
+        .input-line:focus {
+            border-color: #3593aa;
+            border-width: 0 0 2px 0;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto py-6">
+        <div class="max-w-3xl mx-auto bg-white p-6 rounded-md shadow-md">
+            <h2 class="text-2xl font-bold mb-4">Product Details</h2>
+            <div class="flex flex-wrap">
+                <div class="relative flex-1 mr-4">
+                    <input placeholder="Letter No" type="text" id="letter_no" name="letter_no" class="input-line peer h-11 w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-base font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" />
+                    <label for="letter_no" class="after:content[' '] absolute left-0 -top-2.5 flex w-full select-none !overflow-visible truncate text-base font-normal leading-tight text-gray-500 transition-all after:absolute after:-bottom-2.5 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-500 after:transition-transform after:duration-300 peer-placeholder-shown:leading-tight peer-placeholder-shown:text-blue-gray-500 peer-focus:text-base peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                        Letter No
+                    </label>
+                </div>
+                <div class="relative flex-1 mr-4">
+                    <input placeholder="Lab Name" type="text" id="lab_name" name="lab_name" class="input-line peer h-11 w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-base font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" />
+                    <label for="lab_name" class="after:content[' '] absolute left-0 -top-2.5 flex w-full select-none !overflow-visible truncate text-base font-normal leading-tight text-gray-500 transition-all after:absolute after:-bottom-2.5 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-500 after:transition-transform after:duration-300 peer-placeholder-shown:leading-tight peer-placeholder-shown:text-blue-gray-500 peer-focus:text-base peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                        Lab Name
+                    </label>
+                </div>
+                <div class="relative flex-1">
+                    <input placeholder="Date" type="date" id="letter_date" name="letter_date" class="input-line peer h-11 w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-base font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50" />
+                    <label for="letter_date" class="after:content[' '] absolute left-0 -top-2.5 flex w-full select-none !overflow-visible truncate text- font-normal leading-tight text-gray-500 transition-all after:absolute after:-bottom-2.5 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-500 after:transition-transform after:duration-300 peer-placeholder-shown:leading-tight peer-placeholder-shown:text-blue-gray-500 peer-focus:text-base peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                        Date
+                    </label>
+                </div>
+            </div><br><br>
+            <div id="productDetails">
+                <!-- Product Detail Section -->
+            </div>
+            <button onclick="addProduct()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4">Add Product</button>
+            <button onclick="submitForm()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 ml-4">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let productId = 1;
+
+        function addProduct() {
+          const productDetails = document.getElementById('productDetails');
+      
+          // Create Product Section
+          const productSection = document.createElement('div');
+          productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
+      
+          // Product Title
+          const productTitle = document.createElement('h3');
+          productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
+          productTitle.textContent = `Product ${productId}`;
+          productSection.appendChild(productTitle);
+      
+          // Product SR Input
+          const productSRInput = document.createElement('input');
+          productSRInput.setAttribute('type', 'text');
+          productSRInput.setAttribute('placeholder', 'Product SR');
+          productSRInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'mr-2');
+          productSection.appendChild(productSRInput);
+      
+          // Product Name Input
+          const productNameInput = document.createElement('input');
+          productNameInput.setAttribute('type', 'text');
+          productNameInput.setAttribute('placeholder', 'Product Name');
+          productNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'mr-2');
+          productSection.appendChild(productNameInput);
+      
+          // Product Price Input
+          const productPriceInput = document.createElement('input');
+          productPriceInput.setAttribute('type', 'text');
+          productPriceInput.setAttribute('placeholder', 'Product Price');
+          productPriceInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'mr-2');
+          productSection.appendChild(productPriceInput);
+      
+          // Buying Date Input
+          const buyingDateInput = document.createElement('input');
+          buyingDateInput.setAttribute('type', 'date');
+          buyingDateInput.setAttribute('placeholder', 'Buying Date');
+          buyingDateInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'mr-2');
+          productSection.appendChild(buyingDateInput);
+      
+          // Department Name Input
+          const departmentNameInput = document.createElement('input');
+          departmentNameInput.setAttribute('type', 'text');
+          departmentNameInput.setAttribute('placeholder', 'Department Name');
+          departmentNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2');
+          productSection.appendChild(departmentNameInput);
+      
+          // Add Subproduct Button
+          const addSubproductBtn = document.createElement('button');
+          addSubproductBtn.textContent = 'Add Subproduct';
+          addSubproductBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-2');
+          addSubproductBtn.addEventListener('click', addSubproduct);
+          productSection.appendChild(addSubproductBtn);
+      
+          // Delete Product Button
+          const deleteProductBtn = document.createElement('button');
+          deleteProductBtn.textContent = 'Delete Product';
+          deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'ml-2');
+          deleteProductBtn.addEventListener('click', () => {
+              productSection.remove();
+          });
+          productSection.appendChild(deleteProductBtn);
+      
+          productDetails.appendChild(productSection);
+      
+          productId++;
+      }
+      
+      function addSubproduct(event) {
+        const productSection = event.target.parentElement;
+    
+        // Find the number of existing subproducts
+        const subproducts = productSection.querySelectorAll('.subproduct-section').length;
+    
+        // Create Subproduct Section
+        const subproductSection = document.createElement('div');
+        subproductSection.classList.add('ml-8', 'subproduct-section', 'border', 'border-gray-300', 'rounded', 'p-4', 'shadow-md', 'mb-4');
+    
+        // Subproduct Title
+        const subproductTitle = document.createElement('h4');
+        subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
+        subproductTitle.textContent = `Subproduct ${subproducts + 1}`;
+        subproductSection.appendChild(subproductTitle);
+    
+        // Subproduct Inputs
+        const inputs = ['Type of Part', 'Part Name', 'Specification', 'Quantity', 'Period of AMC Contract', 'Service Report Date', 'AMC Provider'];
+        inputs.forEach(input => {
+            const inputLabel = document.createElement('label');
+            inputLabel.textContent = input;
+            inputLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+            subproductSection.appendChild(inputLabel);
+    
+            if (input === 'Service Report Date') {
+                const inputField = document.createElement('input');
+                inputField.setAttribute('type', 'date');
+                inputField.setAttribute('placeholder', input);
+                inputField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                inputField.addEventListener('change', () => {
+                    const dateParts = inputField.value.split('-');
+                    if (dateParts.length === 3) {
+                        const formattedDate = dateParts[0] + '-' + dateParts[1].padStart(2, '0') + '-' + dateParts[2].padStart(2, '0');
+                        inputField.value = formattedDate;
+                    }
+                });
+                subproductSection.appendChild(inputField);
+            } else {
+                const inputField = document.createElement('input');
+                inputField.setAttribute('type', 'text');
+                inputField.setAttribute('placeholder', input);
+                inputField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                subproductSection.appendChild(inputField);
+            }
+        });
+    
+        // Delete Subproduct Button
+        const deleteSubproductBtn = document.createElement('button');
+        deleteSubproductBtn.textContent = 'Delete Subproduct';
+        deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+        deleteSubproductBtn.addEventListener('click', () => {
+            subproductSection.remove();
+        });
+        subproductSection.appendChild(deleteSubproductBtn);
+    
+        productSection.appendChild(subproductSection);
+    }
+      
+
+    function submitForm() {
+      const letterNo = document.getElementById('letter_no').value;
+      const labName = document.getElementById('lab_name').value;
+      const letterDate = document.getElementById('letter_date').value;
+  
+      const productSections = document.querySelectorAll('.product-section');
+      const formData = [];
+  
+      productSections.forEach(productSection => {
+          const productSR = productSection.querySelector('input[placeholder="Product SR"]').value;
+          const productPrice = productSection.querySelector('input[placeholder="Product Price"]').value;
+          const buyingDate = productSection.querySelector('input[placeholder="Buying Date"]').value;
+          const productName = productSection.querySelector('input[placeholder="Product Name"]').value;
+          const departmentName = productSection.querySelector('input[placeholder="Department Name"]').value;
+          const subproductSections = productSection.querySelectorAll('.subproduct-section');
+          const subproducts = [];
+  
+          subproductSections.forEach(subproductSection => {
+              const subproduct = {
+                  'Type of Part': subproductSection.querySelector('input[placeholder="Type of Part"]').value,
+                  'Part Name': subproductSection.querySelector('input[placeholder="Part Name"]').value,
+                  'Specification': subproductSection.querySelector('input[placeholder="Specification"]').value,
+                  'Quantity': subproductSection.querySelector('input[placeholder="Quantity"]').value,
+                  'Period of AMC Contract': subproductSection.querySelector('input[placeholder="Period of AMC Contract"]').value,
+                  'Service Report Date': subproductSection.querySelector('input[placeholder="Service Report Date"]').value,
+                  'AMC Provider': subproductSection.querySelector('input[placeholder="AMC Provider"]').value
+              };
+              subproducts.push(subproduct);
+          });
+  
+          const product = {
+              'Product SR': productSR,
+              'Product Price': productPrice,
+              'Buying Date': buyingDate,
+              'Product Name': productName,
+              'Department Name': departmentName,
+              'Subproducts': subproducts
+          };
+          formData.push(product);
+      });
+  
+      // Combine letter and product data
+      const requestData = {
+          'letter_no': letterNo,
+          'lab_name': labName,
+          'letter_date': letterDate,
+          'products': formData
+      };
+  
+      // AJAX Request
+      fetch('/letterGenerate/submit_form/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken') // Ensure you have a function to get the CSRF token from cookies
+          },
+          body: JSON.stringify(requestData)
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          console.log('Success:', data);
+          alert("Data submitted successfully");
+          // Handle success response as needed
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert("Error in submitting form");
+          // Handle error as needed
+      });
+  }
+  
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  
+</script>
+</body>
+
+</html>

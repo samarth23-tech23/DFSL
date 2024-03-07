@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Office Quotation request</title>
+</head>
+<body class="font-times text-sm">
+    <div class="border border-solid border-black border-2 m-4">
+        <div class="grid grid-cols-1 float-right">
+            <p class="font-bold">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. १३ .०२.२०२३</p>
+        </div>
+        <br>
+        <div class="text-1xl text-left m-8">
+            <p class="m-8"></p>
+            <p>&emsp;&emsp;सादर,<br><br>&emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ product.letter.lab_name }} यांनी त्याचे पत्र क्र. {{ product.letter.letter_no }}, {{ product.letter.letter_date }} अन्वये {{ product.department_name }} विभागात कार्यरत असलेले {{ product.name }} या उपकरणासाठी खालील वर्णनाच्या 
+                {% for subproduct in product.subproducts.all %}
+                    {{ subproduct.type_of_part }}
+                {% endfor %} ची आवश्यकता असल्याचे सादर केले आहे.(सोबत मागणीपत्र व सर्व्हस रिपोर्ट प्रत)</p>
+        </div>
+
+        <div>
+            <div class="flex justify-center p-6">
+                <table class="table-auto">
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-2">Sr.No</th>
+                            <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Req Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subproduct in product.subproducts.all %}
+                        <tr>
+                            <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
+                            <td class="border px-4 py-2 text-left">{{ subproduct.part_name }} <br>Specification: {{ subproduct.specification }}</td>
+                            <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="w-[600] ml-20 text-left">
+       
+{% if product.subproducts.count > 1 %}
+    <ul class="list-disc text-left mx-4">
+            {% if product.subproducts.count > 1 %}
+        <ul class="list-disc text-left mx-4">
+            {% for subproduct in product.subproducts.all %}
+                <li>{{ subproduct.part_name }} या उपकरणांची खरेदी सन {{subproduct.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+                <li>तसेच सदर उपकरणाचा 
+                    {% if subproduct.period_of_amc_contract %}
+                        {% if subproduct.period_of_amc_contract == 12 %}
+                            वार्षिक
+                        {% elif subproduct.period_of_amc_contract == 24 %}
+                            द्वैवार्षिक
+                        {% elif subproduct.period_of_amc_contract == 36 %}
+                            त्रैवार्षिक
+                        {% else %}
+                            {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
+                        {% endif %}
+                    {% endif %}
+                    देखभाल सेवा करार करण्यात आलेला आहे.</li>
+                <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत वार्षिक देखभाल सेवा करार पुरवठादार कंपनी</li>
+                {{ subproduct.amc_provider }} याचेकडून दरपत्रक मागविण्यास मंजुरी मिळाविण्यास हीविनंती.
+            {% endfor %}
+        </ul>
+    {% endif %}
+    </ul>
+            {% else %}
+            {% for subproduct in product.subproducts.all %}
+            <li>{{ subproduct.part_name }} या उपकरणांची खरेदी सन {{subproduct.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+            <li>तसेच सदर उपकरणाचा 
+                {% if subproduct.period_of_amc_contract %}
+                    {% if subproduct.period_of_amc_contract == 12 %}
+                        वार्षिक
+                    {% elif subproduct.period_of_amc_contract == 24 %}
+                        द्वैवार्षिक
+                    {% elif subproduct.period_of_amc_contract == 36 %}
+                        त्रैवार्षिक
+                    {% else %}
+                        {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
+                    {% endif %}
+                {% endif %}
+                देखभाल सेवा करार करण्यात आलेला आहे.</li>
+            <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत वार्षिक देखभाल सेवा करार पुरवठादार कंपनी</li>
+            {{ subproduct.amc_provider }} याचेकडून दरपत्रक मागविण्यास मंजुरी मिळाविण्यास हीविनंती.
+        {% endfor %}
+    </ul>
+{% endif %}
+         
+        </div>
+        
+        <div class="ml-16 font-bold">
+            <p>श्री. र. वि. गावीत : <br> सहायक अधिक्षक (भांडार),</p>
+            <p>श्री. प्र. ज. कदम : <br> प्रशासकिय अधिकारी (भांडार)</p>
+            <p>श्री. सं. शा. प्रभावळे : <br> सहायक संचालक तथा भांडार विभाग नियंत्रक</p>
+            <p>डॉ. सं. औ. चेट्टी : <br> उपसंचालक तथा सदस्य सचिव</p>
+            <p>डॉ. सं.वि. घुमटकर : <br> संचालक</p>
+        </div>
+    </div>
+</body>
+</html>

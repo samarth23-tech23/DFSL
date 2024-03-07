@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .text-title-color{
+            color: #3593aa;
+
+        }
+
+        .bg-color{
+            color: #3593aa;
+
+        }
+
+        .bg-custom-color {
+            background-color: #3593aa;
+        }
+
+        .bg-custom-color:hover {
+            background-color: #2c7da0; /* Darker shade for hover effect */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-8 font-sans">
+
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded shadow-lg">
+        <h1 class="text-3xl font-bold mb-8 text-title-color">Quotation Information</h1>
+
+        <form id="quotationForm" class="grid grid-cols-1 gap-4">
+
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="date" class="block text-sm font-semibold text-title-color">Date:</label>
+                    <input type="date" id="date" name="date"
+                        class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500" pattern="\d{4}-\d{2}-\d{2}">
+                </div>
+
+                <div class="mb-4">
+                    <label for="ref_no" class="block text-sm font-semibold text-title-color">Ref No.:</label>
+                    <input type="text" id="ref_no" name="ref_no"
+                        class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            {% for subproduct in subproducts %}
+            <div class="border-t-2 border-gray-300 pt-4">
+                <h2 class="text-2xl font-bold mb-2 text-title-color">Subproduct: {{ subproduct.part_name }}</h2>
+                <p class="text-title-color">Type: {{ subproduct.type_of_part }}</p>
+                <p class="text-title-color">Specification: {{ subproduct.specification }}</p>
+                <p class="text-title-color">Quantity: {{ subproduct.quantity }}</p>
+                <p class="text-title-color">AMC Provider : {{ subproduct.amc_provider }}</p>
+                <input type="hidden" name="amc_provider_name_{{ subproduct.id }}" value="{{ subproduct.amc_provider }}">
+
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="mb-4">
+                        <label for="price_without_gst" class="block text-sm font-semibold text-title-color">Price Without
+                            GST:</label>
+                        <input type="text" id="price_without_gst" name="price_without_gst_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="price_with_gst" class="block text-sm font-semibold text-title-color">Price With
+                            GST:</label>
+                        <input type="text" id="price_with_gst" name="price_with_gst_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="expected_delivery" class="block text-sm font-semibold text-title-color">Expected
+                        Delivery:</label>
+                    <input type="text" id="expected_delivery" name="expected_delivery_{{ subproduct.id }}"
+                        class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <h2 class="text-2xl font-bold mb-4 text-title-color">AMC Provider</h2>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="mb-4">
+                        <label for="ac_no" class="block text-sm font-semibold text-title-color">AC No.:</label>
+                        <input type="text" id="ac_no" name="ac_no_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="ifsc_code" class="block text-sm font-semibold text-title-color">IFSC Code:</label>
+                        <input type="text" id="ifsc_code" name="ifsc_code_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="ac_name" class="block text-sm font-semibold text-title-color">AC Name:</label>
+                        <input type="text" id="ac_name" name="ac_name_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="bank_name" class="block text-sm font-semibold text-title-color">Bank Name:</label>
+                        <input type="text" id="bank_name" name="bank_name_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="pan_no" class="block text-sm font-semibold text-title-color">PAN No.:</label>
+                        <input type="text" id="pan_no" name="pan_no_{{ subproduct.id }}"
+                            class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="submit"
+                class="bg-custom-color text-white font-bold py-2 px-4 rounded">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('quotationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            fetch('/letterGenerate/submit_quotation_info/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Form submitted successfully');
+                        // Redirect or do something else on success
+                    } else {
+                        throw new Error('Failed to submit form');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    alert('Error: ' + error.message);
+                });
+        });
+    </script>
+
+</body>
+</html>
