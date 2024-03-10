@@ -68,6 +68,20 @@ def letter_detail4(request, subproduct_id):
     service_report_date = subproduct.service_report_date  # Assuming service_report_date is a field of Subproduct
     return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
 
+
+def letter_detail6(request, subproduct_id):
+    subproduct = Subproduct.objects.get(pk=subproduct_id)
+    product = subproduct.product
+    amc_provider = subproduct.amc_provider
+    subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
+    letter = product.letter  # Assuming there is a ForeignKey from Product to Letter
+
+    return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'subproductquotationinfo': subproductquotationinfo, 'letter': letter})
+
+def product_list6(request):
+    letters = Letter.objects.all()
+    return render(request, 'table6 .html', {'letters': letters})
+
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
@@ -113,50 +127,53 @@ def submit_form(request):
 
 
 
-
+@csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':
-        product_id = request.POST.get('product_id')
+        subproduct_id = request.POST.get('subproduct_id')
         date = request.POST.get('date')
         ref_no = request.POST.get('ref_no')
 
-        quotation_info = QuotationInfo(product_id=product_id, date=date, ref_no=ref_no)
-        quotation_info.save()
+        quotation_info = QuotationInfo.objects.create(subproduct_id=subproduct_id, date=date, ref_no=ref_no)
 
-        for subproduct in request.POST:
-            if subproduct.startswith('price_without_gst_'):
-                subproduct_id = subproduct.split('_')[-1]
-                price_without_gst = request.POST.get(subproduct)
-                price_with_gst = request.POST.get('price_with_gst_' + subproduct_id)
-                expected_delivery = request.POST.get('expected_delivery_' + subproduct_id)
-                amc_provider_name = request.POST.get('amc_provider_name_' + subproduct_id)
-                ac_no = request.POST.get('ac_no_' + subproduct_id)
-                ifsc_code = request.POST.get('ifsc_code_' + subproduct_id)
-                ac_name = request.POST.get('ac_name_' + subproduct_id)
-                bank_name = request.POST.get('bank_name_' + subproduct_id)
-                pan_no = request.POST.get('pan_no_' + subproduct_id)
+        unit_price = request.POST.get('unit_price')
+        price_without_gst = request.POST.get('price_without_gst')
+        price_with_gst = request.POST.get('price_with_gst')
+        expected_delivery = request.POST.get('expected_delivery')
 
-                if amc_provider_name:
-                    amc_provider, created = AMCProvider.objects.get_or_create(
-                        name=amc_provider_name,
-                        ac_no=ac_no,
-                        ifsc_code=ifsc_code,
-                        ac_name=ac_name,
-                        bank_name=bank_name,
-                        pan_no=pan_no
-                    )
-                else:
-                    return JsonResponse({'message': 'AMC Provider name cannot be empty'}, status=400)
+        amc_provider_name = request.POST.get('amc_provider_name')
+        ac_no = request.POST.get('ac_no')
+        ifsc_code = request.POST.get('ifsc_code')
+        ac_name = request.POST.get('ac_name')
+        bank_name = request.POST.get('bank_name')
+        pan_no = request.POST.get('pan_no')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        address = request.POST.get('address')
 
-                subproduct_quotation_info = SubproductQuotationInfo(
-                    quotation_info_id=quotation_info.id,
-                    subproduct_id=subproduct_id,
-                    price_without_gst=price_without_gst,
-                    price_with_gst=price_with_gst,
-                    expected_delivery=expected_delivery,
-                    amc_provider=amc_provider
-                )
-                subproduct_quotation_info.save()
+        amc_provider, created = AMCProvider.objects.get_or_create(
+            name=amc_provider_name,
+            ac_no=ac_no,
+            ifsc_code=ifsc_code,
+            ac_name=ac_name,
+            bank_name=bank_name,
+            pan_no=pan_no,
+            state=state,
+            pincode=pincode,
+            address=address
+        )
+
+        subproduct_quotation_info = SubproductQuotationInfo.objects.create(
+            quotation_info=quotation_info,
+            subproduct_id=subproduct_id,
+            unit_price=unit_price,
+            price_without_gst=price_without_gst,
+            price_with_gst=price_with_gst,
+            gst_percentage=((float(price_with_gst) - float(price_without_gst)) / float(price_without_gst)) * 100,
+            gst_value=float(price_with_gst) - float(price_without_gst),
+            expected_delivery=expected_delivery,
+            amc_provider=amc_provider
+        )
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:

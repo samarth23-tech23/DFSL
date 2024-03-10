@@ -23,9 +23,8 @@ class Subproduct(models.Model):
     service_report_date = models.DateField()
     amc_provider = models.CharField(max_length=255)
 
-      ###########
 class QuotationInfo(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    subproduct = models.ForeignKey(Subproduct, on_delete=models.CASCADE)
     date = models.DateField()
     ref_no = models.CharField(max_length=255)
 
@@ -36,11 +35,17 @@ class AMCProvider(models.Model):
     ac_name = models.CharField(max_length=255)
     bank_name = models.CharField(max_length=255)
     pan_no = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    pincode = models.CharField(max_length=255)
+    address = models.TextField()
 
 class SubproductQuotationInfo(models.Model):
     quotation_info = models.ForeignKey(QuotationInfo, on_delete=models.CASCADE)
-    subproduct = models.ForeignKey(Subproduct, on_delete=models.CASCADE)
+    subproduct = models.ForeignKey(Subproduct, on_delete=models.CASCADE, default=1)  # Default to the first Subproduct
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     price_without_gst = models.DecimalField(max_digits=10, decimal_places=2)
     price_with_gst = models.DecimalField(max_digits=10, decimal_places=2)
+    gst_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    gst_value = models.DecimalField(max_digits=10, decimal_places=2)
     expected_delivery = models.CharField(max_length=255)
-    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE)
+    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE, default=1)  # Default to the first AMCProvider

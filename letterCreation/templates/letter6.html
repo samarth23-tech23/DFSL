@@ -1,0 +1,196 @@
+{% load static %} <!-- Load the static template tag library -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+
+  <style>
+    /* Print-specific styles */
+    @media print {
+      /* Hide headers and footers */
+      header, footer {
+        display: none;
+      }
+
+      /* Hide URLs, page titles, and time/date */
+      .url, .page-title, .time-date {
+        display: none;
+      }
+    }
+  </style>
+  <title>Letter Format</title>
+</head>
+<body class="font-times text-sm">
+  <div class="border border-solid border-black border-2 m-4 max-w-screen">
+    <div class="grid grid-cols-1 float-right">
+        <p class="font-bold">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. </p>
+    </div><br><br><br>
+    <div class="text-1xl text-left m-8">
+        <p>&emsp;&emsp;सादर,</p><br>
+
+        <p >&emsp;&emsp;<b> विषय :-</b> {{ product.name }} करिता   
+          {% for subproduct in product.subproducts.all %}
+              {{ subproduct.amc_provider }}{% if not forloop.last %}{% if subproduct.type_of_part != product.subproducts.last.type_of_part %} व {% endif %}{% endif %}
+          {% endfor %}  
+          यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार 
+      </p>
+      
+          {% for subproduct in product.subproducts.all %}
+            {{ subproduct.type_of_part }}
+          {% endfor %} ची खरेदी करणे बाबत.</p><br>
+
+
+          <ol class="list-decimal">
+            {% for subproduct in product.subproducts.all %}
+            <li class="m-4">
+                <div class="properlyalign">
+                    <p>{{ product.lab_name }}प्रयोगशळेतील {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
+                </div>
+                <ul>
+                    <li class="m-4">
+                        <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि. १८.०१.२०२४.</p>
+                    </li>
+                    <li class="m-4">
+                        <p>{{ subproduct.amc_provider }} यांना देण्यात आलेले पत्र क्र. M(S)/362/2024 दि.३१.०१.२०२४.</p>   </li>
+                    <li class="m-4">    <p>{{ subproduct.amc_provider }} यांचे पत्र क्र. {{ subproduct.quotationinfo.ref_no }} दि.{{ quotationinfo.date }}.</p>   </li>
+                 
+                </ul>
+            </li>
+            {% endfor %}
+        </ol>
+        
+        
+        <div>
+            <ul class="list-disc">
+                <div class="m-8"> 
+                    {% for subproduct in product.subproducts.all %}
+                    <li>सहायक संचालक, {{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} विभाग यांनी पत्र संदर्भ क्र.{{forloop.counter}} अन्वये
+                        {{ product.name }} करिता {{ subproduct.amc_provider }} यांना पुढील {{ subproduct.type_of_part }} ची मागणी केली आहे.</li>
+                    {% endfor %}
+                </div>
+            </ul>
+        </div>
+        
+        <div class="flex justify-center p-6">
+            {% for subproduct in product.subproducts.all %}
+            <table class="table-auto">
+                <thead>
+                    <tr>
+                        <th class="border px-4 py-2">Sr.No</th>
+                        <th class="border px-4 py-2">Description</th>
+                        <th class="border px-4 py-2">Req Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
+                        <td class="border px-4 py-2 text-left">{{ subproduct.part_name }}<br>Specification: {{ subproduct.specification }}</td>
+                        <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endfor %}
+        </div>
+        <div class="m-4">
+        
+          <li>त्यानुसार मा. संचालक यांना {{ product.name }} च मुळ उत्पादकाने अधिकृत केलेली सेवा पुरवठादार कंपन्या 
+            {% for subproduct in product.subproducts.all %} 
+                {{ subproduct.amc_provider }}{% if not forloop.last %}, {% endif %} 
+            {% endfor %} 
+            यांचेकडून उपरोक्त</li>
+              {% for subproduct in product.subproducts.all %}
+    {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %} 
+  {% endfor %} खरेदीसाठी दरपत्रक मागविण्यास प्रस्ताव दि. १८.०१.२०२४ सादर करण्यात आला व त्यास दि. ३१.०१.२०२४ रोजी मंजूरी प्राप्त झाली. त्यानुसार पत्र संदर्भ क्र. 3 अन्वये  {% for subproduct in product.subproducts.all %} 
+  {{ subproduct.amc_provider }}{% if not forloop.last %}, {% endif %} 
+{% endfor %}  यांना उपरोक्त 
+  {% for subproduct in product.subproducts.all %}
+    {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %} 
+  {% endfor %} साठी त्यांचे दरपत्रका द्वारे (Quotation) दर कळविणे बाबत विनंती करण्यात आली.</li>
+  <ol class="list-decimal">
+    {% for subproduct in product.subproducts.all %}
+    <li>
+        {{ subproduct.amc_provider }} यांनी Quotation संदर्भ क्र.{{forloop.counter}} अन्वये पूढीलप्रमाणे उपरोक्त {{ subproduct.type_of_part }} साठी दर कळविले आहेत.
+        <div class="flex justify-center p-10">
+            <table class="border border-collapse w-auto">
+                <tr>
+                    <th class="border p-8 m-2">Part No & Description</th>
+                    <th class="border p-8 m-2">Qty</th>
+                    <th class="border p-8 m-2">Unit Price in INR</th>
+                    <th class="border p-8 m-2">Total Price in INR</th>
+                </tr>
+                <tr>
+                    <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                    <td class="border text-center">{{ subproduct.quantity }}</td>
+                    <td class="border p-10 m-2"></td>
+                    <td class="border p-10 m-2"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border"></td>
+                    <th class="border">Total Basic Price in INR</th>
+                    <td class="border"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border"></td>
+                    <th class="border">+18% GST</th>
+                    <td class="border">4050.00</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border"></td>
+                    <th class="border">Total Price inclusive of GST</th>
+                    <td class="border"></td>
+                </tr>
+            </table>
+        </div>
+    </li>
+    {% endfor %}
+</ol>
+          </div><br>
+
+
+          <div class="m-8"> 
+
+<li>उपरोक्त मुद्दा क्र. 3 नुसार एकूण आवश्यक 
+  {% for subproduct in product.subproducts.all %}
+    {{ subproduct.type_of_part }}
+  {% endfor %} ची किंमत रु.{{ subproductquotationinfo.price_without_gst }}+रु.4050 (GST) = रु.{{ subproductquotationinfo.price_with_gst }}/- अशी आहे.</li><br>
+<li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-१०.०८/प्र.क.७०/२००८/विनियम, दिनांक १५ मे, २००९ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li><br>
+<li>मुद्दा क्र.4 नुसार आवश्यक 
+  {% for subproduct in product.subproducts.all %}
+    {{ subproduct.type_of_part }}
+  {% endfor %} ची एकूण प्रस्तावित खरेदी रु. 26550/- GST सह आहे. सदरची रक्कम यंत्रसामग्री पुस्तके किंमतीच्या 20% मर्यादेत (यंत्रसामग्री पुस्तकी किंमत रु. 4937500/-) असल्याने, मा. महोदयांना विनंती करण्यात येते की, उपरोक्त नमुद केलेल्या अधिकारानुसार, {{ subproduct.amc_provider }} यांचेकडून प्रस्तावात नमुद केलेल्या 
+  {% for subproduct in product.subproducts.all %}
+    {{ subproduct.type_of_part }}
+  {% endfor %} parts ची खरेदी करण्यास व त्यानुसार खरेदी आदेश वितरित करण्यास मंजूरी प्रदान करावी.</li>
+          </div>
+</ul>
+    </div><br>
+    <div class="m-8">
+        <p>
+        श्री. वि. ग. विरकर <br>
+        वरिष्ठ लिपीक </p><br><br>
+        
+        <p>श्री. र. वि. गावीत<br>
+        सहायक अधिक्षक (भांडार)</p><br> <br>
+        
+        <p> श्री. प्र. ज. कदम <br>
+        प्रशासकीय अधिकारी (भांडार)</p><br><br>
+        
+        <p>श्री.सं.शा.प्रभावळे <br>
+        सहा. संचालक तथा भांडार विभाग नियंत्रक.</p><br><br>
+        
+        <p> डॉ.सं.औ. चेट्टी <br>
+        उपसंचालक तथा सदस्य सचिव</p><br><br>
+        
+        <p>डॉ. सं. वि. घुमटकर, <br> 
+        संचालक 
+        </p>
+        
+  </div>
+    </div>
+    
+</body>
+</html>
