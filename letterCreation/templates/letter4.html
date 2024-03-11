@@ -23,15 +23,18 @@
         <div class="text-1xl text-left m-8 p-8">
             <p>
                 To. <br />
-                {{ amc_provider }} <br />
-                17 & 17A, Ground Floor, Udyog Bhavan, <br />
-                Sonavala Road, Goregaon (E.) <br />Mumbai- 400 063.
+                {{ amc_provider.name }} <br />
+                {{ amc_provider.address }}<br />
+              {{ amc_provider.state }}- {{ amc_provider.pincode }}.
             </p>
             <div>
                 <div class="flex justify-center p-6">
                     <p>
-                        <b>Sub:-</b> Quotation for supply of {{ subproduct.type_of_part }} for {{ product.name }} Instrument. <br />
-                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
+                        <b>Sub:-</b> Quotation for supply of
+                        {% for subproduct in related_subproducts %}
+                            {{ subproduct.type_of_part }}
+                        {% endfor %}
+                        for {{ product.name }} Instrument. <br />                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
                     </p>
                 </div>
                 <div class="w-[600] ml-20 text-left">
@@ -52,7 +55,7 @@
                         <tr>
                             <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
                             <td class="border px-4 py-2 text-left">
-                                {{ subproduct.part_name }} Specification {{ subproduct.specification }}
+                                {{ subproduct.part_name }}<p> Specification {{ subproduct.specification }}</p>
                             </td>
                             <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>

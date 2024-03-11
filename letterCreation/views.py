@@ -59,13 +59,13 @@ def product_list4(request):
     letters = Letter.objects.all()
     return render(request, 'table2.html', {'letters': letters})
 
-
 def letter_detail4(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
-    amc_provider = subproduct.amc_provider
-    related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
-    service_report_date = subproduct.service_report_date  # Assuming service_report_date is a field of Subproduct
+    amc_provider_name = subproduct.amc_provider
+    amc_provider = AMCProvider.objects.get(name=amc_provider_name)
+    related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider_name)
+    service_report_date = subproduct.service_report_date
     return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
 
 
@@ -80,7 +80,7 @@ def letter_detail6(request, subproduct_id):
 
 def product_list6(request):
     letters = Letter.objects.all()
-    return render(request, 'table6 .html', {'letters': letters})
+    return render(request, 'table6.html', {'letters': letters})
 
 @csrf_exempt
 def submit_form(request):
