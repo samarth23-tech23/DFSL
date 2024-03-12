@@ -22,3 +22,13 @@ def multiply_and_add(unit_price, quantity, gst_value):
         return total_price
     except (InvalidOperation, TypeError):
         return None
+
+
+def group_by_attribute(queryset, attribute_name):
+    grouped = {}
+    for obj in queryset:
+        attribute_value = getattr(obj, attribute_name)
+        if attribute_value not in grouped:
+            grouped[attribute_value] = []
+        grouped[attribute_value].append(obj)
+    return grouped.items()

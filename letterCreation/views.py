@@ -63,10 +63,11 @@ def letter_detail4(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
     amc_provider_name = subproduct.amc_provider
-    amc_provider = AMCProvider.objects.get(name=amc_provider_name)
+    amc_provider = AMCProvider.objects.filter(name=amc_provider_name).first()
     related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider_name)
     service_report_date = subproduct.service_report_date
     return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
+
 
 
 def letter_detail6(request, subproduct_id):
