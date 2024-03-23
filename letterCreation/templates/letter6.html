@@ -40,21 +40,20 @@
             <p>&emsp;&emsp;<b> विषय :-</b> {{ product.name }} करिता
                 {% for subproduct in product.subproducts.all %}
                 {{ subproduct.amc_provider }}{% if not forloop.last %}{% if subproduct.type_of_part != product.subproducts.last.type_of_part %} व {% endif %}{% endif %}
-                {% endfor %}
-                यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार
-            </p>
+                {% endfor %}यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार
 
             {% for subproduct in product.subproducts.all %}
             {{ subproduct.type_of_part }}
             {% endfor %} ची खरेदी करणे बाबत.</p><br>
 
+            <div class="ml-8">
             <ol class="list-decimal">
                 {% for subproduct in product.subproducts.all %}
                 <li class="m-4">
                     <div class="properlyalign">
-                        <p>{{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
+                        <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
                     </div>
-                    <ul>
+                 
                         <li class="m-4">
                             <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.          .</p>
                         </li>
@@ -65,18 +64,17 @@
                             <p>{{ subproduct.amc_provider }} यांचे पत्र क्र. {{ subproduct.quotationinfo.ref_no }} दि.{{ subproduct.quotationinfo.date }}.</p>
                         </li>
 
-                    </ul>
                 </li>
                 {% endfor %}
             </ol>
-
+          </div>
 
             <div>
                 <ul class="list-disc">
                     <div class="m-8">
                         {% for subproduct in product.subproducts.all %}
-                        <li>सहायक संचालक, {{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} विभाग यांनी पत्र संदर्भ क्र.{{forloop.counter}} अन्वये
-                            {{ product.name }} करिता {{ subproduct.amc_provider }} यांना पुढील {{ subproduct.type_of_part }} ची मागणी केली आहे.</li>
+                        <li>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} विभाग यांनी पत्र संदर्भ क्र.{{forloop.counter}} अन्वये
+                            {{ product.name }} करिता {{ subproduct.amc_provider }} यांचे सर्व्हिस रिपोर्ट दिनांक नुसार {{ subproduct.type_of_part }} </li>
                         {% endfor %}
                     </div>
                 </ul>
@@ -104,14 +102,14 @@
             </div>
             <div class="m-4">
 
-                <li>त्यानुसार मा. संचालक यांना {{ product.name }} च मुळ उत्पादकाने अधिकृत केलेली सेवा पुरवठादार कंपन्या
+                <li>त्यानुसार मा. संचालक यांना {{ product.name }} च्या मुळ उत्पादकाने अधिकृत केलेला सेवा पुरवठादार कंपनी 
                     {% for subproduct in product.subproducts.all %}
                     {{ subproduct.amc_provider }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                     यांचेकडून उपरोक्त</li>
                 {% for subproduct in product.subproducts.all %}
                 {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %}
-                {% endfor %} खरेदीसाठी दरपत्रक मागविण्यास प्रस्ताव दि.            सादर करण्यात आला व त्यास दि.         रोजी मंजूरी प्राप्त झाली. त्यानुसार पत्र संदर्भ क्र. 3 अन्वये {% for subproduct in product.subproducts.all %}
+                {% endfor %} खरेदीसाठी दरपत्रक मागविण्यास प्रस्ताव संदर्भ क्र.    सादर करण्यात आला व त्यास दि.         रोजी मंजूरी प्राप्त झाली. त्यानुसार पत्र संदर्भ क्र. 3 अन्वये {% for subproduct in product.subproducts.all %}
                 {{ subproduct.amc_provider }}{% if not forloop.last %}, {% endif %}
                 {% endfor %} यांना उपरोक्त {% for subproduct in product.subproducts.all %}
                 {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %}
@@ -121,7 +119,7 @@
                     <li>
                         {{ subproduct.amc_provider }} यांनी Quotation संदर्भ क्र.{{forloop.counter}} अन्वये पूढीलप्रमाणे उपरोक्त {{ subproduct.type_of_part }} साठी दर कळविले आहेत.
                         <div class="flex justify-center p-10">
-                            <table class="border border-collapse w-auto">
+                            <table class="border border-collapse w-fit">
                                 <tr>
                                     <th class="border p-8 m-2">Part No & Description</th>
                                     <th class="border p-8 m-2">Qty</th>
@@ -129,10 +127,10 @@
                                     <th class="border p-8 m-2">Total Price in INR</th>
                                 </tr>
                                 <tr>
-                                    <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                                    <td class="border">{{ subproduct.part_name }} <br>Specification- {{ subproduct.specification }}</td>
                                     <td class="border text-center">{{ subproduct.quantity }}</td>
-                                    <td class="border p-10 m-2">{{subproductquotationinfo.unit_price}} /-</td>
-                                    <td class="border p-10 m-2">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-
+                                    <td class="border p-4 m-2">{{subproductquotationinfo.unit_price}} /-</td>
+                                    <td class="border p-4 m-2">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-
 
                                     </td>
 
@@ -161,7 +159,7 @@
                     </li>
                     {% endfor %}
                 </ol>
-                </div><br>
+                </div>
 
 
                 <div class="m-8">
@@ -169,12 +167,12 @@
                     <li>उपरोक्त मुद्दा क्र. 3 नुसार एकूण आवश्यक
                         {% for subproduct in product.subproducts.all %}
                         {{ subproduct.type_of_part }}
-                        {% endfor %} ची किंमत रु.{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/- + रु.{{subproductquotationinfo.gst_value}} (GST) = रु.{% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}/- अशी आहे.</li><br>
-                    <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-१०.०८/प्र.क.७०/२००८/विनियम, दिनांक १५ मे, २००९ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li><br>
+                        {% endfor %} ची किंमत रु.{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/- + रु.{{subproductquotationinfo.gst_value}} (GST) = रु.{% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}/- अशी आहे.</li>
+                    <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-2013/प्र.क.3०/2013/विनियम, दिनांक 17 april, 2015 अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री  विकत घेण्यासाठी मंजूरी देण्या करिता यंत्र सामग्रीच्या पुस्तकी किंमतीच्या 20% मर्यादेपर्यंत  विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li>
                     <li>मुद्दा क्र.4 नुसार आवश्यक
                         {% for subproduct in product.subproducts.all %}
                         {{ subproduct.type_of_part }}
-                        {% endfor %} ची एकूण प्रस्तावित खरेदी रु. {% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}/- GST सह आहे. सदरची रक्कम यंत्रसामग्री पुस्तके किंमतीच्या 20% मर्यादेत (यंत्रसामग्री पुस्तकी किंमत रु. {{product.price}}/-) असल्याने, मा. महोदयांना विनंती करण्यात येते की, उपरोक्त नमुद केलेल्या अधिकारानुसार, {{ subproduct.amc_provider }} यांचेकडून प्रस्तावात नमुद केलेल्या
+                        {% endfor %} ची एकूण प्रस्तावित खरेदी रु. {% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}/- GST सह आहे. सदरची रक्कम यंत्रसामग्री पुस्तके किंमतीच्या 20% मर्यादेत (यंत्रसामग्री पुस्तकी किंमत रु. {{product.price}}/-) असल्याने, मा. महोदयांना विनंती करण्यात येते की, उपरोक्त नमूद  केलेल्या अधिकारानुसार, {{ subproduct.amc_provider }} यांचेकडून प्रस्तावात नमुद केलेल्या
                         {% for subproduct in product.subproducts.all %}
                         {{ subproduct.type_of_part }}
                         {% endfor %} parts ची खरेदी करण्यास व त्यानुसार खरेदी आदेश वितरित करण्यास मंजूरी प्रदान करावी.</li>

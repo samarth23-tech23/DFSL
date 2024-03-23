@@ -9,7 +9,6 @@ urlpatterns = [
     path('letter1/',views.load_letter1),  
     path('letter4/',views.load_letter4),  
     path('form/',views.load_form), 
-    path('last_letter/',views.load_last_letter), 
     path('submit_form/', views.submit_form, name='submit_form'),
 
 #letter 3
