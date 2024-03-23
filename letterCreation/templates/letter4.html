@@ -23,19 +23,24 @@
         <div class="text-1xl text-left m-8 p-8">
             <p>
                 To. <br />
-                {{ amc_provider }} <br />
-                17 & 17A, Ground Floor, Udyog Bhavan, <br />
-                Sonavala Road, Goregaon (E.) <br />Mumbai- 400 063.
+                {{ amc_provider.name }} <br />
+                {{ amc_provider.address }}<br />
+              {{ amc_provider.state }}- {{ amc_provider.pincode }}.
             </p>
             <div>
                 <div class="flex justify-center p-6">
                     <p>
-                        <b>Sub:-</b> Quotation for supply of {{ subproduct.type_of_part }} for {{ product.name }} Instrument. <br />
-                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
+                        <b>Sub:-</b> Quotation for supply of
+                        {% for subproduct in related_subproducts %}
+                            {{ subproduct.type_of_part }}
+                        {% endfor %}
+                        for {{ product.name }} Instrument. <br />                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
                     </p>
                 </div>
                 <div class="w-[600] ml-20 text-left">
-                  Please submit your lowest quotation immediately to this Mumbai office for the supply and installation of spare for {{ product.name }} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
+                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
+
+                
                 </div>
             </div>
             <div class="flex justify-center p-6">
@@ -44,6 +49,7 @@
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
                             <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Type of Part</th>
                             <th class="border px-4 py-2">Req Qty</th>
                         </tr>
                     </thead>
@@ -52,17 +58,23 @@
                         <tr>
                             <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
                             <td class="border px-4 py-2 text-left">
-                                {{ subproduct.part_name }} Specification {{ subproduct.specification }}
+                                {{ subproduct.part_name }}<p> Specification {{ subproduct.specification }}</p>
                             </td>
+                            <td class="border px-4 py-2">{{ subproduct.type_of_part }}</td>
                             <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+              
             </div>
-            <br><br><br><br><br><br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thanking You</p>
+            <br><br>
+            <br><br><br><br>
         </div>
         <div class="ml-12 bottom-0 right-0 absolute">
+            <b><p>Yours <br></p><br><br>
             <b><p>(Dr. S.V. Ghumatkar) <br>Director.</p>
             <br />
             <p>Directorate of Forensic Science Laboratories,</p>
