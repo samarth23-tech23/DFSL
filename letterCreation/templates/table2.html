@@ -6,43 +6,62 @@
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">Product Information</h1>
-        <table class="w-full bg-white border border-gray-200">
-            <thead>
-                <tr>
-                    <th class="border border-gray-200 px-4 py-2">Letter No</th>
-                    <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                    <th class="border border-gray-200 px-4 py-2">Letter Date</th>
-                    <th class="border border-gray-200 px-4 py-2">Product Name</th>
-                    <th class="border border-gray-200 px-4 py-2">Department</th>
-                    <th class="border border-gray-200 px-4 py-2">AMC Provider</th>
-                    <th class="border border-gray-200 px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for letter in letters %}
-                    {% for product in letter.products.all %}
-                        {% for subproduct in product.subproducts.all %}
-                            <tr>
-                                {% if forloop.first %}
-                                    <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
-                                    <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
-                                    <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                                {% endif %}
-                                <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ subproduct.amc_provider }}</td>
-                                <td class="border border-gray-200 px-4 py-2">
-                                    <a href="{% url 'letter_detail4' subproduct.id %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Print</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
+<body class="bg-gray-100">
+
+<div id="sidebar" class="bg-gray-200 h-screen">
+    <!-- Sidebar content here -->
+    {% include 'sidebar.html' %}
+</div>
+
+<div id="main-content" class="ml-64 p-8">
+    <h1 class="text-3xl font-bold mb-8">Product Information</h1>
+    <table class="w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="border border-gray-200 px-4 py-2">Letter No</th>
+                <th class="border border-gray-200 px-4 py-2">Lab Name</th>
+                <th class="border border-gray-200 px-4 py-2">Letter Date</th>
+                <th class="border border-gray-200 px-4 py-2">Product Name</th>
+                <th class="border border-gray-200 px-4 py-2">Department</th>
+                <th class="border border-gray-200 px-4 py-2">AMC Provider</th>
+                <th class="border border-gray-200 px-4 py-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for letter in letters %}
+                {% for product in letter.products.all %}
+                    {% for subproduct in product.subproducts.all %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
+                                <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
+                                <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
+                            {% endif %}
+                            <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
+                            <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
+                            <td class="border border-gray-200 px-4 py-2">{{ subproduct.amc_provider }}</td>
+                            <td class="border border-gray-200 px-4 py-2">
+                                <a href="{% url 'letter_detail4' subproduct.id %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Print</a>
+                            </td>
+                        </tr>
                     {% endfor %}
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+#sidebar {
+    float: left;
+    width: 25%; /* Adjust the width as needed */
+}
+
+#main-content {
+    margin-left: 25%; /* Ensure main content starts after the sidebar */
+    padding: 20px;
+}
+</style>
+
 </body>
 </html>

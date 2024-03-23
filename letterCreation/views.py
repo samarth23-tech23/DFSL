@@ -36,6 +36,9 @@ def load_form(request):
 def load_demo(request):
     return render(request,'demo.html')
 
+def load_last_letter(request):
+    return render(request,'last_letter.html')
+
 def product_list(request):
     letters = Letter.objects.all()
     return render(request, 'table.html', {'letters': letters})

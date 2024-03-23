@@ -1,3 +1,5 @@
+{% extends 'sidebar.html' %}
+{% block content %} 
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,15 +23,11 @@
 
 
 
-
     .input-line:focus {
         border-color: #3593aa;
         border-width: 0 0 2px 0;
         outline: none;
     }
-
-
-
 
  
     .subproduct-section {
@@ -40,15 +38,11 @@
     }
 
 
-
-
    .product-section h2,
     .subproduct-section h4 {
         color: #3593aa;
         margin-bottom: 0.5rem;
     }
-
-
 
 
     .product-section input,
@@ -60,9 +54,6 @@
         width: 100%;
         max-width: 100%;
     }
-
-
-
 
     .product-section button,
     .subproduct-section button {
@@ -78,7 +69,6 @@
 
 
 
-
     .product-section button:hover,
     .subproduct-section button:hover {
         background-color: #3593aa;
@@ -86,13 +76,9 @@
     }
 
 
-
-
     .hover-text-blue-900:hover {
         color: #0f3d57; /* Change to your desired hover color */
     }
-
-
 
 
     .btn{
@@ -122,6 +108,7 @@
 
 
 <body class="bg-gray-100">
+   
     <div class="container mx-auto py-6">
         <div class="max-w-3xl mx-auto bg-white p-6 rounded-md shadow-md">
             <h2 class="text-2xl font-bold mb-4 bg-custom-color">Product Details</h2>
@@ -148,7 +135,7 @@
             <div id="productDetails">
                 <!-- Product Detail Section -->
             </div>
-            <button onclick="addProduct()" class="btn font-bold py-2 px-4 rounded mt-4 mr-4"><i class="fas fa-plus"></i>Add
+            <button onclick="addProduct()" class="btn font-bold py-2 px-4 rounded mt-4 mr-4"><i class="fas fa-plus"></i>Add Product
         </button>
         <button
           onclick="submitForm()"
@@ -214,15 +201,15 @@
      
           // Add Subproduct Button
           const addSubproductBtn = document.createElement('button');
-          addSubproductBtn.innerHTML = '<i class="fas fa-plus"></i> Add';
-          addSubproductBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-2');
+          addSubproductBtn.innerHTML = '<i class="fas fa-plus"></i> Add Subproduct';
+          addSubproductBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-2');
           addSubproductBtn.addEventListener('click', addSubproduct);
           productSection.appendChild(addSubproductBtn);
      
           // Delete Product Button
           const deleteProductBtn = document.createElement('button');
           deleteProductBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
-          deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'ml-2');
+          deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'ml-2');
           deleteProductBtn.addEventListener('click', () => {
           productSection.remove();
           });
@@ -284,7 +271,7 @@
         // Delete Subproduct Button
         const deleteSubproductBtn = document.createElement('button');
         deleteSubproductBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
-        deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+        deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
         deleteSubproductBtn.addEventListener('click', () => {
             subproductSection.remove();
         });
@@ -391,5 +378,4 @@
 
 
 </html>
-
-
+{% endblock %} 
