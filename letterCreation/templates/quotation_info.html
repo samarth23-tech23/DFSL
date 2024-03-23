@@ -93,7 +93,10 @@
                 </div>
 
                 <h2 class="text-2xl font-bold mb-4 text-title-color">AMC Provider</h2>
+                
+                {% if not subproduct.amc_provider in amc_providers_exist %}
 
+            
                 <div class="grid grid-cols-2 gap-4 mt-4">
                     <div class="mb-4">
                         <label for="ac_no" class="block text-sm font-semibold text-title-color">AC No.:</label>
@@ -145,7 +148,7 @@
                     <textarea id="address" name="address" rows="4"
                               class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500" required></textarea>
                 </div>
-                
+                {% endif %}
             </div>
             {% endfor %}
 
