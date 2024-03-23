@@ -53,7 +53,8 @@ def quotation_form(request):
 def quotation_page(request, product_id):
     product = Product.objects.get(pk=product_id)
     subproducts = product.subproducts.all()
-    return render(request, 'quotation_info.html', {'product': product, 'subproducts': subproducts})
+    amc_providers_exist = set(AMCProvider.objects.values_list('name', flat=True))
+    return render(request, 'quotation_info.html', {'product': product, 'subproducts': subproducts, 'amc_providers_exist': amc_providers_exist})
 
 
 
@@ -175,14 +176,7 @@ def submit_quotation_info(request):
 
         amc_provider, created = AMCProvider.objects.get_or_create(
             name=amc_provider_name,
-            ac_no=ac_no,
-            ifsc_code=ifsc_code,
-            ac_name=ac_name,
-            bank_name=bank_name,
-            pan_no=pan_no,
-            state=state,
-            pincode=pincode,
-            address=address
+            defaults={'ac_no': ac_no, 'ifsc_code': ifsc_code, 'ac_name': ac_name, 'bank_name': bank_name, 'pan_no': pan_no, 'state': state, 'pincode': pincode, 'address': address}
         )
 
         subproduct_quotation_info = SubproductQuotationInfo.objects.create(
