@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -42,7 +43,8 @@ def product_list(request):
 
 def letter_detail(request, product_id):
     product = Product.objects.get(pk=product_id)
-    return render(request, 'letter1.html', {'product': product})
+    subproducts = product.subproducts.all()
+    return render(request, 'letter1.html', {'product': product,'subproducts':subproducts})
 
 def quotation_form(request):
     letters = Letter.objects.all()
@@ -76,12 +78,31 @@ def letter_detail6(request, subproduct_id):
     amc_provider = subproduct.amc_provider
     subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
     letter = product.letter  # Assuming there is a ForeignKey from Product to Letter
-
     return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'subproductquotationinfo': subproductquotationinfo, 'letter': letter})
 
 def product_list6(request):
     letters = Letter.objects.all()
     return render(request, 'table6.html', {'letters': letters})
+
+
+
+
+
+def product_list7(request):
+    letters = Letter.objects.filter(products__subproducts__quotationinfo__isnull=False).distinct()
+    
+    return render(request, 'table7.html', {'letters': letters})
+
+def letter_detail7(request, subproduct_id):
+    subproduct = Subproduct.objects.get(pk=subproduct_id)
+    product = subproduct.product
+    amc_provider_name = subproduct.amc_provider
+    amc_provider = AMCProvider.objects.filter(name=amc_provider_name).first()
+    letter = product.letter 
+    quotationinfo = QuotationInfo.objects.get(subproduct=subproduct)
+    subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
+    return render(request, 'letter.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotationinfo': quotationinfo, 'subproductquotationinfo': subproductquotationinfo,'letter': letter})
+
 
 @csrf_exempt
 def submit_form(request):

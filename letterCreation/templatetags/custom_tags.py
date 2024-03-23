@@ -22,13 +22,25 @@ def multiply_and_add(unit_price, quantity, gst_value):
         return total_price
     except (InvalidOperation, TypeError):
         return None
+    
+@register.filter
+def total_basic_price(subproducts):
+    total_price = sum(subproduct.subproductquotationinfo.unit_price for subproduct in subproducts)
+    return total_price if total_price.is_finite() else None
+
+@register.filter
+def total_price_inclusive(subproducts):
+    total = sum((subproduct.subproductquotationinfo.unit_price * subproduct.quantity) + subproduct.subproductquotationinfo.gst_value for subproduct in subproducts)
+    return total if total.is_finite() else None
 
 
-def group_by_attribute(queryset, attribute_name):
+@register.filter
+def groupbyamcprovider(subproducts):
     grouped = {}
-    for obj in queryset:
-        attribute_value = getattr(obj, attribute_name)
-        if attribute_value not in grouped:
-            grouped[attribute_value] = []
-        grouped[attribute_value].append(obj)
+    for subproduct in subproducts:
+        amc_provider = subproduct.amc_provider
+        if amc_provider in grouped:
+            grouped[amc_provider].append(subproduct)
+        else:
+            grouped[amc_provider] = [subproduct]
     return grouped.items()

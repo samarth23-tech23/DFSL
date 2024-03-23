@@ -1,5 +1,5 @@
 {% load static %} <!-- Load the static template tag library -->
-
+{%load custom_tags%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +24,7 @@
       }
     }
   </style>
-  <title>Letter Format</title>
+  <title>Letter Format 7</title>
 </head>
 <body class="font-times text-sm">
   <div class="border border-solid border-black border-2 m-4 max-w-screen">
@@ -43,52 +43,77 @@
     </div>
     <br><br><br>
     <div class="text-1xl text-left m-2 p-2">
-      <p>
-        To. <br />
-        M/s, Chromline Equipment Company. <br />
-        17 & 17A, Ground Floor, Udyog Bhavan, <br />
-        Sonavala Road, Goregaon (E.) <br />Mumbai- 400 063.
-      </p>
+        <p>
+          To. <br />
+          {{subproduct.amc_provider}} <br />
+        {{amc_provider.address}} <br />
+        {{amc_provider.state}},{{amc_provider.pincode}}
+        </p>
       <div>
         <div class="flex justify-center p-4">
           <p>
-            <b>Sub:-</b> Supply of consumable for GCHS Instrument. (Make-DANI, Sr. No. 650N5060103)
+            <b>Sub:-</b> Supply of {{subproduct.type_of_part}} for {{product.name}} Instrument. ( Sr. No. {{product.sr_no}})<br>
+            <b>Ref:-</b> 1. Service report dated-{{subproduct.service_report_date}}<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Your Quotation No.- {{quotationinfo.ref_no}} dated-{{quotationinfo.date}}
           </p>
         </div>
         <div class="w-[600] text-left">
-          <p>Sir,<br>With reference to your quotation No.- QUO/AN//1540/2024 dated-01.02.2024, please supply & install the following items for the best performance of the equipment at Regional Forensic Science Laboratory, Pune & submit your invoice along with delivery challan & report to this department immediately.</p>
+          <p>Sir,<br> With reference to your quotation No at Ref 2 above, it is requested to supply & install the following items for the best performance of the equipment at
+            {% if letter.lab_name == "Mumbai" %}
+                Directorate of forensic Science Laboratories, Mumbai
+            {% else %}
+                Regional Forensic Science Laboratory, {{ letter.lab_name }}
+            {% endif %}
+            </p>
+          & submit your invoice along with delivery challan & installation report to this department immediately.            
         </div>
       </div>
       <div class="flex justify-center p-10 ">
-        <table class="border border-collapse w-auto">
-          <tr>
-            <th class="border p-8 m-2">Part No & Description</th>
-            <th class="border p-8 m-2">Qty</th>
-            <th class="border p-8 m-2">Unit Price in INR</th>
-            <th class="border p-8  m-2">Total Price in INR</th>
-          </tr>
-          <tr>
-            <td class="border">Spare for Master VH Power Supply <br> Specification-<br> (Input AC230V/Output DC 12V and 6Amp 72 Watt Power Supply)</td>
-            <td class="border text-center">1</td>
-            <td class="border p-10 m-2">22500.00</td>
-            <td class="border p-10 m-2">22500.00</td>
-          </tr>
-          <tr>
-            <td colspan="2" class="border"></td>
-            <th class="border">Total Basic Price in INR</th>
-            <td class="border">22500.00</td>
-          </tr>
-          <tr>
-            <td colspan="2" class="border"></td>
-            <th class="border">+18% GST</th>
-            <td class="border">4050.00</td>
-          </tr>
-          <tr>
-            <td colspan="2" class="border"></td>
-            <th class="border">Total Price inclusive of GST</th>
-            <td class="border">26550.00</td>
-          </tr>
-        </table>
+        <ol class="list-decimal">
+          {% for subproduct in product.subproducts.all %}
+          <li>
+             
+              <div class="flex justify-center p-10">
+                  <table class="border border-collapse w-auto">
+                      <tr>
+                          <th class="border p-8 m-2">Part No & Description</th>
+                          <th class="border p-8 m-2">Qty</th>
+                          <th class="border p-8 m-2">Unit Price in INR</th>
+                          <th class="border p-8 m-2">Total Price in INR</th>
+                      </tr>
+                      <tr>
+                          <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                          <td class="border text-center">{{ subproduct.quantity }}</td>
+                          <td class="border p-10 m-2">{{subproductquotationinfo.unit_price}} /-</td>
+                          <td class="border p-10 m-2">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-
+
+                          </td>
+
+                      </tr>
+                      <tr>
+                          <td colspan="2" class="border"></td>
+                          <th class="border">Total Basic Price in INR</th>
+                          <td class="border">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-</td>
+                      </tr>
+                      <tr>
+                          <td colspan="2" class="border"></td>
+                          <th class="border">+{{subproductquotationinfo.gst_percentage}}% GST</th>
+                          <td class="border">{{subproductquotationinfo.gst_value}}</td>
+                      </tr>
+                      <tr>
+                          <td colspan="2" class="border"></td>
+                          <th class="border">Total Price inclusive of GST</th>
+                          <td class="border">{% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}
+
+
+
+                          </td>
+                      </tr>
+                  </table>
+              </div>
+          </li>
+          {% endfor %}
+      </ol>
       </div><br>
     </div>
     <div class="float-right">
@@ -98,8 +123,16 @@
     </div><br>
     <div>
       <p> Copy to:-</p>
-      <p>The Deputy Director,Regional Forensic Science Laboratory,</p>
-      <p>M.S, Ganesh Khind, Pune- 411007.for information.</p>
+      {% if letter.lab_name == "Mumbai" %} 
+      The Deputy Director, Directorate of forensic Science Laboratories, Mumbai  <br>
+      For information w.r.t to your Letter No:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
+
+  {% else %}
+      The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }} 
+      For information w.r.t to your Letter no:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
+
+  {% endif %}
+    
     </div>
   </div>
 </body>

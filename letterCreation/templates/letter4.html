@@ -38,7 +38,9 @@
                     </p>
                 </div>
                 <div class="w-[600] ml-20 text-left">
-                  Please submit your lowest quotation immediately to this Mumbai office for the supply and installation of spare for {{ product.name }} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
+                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
+
+                
                 </div>
             </div>
             <div class="flex justify-center p-6">
@@ -47,6 +49,7 @@
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
                             <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Type of Part</th>
                             <th class="border px-4 py-2">Req Qty</th>
                         </tr>
                     </thead>
@@ -57,15 +60,21 @@
                             <td class="border px-4 py-2 text-left">
                                 {{ subproduct.part_name }}<p> Specification {{ subproduct.specification }}</p>
                             </td>
+                            <td class="border px-4 py-2">{{ subproduct.type_of_part }}</td>
                             <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+              
             </div>
-            <br><br><br><br><br><br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thanking You</p>
+            <br><br>
+            <br><br><br><br>
         </div>
         <div class="ml-12 bottom-0 right-0 absolute">
+            <b><p>Yours <br></p><br><br>
             <b><p>(Dr. S.V. Ghumatkar) <br>Director.</p>
             <br />
             <p>Directorate of Forensic Science Laboratories,</p>

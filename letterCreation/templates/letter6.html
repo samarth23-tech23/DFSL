@@ -54,14 +54,14 @@
                 {% for subproduct in product.subproducts.all %}
                 <li class="m-4">
                     <div class="properlyalign">
-                        <p>{{ product.lab_name }}प्रयोगशळेतील {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
+                        <p>{{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
                     </div>
                     <ul>
                         <li class="m-4">
-                            <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि. १८.०१.२०२४.</p>
+                            <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.          .</p>
                         </li>
                         <li class="m-4">
-                            <p>{{ subproduct.amc_provider }} यांना देण्यात आलेले पत्र क्र. M(S)/362/2024 दि.३१.०१.२०२४.</p>
+                            <p>{{ subproduct.amc_provider }} यांना देण्यात आलेले पत्र क्र.             दि.           .</p>
                         </li>
                         <li class="m-4">
                             <p>{{ subproduct.amc_provider }} यांचे पत्र क्र. {{ subproduct.quotationinfo.ref_no }} दि.{{ subproduct.quotationinfo.date }}.</p>
@@ -113,7 +113,7 @@
                     यांचेकडून उपरोक्त</li>
                 {% for subproduct in product.subproducts.all %}
                 {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %}
-                {% endfor %} खरेदीसाठी दरपत्रक मागविण्यास प्रस्ताव दि. १८.०१.२०२४ सादर करण्यात आला व त्यास दि. ३१.०१.२०२४ रोजी मंजूरी प्राप्त झाली. त्यानुसार पत्र संदर्भ क्र. 3 अन्वये {% for subproduct in product.subproducts.all %}
+                {% endfor %} खरेदीसाठी दरपत्रक मागविण्यास प्रस्ताव दि.            सादर करण्यात आला व त्यास दि.         रोजी मंजूरी प्राप्त झाली. त्यानुसार पत्र संदर्भ क्र. 3 अन्वये {% for subproduct in product.subproducts.all %}
                 {{ subproduct.amc_provider }}{% if not forloop.last %}, {% endif %}
                 {% endfor %} यांना उपरोक्त {% for subproduct in product.subproducts.all %}
                 {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %}
