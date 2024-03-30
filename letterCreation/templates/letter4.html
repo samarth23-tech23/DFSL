@@ -8,7 +8,7 @@
     <title>Supplier quotation request</title>
 </head>
 <body class="font-times text-sm">
-    <div class="border border-solid border-black border-2 m-4 relative">
+    <div class="relative">
         <div class="img">
             {% load static %}
             <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-64 rounded-lg" />
@@ -37,7 +37,7 @@
                         for {{ product.name }} Instrument. <br />                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
                     </p>
                 </div>
-                <div class="w-[600] ml-20 text-left">
+                <div class="w-[600] text-justify">
                     It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
 
                 
@@ -69,10 +69,10 @@
               
             </div>
             <br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thanking You</p><br>
+            <p class="ml-8">Thanking You</p><br>
             <br><br>
             <br><br><br><br>
-        </div>
+        </div><br>
         <div class="ml-12 bottom-0 right-0 absolute">
             <b><p class="text-center">Yours <br></p><br><br><br>
             <b><p class="text-center">(Dr. S.V. Ghumatkar) <br>Director.</p>

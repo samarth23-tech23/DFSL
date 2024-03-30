@@ -30,7 +30,7 @@
 </head>
 
 <body class="font-times text-sm">
-    <div class="border border-solid border-black border-2 m-4 max-w-screen">
+    <div class="">
         <div class="grid grid-cols-1 float-right">
             <p class="font-bold">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. </p>
         </div><br><br><br>
@@ -82,7 +82,7 @@
 
             <div class="flex justify-center p-6">
                 {% for subproduct in product.subproducts.all %}
-                <table class="table-auto">
+                <table class="table-auto" style="page-break-inside: avoid;">
                     <thead>
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
@@ -119,7 +119,7 @@
                     <li>
                         {{ subproduct.amc_provider }} यांनी Quotation संदर्भ क्र.{{forloop.counter}} अन्वये पूढीलप्रमाणे उपरोक्त {{ subproduct.type_of_part }} साठी दर कळविले आहेत.
                         <div class="flex justify-center p-10">
-                            <table class="border border-collapse w-fit">
+                            <table class="border border-collapse w-fit" style="page-break-inside: avoid;">
                                 <tr>
                                     <th class="border p-8 m-2">Part No & Description</th>
                                     <th class="border p-8 m-2">Qty</th>
@@ -168,7 +168,7 @@
                         {% for subproduct in product.subproducts.all %}
                         {{ subproduct.type_of_part }}
                         {% endfor %} ची किंमत रु.{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/- + रु.{{subproductquotationinfo.gst_value}} (GST) = रु.{% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}/- अशी आहे.</li>
-                    <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-2013/प्र.क.3०/2013/विनियम, दिनांक 17 april, 2015 अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री  विकत घेण्यासाठी मंजूरी देण्या करिता यंत्र सामग्रीच्या पुस्तकी किंमतीच्या 20% मर्यादेपर्यंत  विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li>
+                    <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-2013/प्र.क.3०/2013/विनियम, दिनांक 17 एप्रिल , 2015 अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री  विकत घेण्यासाठी मंजूरी देण्या करिता यंत्र सामग्रीच्या पुस्तकी किंमतीच्या 20% मर्यादेपर्यंत  विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li>
                     <li>मुद्दा क्र.4 नुसार आवश्यक
                         {% for subproduct in product.subproducts.all %}
                         {{ subproduct.type_of_part }}
@@ -178,7 +178,7 @@
                         {% endfor %} parts ची खरेदी करण्यास व त्यानुसार खरेदी आदेश वितरित करण्यास मंजूरी प्रदान करावी.</li>
                 </div>
                 </ul>
-        </div><br>
+        </div>
         <div class="m-8">
             <p>
                 श्री. वि. ग. विरकर <br>

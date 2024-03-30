@@ -27,7 +27,7 @@
   <title>Letter Format 7</title>
 </head>
 <body class="font-times text-sm">
-  <div class="border border-solid border-black border-2 m-4 max-w-screen">
+  <div class="">
     <div class="img">
       <img
         src="{% static '/images/header1.jpg' %}"
@@ -114,26 +114,27 @@
           </li>
           {% endfor %}
       </ol>
-      </div><br>
-    </div>
-    <div>Thanking You</div>
+      </div>
+      <div class="pl-28">Thanking You</div>
     <div class="float-right">
-      <p>Yours </p>
-      <p>(Dr. S.V. Ghumatkar) Director</p><br>
+      <p class="text-center">Yours </p><br><br><br>
+      <p class="text-center">(Dr. S.V. Ghumatkar) Director</p><br>
       <p>Directorate of Forensic Science Laboratories,</p>
       <p>M.S.and Chemical Analyser to Government.</p>
-    </div><br>
+    </div><br><br>
+    </div>
+    
     <div>
-      <p> Copy to:-</p>
-      {% if letter.lab_name == "Mumbai" %} 
-      The Deputy Director, Directorate of forensic Science Laboratories, Mumbai  <br>
-      For information w.r.t to your Letter No:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
+        <p class="pt-28 ml-12"> Copy to:-<br>
+        {% if letter.lab_name == "Mumbai" %} 
+        The Deputy Director, Directorate of forensic Science Laboratories, Mumbai  <br>
+        For information w.r.t to your Letter No:- {{letter.letter_no}} Dated :- {{letter.letter_date}}</p>
 
-  {% else %}
-      The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }} 
-      For information w.r.t to your Letter no:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
+    {% else %}
+        The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }} 
+        For information w.r.t to your Letter no:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
 
-  {% endif %}
+    {% endif %}
     
     </div>
   </div>

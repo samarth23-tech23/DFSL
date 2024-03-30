@@ -8,13 +8,13 @@
     <title>Office Quotation request</title>
 </head>
 <body class="font-times text-sm">
-    <div class="border border-solid border-black border-2 m-4">
+    <div>
         <div class="grid grid-cols-1 float-right">
-            <p class="font-bold">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. </p>
+            <p class="font-bold m-4">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. </p>
         </div>
         <br>
         <div class="text-1xl text-left m-8">
-            <p class="m-8"></p>
+            <p class="m-28"></p>
             <p>&emsp;सादर,<br><br>&emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ product.letter.lab_name }} यांनी त्याचे पत्र क्र. {{ product.letter.letter_no }} ,  दिनांक {{ product.letter.letter_date }} अन्वये {{ product.department_name }} विभागात कार्यरत असलेले {{ product.name }} या उपकरणासाठी खालील वर्णनाच्या 
                 {% if product.subproducts.count > 1 %}
                 {% for subproduct in subproducts %}
