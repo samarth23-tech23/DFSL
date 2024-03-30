@@ -13,6 +13,17 @@ def multiply(value1, value2):
         return result if result.is_finite() else None
     except (InvalidOperation, TypeError):
         return None
+    
+# /*@register.simple_tag
+# def sum_of_products(subproducts, unit_price_attr, quantity_attr):
+#     total = 0
+#     for subproduct in subproducts:
+#         total += getattr(subproduct, str(unit_price_attr)) * getattr(subproduct, str(quantity_attr))
+#     return total
+    
+@register.filter
+def sum_of_products(queryset, field_name):
+    return sum(getattr(obj, field_name) for obj in queryset)
 
 
 @register.simple_tag
@@ -24,6 +35,10 @@ def multiply_and_add(unit_price, quantity, gst_value):
         return None
     
 @register.filter
+def calc(value, arg):
+    return value * arg
+
+@register.filter
 def total_basic_price(subproducts):
     total_price = sum(subproduct.subproductquotationinfo.unit_price for subproduct in subproducts)
     return total_price if total_price.is_finite() else None
@@ -33,14 +48,24 @@ def total_price_inclusive(subproducts):
     total = sum((subproduct.subproductquotationinfo.unit_price * subproduct.quantity) + subproduct.subproductquotationinfo.gst_value for subproduct in subproducts)
     return total if total.is_finite() else None
 
+@register.filter
+def group_by_amc_provider(subproducts):
+    result = {}
+    for subproduct in subproducts:
+        provider_name = subproduct.amc_provider
+        if provider_name not in result:
+            result[provider_name] = []
+        result[provider_name].append(subproduct)
+    return result.items()
+
 
 @register.filter
-def groupbyamcprovider(subproducts):
-    grouped = {}
+def unique_amc_providers(subproducts):
+    unique_providers = set()
+    result = []
     for subproduct in subproducts:
-        amc_provider = subproduct.amc_provider
-        if amc_provider in grouped:
-            grouped[amc_provider].append(subproduct)
-        else:
-            grouped[amc_provider] = [subproduct]
-    return grouped.items()
+        provider_name = subproduct.amc_provider
+        if provider_name not in unique_providers:
+            result.append(provider_name)
+            unique_providers.add(provider_name)
+    return ' व '.join(result)

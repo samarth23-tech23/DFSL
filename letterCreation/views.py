@@ -4,7 +4,7 @@ from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, QuotationInfo, SubproductQuotationInfo, AMCProvider
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
 
 # Create your views here.
 
@@ -65,18 +65,17 @@ def product_list4(request):
 def letter_detail4(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
-    amc_provider_name = subproduct.amc_provider
-    amc_provider = AMCProvider.objects.filter(name=amc_provider_name).first()
-    related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider_name)
+    amc_provider = subproduct.amc_provider
+    related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
     service_report_date = subproduct.service_report_date
     return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
-
 
 
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
-    amc_provider = subproduct.amc_provider
+    amc_provider_name = subproduct.amc_provider  # Assuming amc_provider is a string
+    amc_provider = AMCProvider.objects.get(name=amc_provider_name)  # Fetch the AMCProvider object
     subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
     letter = product.letter  # Assuming there is a ForeignKey from Product to Letter
     return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'subproductquotationinfo': subproductquotationinfo, 'letter': letter})
@@ -133,6 +132,9 @@ def submit_form(request):
 
             subproducts_data = product_data.get('Subproducts', [])
             for subproduct_data in subproducts_data:
+                amc_provider_name = subproduct_data.get('AMC Provider')
+                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name)
+
                 Subproduct.objects.create(
                     product=product,
                     type_of_part=subproduct_data.get('Type of Part'),
@@ -141,15 +143,14 @@ def submit_form(request):
                     quantity=subproduct_data.get('Quantity'),
                     period_of_amc_contract=subproduct_data.get('Period of AMC Contract'),
                     service_report_date=subproduct_data.get('Service Report Date'),
-                    amc_provider=subproduct_data.get('AMC Provider')
+                    amc_provider=amc_provider
                 )
 
         return JsonResponse({'message': 'Form submitted successfully!'})
 
     return JsonResponse({'message': 'Error submitting form. Please try again.'}, status=400)
 
-
-
+    
 @csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':
@@ -157,31 +158,19 @@ def submit_quotation_info(request):
         date = request.POST.get('date')
         ref_no = request.POST.get('ref_no')
 
-        quotation_info = QuotationInfo.objects.create(subproduct_id=subproduct_id, date=date, ref_no=ref_no)
+        subproduct = Subproduct.objects.get(pk=subproduct_id)
+        amc_provider = subproduct.amc_provider
+
+        quotation = Quotation.objects.create(product=subproduct.product, quotation_date=date, ref_no=ref_no)
 
         unit_price = request.POST.get('unit_price')
         price_without_gst = request.POST.get('price_without_gst')
         price_with_gst = request.POST.get('price_with_gst')
         expected_delivery = request.POST.get('expected_delivery')
 
-        amc_provider_name = request.POST.get('amc_provider_name')
-        ac_no = request.POST.get('ac_no')
-        ifsc_code = request.POST.get('ifsc_code')
-        ac_name = request.POST.get('ac_name')
-        bank_name = request.POST.get('bank_name')
-        pan_no = request.POST.get('pan_no')
-        state = request.POST.get('state')
-        pincode = request.POST.get('pincode')
-        address = request.POST.get('address')
-
-        amc_provider, created = AMCProvider.objects.get_or_create(
-            name=amc_provider_name,
-            defaults={'ac_no': ac_no, 'ifsc_code': ifsc_code, 'ac_name': ac_name, 'bank_name': bank_name, 'pan_no': pan_no, 'state': state, 'pincode': pincode, 'address': address}
-        )
-
-        subproduct_quotation_info = SubproductQuotationInfo.objects.create(
-            quotation_info=quotation_info,
-            subproduct_id=subproduct_id,
+        quotation_item = QuotationItem.objects.create(
+            quotation=quotation,
+            subproduct=subproduct,
             unit_price=unit_price,
             price_without_gst=price_without_gst,
             price_with_gst=price_with_gst,
@@ -190,6 +179,17 @@ def submit_quotation_info(request):
             expected_delivery=expected_delivery,
             amc_provider=amc_provider
         )
+
+        # Update the AMCProvider fields
+        amc_provider.ac_no = request.POST.get('ac_no', amc_provider.ac_no)
+        amc_provider.ifsc_code = request.POST.get('ifsc_code', amc_provider.ifsc_code)
+        amc_provider.ac_name = request.POST.get('ac_name', amc_provider.ac_name)
+        amc_provider.bank_name = request.POST.get('bank_name', amc_provider.bank_name)
+        amc_provider.pan_no = request.POST.get('pan_no', amc_provider.pan_no)
+        amc_provider.state = request.POST.get('state', amc_provider.state)
+        amc_provider.pincode = request.POST.get('pincode', amc_provider.pincode)
+        amc_provider.address = request.POST.get('address', amc_provider.address)
+        amc_provider.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
