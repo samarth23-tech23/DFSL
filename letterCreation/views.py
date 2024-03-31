@@ -136,7 +136,7 @@ def submit_form(request):
             subproducts_data = product_data.get('Subproducts', [])
             for subproduct_data in subproducts_data:
                 amc_provider_name = subproduct_data.get('AMC Provider')
-                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name)
+                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name.strip())
 
                 Subproduct.objects.create(
                     product=product,
