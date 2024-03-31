@@ -64,7 +64,7 @@ def unique_amc_providers(subproducts):
     unique_providers = set()
     result = []
     for subproduct in subproducts:
-        provider_name = subproduct.amc_provider
+        provider_name = subproduct.amc_provider.name
         if provider_name not in unique_providers:
             result.append(provider_name)
             unique_providers.add(provider_name)
