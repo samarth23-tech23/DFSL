@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
+
 
 # Create your views here.
 
@@ -71,6 +72,7 @@ def letter_detail4(request, subproduct_id):
     return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
 
 
+
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
@@ -88,16 +90,18 @@ def product_list6(request):
 
 
 
+
+
 def product_list7(request):
-    letters = Letter.objects.filter(products__subproducts__quotationinfo__isnull=False).distinct()
+    letters = Letter.objects.filter(products__subproducts__quotationitem__isnull=False).distinct()
     
     return render(request, 'table7.html', {'letters': letters})
+
 
 def letter_detail7(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
-    amc_provider_name = subproduct.amc_provider
-    amc_provider = AMCProvider.objects.filter(name=amc_provider_name).first()
+    amc_provider = subproduct.amc_provider
     letter = product.letter 
     # quotationinfo = QuotationInfo.objects.get(subproduct=subproduct)
     # subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
@@ -133,7 +137,7 @@ def submit_form(request):
             subproducts_data = product_data.get('Subproducts', [])
             for subproduct_data in subproducts_data:
                 amc_provider_name = subproduct_data.get('AMC Provider')
-                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name)
+                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name.strip())
 
                 Subproduct.objects.create(
                     product=product,

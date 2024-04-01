@@ -57,7 +57,7 @@
                 <p class="text-title-color">Type: {{ subproduct.type_of_part }}</p>
                 <p class="text-title-color">Specification: {{ subproduct.specification }}</p>
                 <p class="text-title-color">Quantity: {{ subproduct.quantity }}</p>
-                <p class="text-title-color">AMC Provider : {{ subproduct.amc_provider }}</p>
+                <p class="text-title-color">AMC Provider : {{ subproduct.amc_provider.name }}</p>
                 <input type="hidden" name="amc_provider_name" value="{{ subproduct.amc_provider }}">
 
                 <div class="grid grid-cols-2 gap-4 mt-4">

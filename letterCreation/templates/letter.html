@@ -45,7 +45,7 @@
     <div class="text-1xl text-left m-2 p-2">
         <p>
           To. <br />
-          {{subproduct.amc_provider}} <br />
+          {{subproduct.amc_provider.name}} <br />
         {{amc_provider.address}} <br />
         {{amc_provider.state}},{{amc_provider.pincode}}
         </p>
@@ -74,42 +74,39 @@
           <li>
              
               <div class="flex justify-center p-10">
-                  <table class="border border-collapse w-auto">
-                      <tr>
-                          <th class="border p-8 m-2">Part No & Description</th>
-                          <th class="border p-8 m-2">Qty</th>
-                          <th class="border p-8 m-2">Unit Price in INR</th>
-                          <th class="border p-8 m-2">Total Price in INR</th>
-                      </tr>
-                      <tr>
-                          <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
-                          <td class="border text-center">{{ subproduct.quantity }}</td>
-                          <td class="border p-10 m-2">{{subproductquotationinfo.unit_price}} /-</td>
-                          <td class="border p-10 m-2">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-
-
-                          </td>
-
-                      </tr>
-                      <tr>
-                          <td colspan="2" class="border"></td>
-                          <th class="border">Total Basic Price in INR</th>
-                          <td class="border">{% multiply subproductquotationinfo.unit_price subproduct.quantity %}/-</td>
-                      </tr>
-                      <tr>
-                          <td colspan="2" class="border"></td>
-                          <th class="border">+{{subproductquotationinfo.gst_percentage}}% GST</th>
-                          <td class="border">{{subproductquotationinfo.gst_value}}</td>
-                      </tr>
-                      <tr>
-                          <td colspan="2" class="border"></td>
-                          <th class="border">Total Price inclusive of GST</th>
-                          <td class="border">{% multiply_and_add subproductquotationinfo.unit_price subproduct.quantity subproductquotationinfo.gst_value %}
-
-
-
-                          </td>
-                      </tr>
-                  </table>
+                <table class="border border-collapse w-auto">
+                  <tr>
+                      <th class="border p-8 m-2">Part No & Description</th>
+                      <th class="border p-8 m-2">Qty</th>
+                      <th class="border p-8 m-2">Unit Price in INR</th>
+                      <th class="border p-8 m-2">Total Price in INR</th>
+                  </tr>
+                  {% for subproduct in product.subproducts.all %}
+                  {% with subproduct.quotationitem_set.first as quotationitem %}
+                  <tr>
+                      <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                      <td class="border text-center">{{ subproduct.quantity }}</td>
+                      <td class="border p-10 m-2">{{ quotationitem.unit_price }} /-</td>
+                      <td class="border p-10 m-2">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
+                  </tr>
+                  <tr>
+                      <td colspan="2" class="border"></td>
+                      <th class="border">Total Basic Price in INR</th>
+                      <td class="border">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
+                  </tr>
+                  <tr>
+                      <td colspan="2" class="border"></td>
+                      <th class="border">+{{ quotationitem.gst_percentage }}% GST</th>
+                      <td class="border">{{ quotationitem.gst_value }}</td>
+                  </tr>
+                  <tr>
+                      <td colspan="2" class="border"></td>
+                      <th class="border">Total Price inclusive of GST</th>
+                      <td class="border">{% multiply_and_add quotationitem.unit_price subproduct.quantity quotationitem.gst_value %}</td>
+                  </tr>
+                  {% endwith %}
+                  {% endfor %}
+              </table>
               </div>
           </li>
           {% endfor %}
