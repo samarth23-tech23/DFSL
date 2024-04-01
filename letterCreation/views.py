@@ -76,7 +76,7 @@ def letter_detail6(request, subproduct_id):
     product = subproduct.product
     amc_provider_name = subproduct.amc_provider  # Assuming amc_provider is a string
     amc_provider = AMCProvider.objects.get(name=amc_provider_name)  # Fetch the AMCProvider object
-    subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
+    # subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
     letter = product.letter  # Assuming there is a ForeignKey from Product to Letter
     return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'subproductquotationinfo': subproductquotationinfo, 'letter': letter})
 
@@ -99,8 +99,8 @@ def letter_detail7(request, subproduct_id):
     amc_provider_name = subproduct.amc_provider
     amc_provider = AMCProvider.objects.filter(name=amc_provider_name).first()
     letter = product.letter 
-    quotationinfo = QuotationInfo.objects.get(subproduct=subproduct)
-    subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
+    # quotationinfo = QuotationInfo.objects.get(subproduct=subproduct)
+    # subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
     return render(request, 'letter.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotationinfo': quotationinfo, 'subproductquotationinfo': subproductquotationinfo,'letter': letter})
 
 
