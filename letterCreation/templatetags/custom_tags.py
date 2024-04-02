@@ -38,6 +38,25 @@ def multiply_and_add(unit_price, quantity, gst_value):
 def calc(value, arg):
     return value * arg
 
+
+
+# @register.filter
+# def multiply_and_add_total_basic_price(subproducts_group):
+#     total_basic_price = 0
+#     for subproduct in subproducts_group:
+#         quotationitem = subproduct.quotationitem_set.first()
+#         if quotationitem:
+#             total_basic_price += quotationitem.unit_price * subproduct.quantity
+#     return total_basic_price
+
+@register.filter
+def multiply_and_add_total_basic_price(subproducts):
+    total_price = 0
+    for subproduct in subproducts:
+        total_price += subproduct.quotationitem_set.first().unit_price * subproduct.quantity
+    return total_price
+
+
 @register.filter
 def total_basic_price(subproducts):
     total_price = sum(subproduct.subproductquotationinfo.unit_price for subproduct in subproducts)

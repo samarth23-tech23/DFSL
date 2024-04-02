@@ -127,6 +127,10 @@
 </ol>
 
 <div class="flex justify-center p-10">
+ 
+
+ 
+
     <table class="border border-collapse w-auto">
         <thead>
             <tr>
@@ -156,7 +160,7 @@
                 <tr>
                     <td colspan="2" class="border"></td>
                     <th class="border">Total Basic Price in INR</th>
-                    <td class="border">{% multiply subproducts_group.0.quotationitem_set.first.unit_price subproducts_group|length %}/-</td>
+                    <td class="border">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
                 </tr>
                 <tr>
                     <td colspan="2" class="border"></td>
@@ -173,6 +177,8 @@
             {% endfor %}
         </tbody>
     </table>
+    
+    
     
     
     
