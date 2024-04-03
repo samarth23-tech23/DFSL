@@ -164,15 +164,28 @@
                 </tr>
                 <tr>
                     <td colspan="2" class="border"></td>
-                    <th class="border">+{{ subproducts_group.0.quotationitem_set.first.gst_percentage }}% GST</th>
-                    <td class="border">{{ subproducts_group.0.quotationitem_set.first.gst_value }}</td>
+                    <th class="border">+18% GST</th>
+                    <td class="border">
+                        {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                            {% with gst_value=total_basic_price|calc:0.18 %}
+                                {{ gst_value }}
+                            {% endwith %}
+                        {% endwith %}
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2" class="border"></td>
                     <th class="border">Total Price inclusive of GST</th>
-                    <td class="border">
-                        {% multiply_and_add subproducts_group.0.quotationitem_set.first.unit_price subproducts_group|length subproducts_group.0.quotationitem_set.first.gst_value %}
+                    <td class="border p-10 m-2">
+                        {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                            {% with gst_value=total_basic_price|calc:0.18 %}
+                                {% with total_price_inclusive=total_basic_price|add:gst_value %}
+                                    {{ total_price_inclusive}}
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
                     </td>
+                                                   
                 </tr>
             {% endfor %}
         </tbody>

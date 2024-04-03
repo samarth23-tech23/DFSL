@@ -1,6 +1,6 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_DOWN, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -88,3 +88,17 @@ def unique_amc_providers(subproducts):
             result.append(provider_name)
             unique_providers.add(provider_name)
     return ' व '.join(result)
+
+@register.filter
+def calc(value, arg):
+    try:
+        value_decimal = Decimal(value)
+        arg_decimal = Decimal(arg)
+        # Multiply the values
+        result = value_decimal * arg_decimal
+        # Truncate the result to two decimal places without rounding
+        result_truncated = result.quantize(Decimal('0.00'), rounding=ROUND_DOWN)
+        return result_truncated
+    except (InvalidOperation, TypeError):
+        return None
+
