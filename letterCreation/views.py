@@ -84,14 +84,21 @@ def product_list7(request):
     return render(request, 'table7.html', {'letters': letters})
 
 
-def letter_detail7(request, subproduct_id):
-    subproduct = Subproduct.objects.get(pk=subproduct_id)
-    product = subproduct.product
-    amc_provider = subproduct.amc_provider
-    letter = product.letter 
-    quotation_items = QuotationItem.objects.filter(subproduct=subproduct)
-    return render(request, 'letter.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotation_items': quotation_items, 'letter': letter})
-    
+def letter_detail7(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    subproducts = product.subproducts.all()
+    letter = product.letter
+    quotations = product.quotations.all()
+
+    grouped_subproducts = {}
+    for subproduct in subproducts:
+        provider_name = subproduct.amc_provider.name
+        if provider_name not in grouped_subproducts:
+            grouped_subproducts[provider_name] = []
+        grouped_subproducts[provider_name].append(subproduct)
+
+    return render(request, 'letter.html', {'product': product, 'grouped_subproducts': grouped_subproducts, 'letter': letter, 'quotations': quotations})
+
 
 @csrf_exempt
 def submit_form(request):

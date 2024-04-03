@@ -1,6 +1,6 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -88,3 +88,20 @@ def unique_amc_providers(subproducts):
             result.append(provider_name)
             unique_providers.add(provider_name)
     return ' व '.join(result)
+
+@register.filter
+def calc(value, arg):
+    try:
+        value_decimal = Decimal(value)
+        arg_decimal = Decimal(arg)
+        # Multiply the values
+        result = value_decimal * arg_decimal
+        # Round the result to the nearest integer
+        result_rounded = result.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        return result_rounded
+    except (InvalidOperation, TypeError):
+        return None
+    
+@register.filter
+def unique_values(queryset, field_name):
+    return queryset.values_list(field_name, flat=True).distinct()
