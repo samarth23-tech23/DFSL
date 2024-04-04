@@ -47,11 +47,46 @@ def letter_detail4(request, subproduct_id):
 
 
 
+from decimal import Decimal
+
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
     amc_provider = subproduct.amc_provider
     subproducts = Subproduct.objects.filter(product=product).select_related('amc_provider')
+    
+    # Calculate global variables
+    global_total_basic_price = Decimal('0')
+    global_gst_value = Decimal('0')
+    global_total_price_inclusive = Decimal('0')
+    
+    # Group subproducts by amc_provider name
+    grouped_subproducts = {}
+    for sub in subproducts:
+        provider_name = sub.amc_provider.name
+        if provider_name not in grouped_subproducts:
+            grouped_subproducts[provider_name] = []
+        grouped_subproducts[provider_name].append(sub)
+        
+        # Calculate total basic price, GST value, and total price inclusive
+        total_basic_price = sub.quotationitem_set.first().unit_price * sub.quantity
+        gst_value = total_basic_price * Decimal('0.18')
+        total_price_inclusive = total_basic_price + gst_value
+        
+        # Update global variables
+        global_total_basic_price += total_basic_price
+        global_gst_value += gst_value
+        global_total_price_inclusive += total_price_inclusive
+
+    return render(request, 'letter6.html', {
+        'product': product,
+        'grouped_subproducts': grouped_subproducts,
+        'global_total_basic_price': global_total_basic_price,
+        'global_gst_value': global_gst_value,
+        'global_total_price_inclusive': global_total_price_inclusive,
+    })
+
+
     
     # Group subproducts by amc_provider name
     grouped_subproducts = {}

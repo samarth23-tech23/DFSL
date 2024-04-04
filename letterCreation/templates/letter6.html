@@ -1,6 +1,20 @@
 {% load static %}
 {% load custom_tags %}
 
+{% block variables %}
+    {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+        {% with gst_value=total_basic_price|calc:0.18 %}
+            {% with total_price_inclusive=total_basic_price|add:gst_value %}
+                {% with total_basic_price as global_total_basic_price %}
+                {% with gst_value as global_gst_value %}
+                {% with total_price_inclusive as global_total_price_inclusive %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -180,7 +194,7 @@
                         {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
                             {% with gst_value=total_basic_price|calc:0.18 %}
                                 {% with total_price_inclusive=total_basic_price|add:gst_value %}
-                                    {{ total_price_inclusive}}
+                                    {{ total_price_inclusive|floatformat:"2" }}
                                 {% endwith %}
                             {% endwith %}
                         {% endwith %}
@@ -192,8 +206,7 @@
     </table>
     
     
-    
-    
+{{global_total_basic_price}}
     
     
 </div>
@@ -203,19 +216,9 @@
     <li>उपरोक्त मुद्दा क्र. 3 नुसार एकूण आवश्यक
         {% for subproduct in product.subproducts.all %}
         {{ subproduct.type_of_part }}
-        {% endfor %} ची किंमत रु.
-        {% with quotationitem=subproduct.quotationitem_set.first %}
-        {% multiply quotationitem.unit_price subproduct.quantity %}
-        {% endwith %}
-        /- + रु.
-        {% with quotationitem=subproduct.quotationitem_set.first %}
-        {{ quotationitem.gst_value }}
-        {% endwith %}
-        (GST) = रु.
-        {% with quotationitem=subproduct.quotationitem_set.first %}
-        {% multiply_and_add quotationitem.unit_price subproduct.quantity quotationitem.gst_value %}
-        {% endwith %}
-        /- अशी आहे.
+        {% endfor %} ची किंमत रु. {{ global_total_basic_price }}/-
+        + रु. {{ global_gst_value }} (GST) = रु. {{ global_total_price_inclusive }}/-
+        अशी आहे.
     </li><br>
     <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-१०.०८/प्र.क.७०/२००८/विनियम, दिनांक १५ मे, २००९ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li><br>
     <li>मुद्दा क्र.4 नुसार आवश्यक

@@ -1,6 +1,6 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
-from decimal import ROUND_DOWN, Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -96,9 +96,23 @@ def calc(value, arg):
         arg_decimal = Decimal(arg)
         # Multiply the values
         result = value_decimal * arg_decimal
-        # Truncate the result to two decimal places without rounding
-        result_truncated = result.quantize(Decimal('0.00'), rounding=ROUND_DOWN)
-        return result_truncated
+        # Round the result to the nearest integer
+        result_rounded = result.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        return result_rounded
     except (InvalidOperation, TypeError):
         return None
 
+
+@register.filter
+def multiply_and_add(value, arg):
+    return value * arg
+
+@register.filter
+def calculate_total_price(unit_price, quantity):
+    try:
+        unit_price_decimal = Decimal(unit_price)
+        quantity_decimal = Decimal(quantity)
+        total_price = unit_price_decimal * quantity_decimal
+        return total_price
+    except (InvalidOperation, TypeError):
+        return None
