@@ -3,6 +3,7 @@ from . import views
 urlpatterns = [
     
     path('form/',views.load_form), 
+   
     path('submit_form/', views.submit_form, name='submit_form'),
 
 #letter 3
@@ -27,7 +28,7 @@ urlpatterns = [
 
 #letter 7
     path('products7/', views.product_list7, name='product_list7'),
-    path('products7/<int:subproduct_id>/', views.letter_detail7, name='letter_detail7'),
+    path('products7/<int:product_id>/', views.letter_detail7, name='letter_detail7'),
 
 
 

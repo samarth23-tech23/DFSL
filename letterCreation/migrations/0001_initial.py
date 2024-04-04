@@ -12,6 +12,21 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='AMCProvider',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=255)),
+                ('ac_no', models.CharField(max_length=255)),
+                ('ifsc_code', models.CharField(max_length=255)),
+                ('ac_name', models.CharField(max_length=255)),
+                ('bank_name', models.CharField(max_length=255)),
+                ('pan_no', models.CharField(max_length=255)),
+                ('state', models.CharField(max_length=255)),
+                ('pincode', models.CharField(max_length=255)),
+                ('address', models.TextField()),
+            ],
+        ),
+        migrations.CreateModel(
             name="AMCProvider",
             fields=[
                 (

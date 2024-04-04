@@ -1,6 +1,7 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -116,3 +117,7 @@ def calculate_total_price(unit_price, quantity):
         return total_price
     except (InvalidOperation, TypeError):
         return None
+
+@register.filter
+def unique_values(queryset, field_name):
+    return queryset.values_list(field_name, flat=True).distinct()
