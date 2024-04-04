@@ -42,7 +42,17 @@
 <label for="ref_no" class="block text-sm font-semibold text-title-color">Ref No.:</label>
                     <input type="text" id="ref_no" name="ref_no"
                         class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500" required>
-
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-title-color">Quotation Expense Criteria:</label>
+                            <label class="inline-flex items-center mt-2">
+                                <input type="radio" class="form-radio h-5 w-5 text-custom-color" name="quotation_criteria" value="20%" required checked>
+                                <span class="ml-2">20%</span>
+                            </label>
+                            <label class="inline-flex items-center mt-2">
+                                <input type="radio" class="form-radio h-5 w-5 text-custom-color" name="quotation_criteria" value="25%" required>
+                                <span class="ml-2">25%</span>
+                            </label>
+                        </div>
             {% for subproduct in subproducts %}
                 <input type="hidden" name="subproduct_id_{{ subproduct.id }}" value="{{ subproduct.id }}">
                 <div class="border-t-2 border-gray-300 pt-4">

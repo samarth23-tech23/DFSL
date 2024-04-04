@@ -61,37 +61,51 @@
         </div>
 
         <div class="w-[600] ml-20 text-left">
-       
-
-    <ul class="list-disc text-left mx-4">
-           
-        <ul class="list-disc text-left mx-4">
-            {% for subproduct in subproducts %}
-                <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
-                <li>तसेच सदर उपकरणाचा 
-                    {% if subproduct.period_of_amc_contract == 12 %}
-                    वार्षिक
-                {% elif subproduct.period_of_amc_contract == 24 %}
-                    द्वैवार्षिक
-                {% elif subproduct.period_of_amc_contract == 36 %}
-                    त्रैवार्षिक
-                {% else %}
-                    {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
+            <ul class="list-disc text-left mx-4">
+                {% with prev_amc_provider=None %}
+                {% for subproduct in subproducts %}
+                    {% if prev_amc_provider is None %}
+                        {% with subproduct.amc_provider as prev_amc_provider %}
+                            <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+                            <li>तसेच सदर उपकरणाचा 
+                                {% if subproduct.period_of_amc_contract == 12 %}
+                                    वार्षिक
+                                {% elif subproduct.period_of_amc_contract == 24 %}
+                                    द्वैवार्षिक
+                                {% elif subproduct.period_of_amc_contract == 36 %}
+                                    त्रैवार्षिक
+                                {% else %}
+                                    {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
+                                {% endif %}
+                                देखभाल सेवा करार करण्यात आलेला आहे.</li>
+                            <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
+                        {% endwith %}
+                    {% else %}
+                        {% if prev_amc_provider != subproduct.amc_provider %}
+                            <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+                            <li>तसेच सदर उपकरणाचा 
+                                {% if subproduct.period_of_amc_contract == 12 %}
+                                    वार्षिक
+                                {% elif subproduct.period_of_amc_contract == 24 %}
+                                    द्वैवार्षिक
+                                {% elif subproduct.period_of_amc_contract == 36 %}
+                                    त्रैवार्षिक
+                                {% else %}
+                                    {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
+                                {% endif %}
+                                देखभाल सेवा करार करण्यात आलेला आहे.</li>
+                            <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
+                            {% with subproduct.amc_provider as prev_amc_provider %}
+                        {% endwith %}
+                    {% endif %}
                 {% endif %}
-                
-                    देखभाल सेवा करार करण्यात आलेला आहे.</li>
-                <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत  देखभाल सेवा करार पुरवठादार कंपनी</li>
-                {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मंजूरी प्रदान करावी ही विनंती.
-                {{ subproduct.amc_provider }} याचेकडून दरपत्रक मंजूरी प्रदान करावी ही विनंती.
-            {% endfor %}
-        </ul>
+                {% endfor %}
+                {% endwith %}
+            </ul>
+        </div>
+        
 
-    </ul>
-         
-
-
-         
-        </div><br><br><br><br>
+        <br><br>
         
         <div class="ml-16 font-bold">
             <p>श्री  वि . ग .विरकर : <br>वरिष्ठ लिपीक(भांडार)</p><br><br>

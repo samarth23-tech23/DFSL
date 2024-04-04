@@ -75,14 +75,17 @@
                     
                 </div>
                 <div class="w-[600] text-left">
-                    <p>Sir,<br> With reference to your quotation No {{quotation.ref_no}} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at
+                    {% for quotation in quotations %}
+                    <p>Sir,<br> With reference to your quotation No {{ quotation.ref_no }} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at </p>
+                {% endfor %}
+                
                         {% if letter.lab_name == "Mumbai" %}
                         Directorate of forensic Science Laboratories, Mumbai
                         {% else %}
                         Regional Forensic Science Laboratory, {{ letter.lab_name }}
                         {% endif %}
-                    </p>
-                    & submit your invoice along with delivery challan & installation report to this department immediately.
+                  
+                    & submit your invoice along with delivery challan & installation report to this department immediately. </p>
                 </div>
             </div>
             <div class="flex justify-center p-10 ">

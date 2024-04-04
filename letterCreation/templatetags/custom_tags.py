@@ -1,6 +1,7 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -101,30 +102,22 @@ def calc(value, arg):
         return result_rounded
     except (InvalidOperation, TypeError):
         return None
-    
+
+
+@register.filter
+def multiply_and_add(value, arg):
+    return value * arg
+
+@register.filter
+def calculate_total_price(unit_price, quantity):
+    try:
+        unit_price_decimal = Decimal(unit_price)
+        quantity_decimal = Decimal(quantity)
+        total_price = unit_price_decimal * quantity_decimal
+        return total_price
+    except (InvalidOperation, TypeError):
+        return None
+
 @register.filter
 def unique_values(queryset, field_name):
     return queryset.values_list(field_name, flat=True).distinct()
-
-@register.filter
-def group_by_field(queryset, field_name):
-    grouped = {}
-    for item in queryset:
-        key = getattr(item, field_name)
-        if key not in grouped:
-            grouped[key] = []
-        grouped[key].append(item)
-    return grouped
-
-@register.filter
-def sum_values(queryset, field_name):
-    return sum(getattr(obj, field_name) for obj in queryset)
-
-@register.filter
-def multiply(value, arg):
-    try:
-        return float(value) * float(arg)
-    except (TypeError, ValueError):
-        return ''
-
-
