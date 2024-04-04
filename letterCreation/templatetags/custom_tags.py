@@ -1,6 +1,6 @@
 # yourapp/templatetags/custom_tags.py
 from django import template
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -38,6 +38,25 @@ def multiply_and_add(unit_price, quantity, gst_value):
 def calc(value, arg):
     return value * arg
 
+
+
+# @register.filter
+# def multiply_and_add_total_basic_price(subproducts_group):
+#     total_basic_price = 0
+#     for subproduct in subproducts_group:
+#         quotationitem = subproduct.quotationitem_set.first()
+#         if quotationitem:
+#             total_basic_price += quotationitem.unit_price * subproduct.quantity
+#     return total_basic_price
+
+@register.filter
+def multiply_and_add_total_basic_price(subproducts):
+    total_price = 0
+    for subproduct in subproducts:
+        total_price += subproduct.quotationitem_set.first().unit_price * subproduct.quantity
+    return total_price
+
+
 @register.filter
 def total_basic_price(subproducts):
     total_price = sum(subproduct.subproductquotationinfo.unit_price for subproduct in subproducts)
@@ -69,3 +88,43 @@ def unique_amc_providers(subproducts):
             result.append(provider_name)
             unique_providers.add(provider_name)
     return ' व '.join(result)
+
+@register.filter
+def calc(value, arg):
+    try:
+        value_decimal = Decimal(value)
+        arg_decimal = Decimal(arg)
+        # Multiply the values
+        result = value_decimal * arg_decimal
+        # Round the result to the nearest integer
+        result_rounded = result.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        return result_rounded
+    except (InvalidOperation, TypeError):
+        return None
+    
+@register.filter
+def unique_values(queryset, field_name):
+    return queryset.values_list(field_name, flat=True).distinct()
+
+@register.filter
+def group_by_field(queryset, field_name):
+    grouped = {}
+    for item in queryset:
+        key = getattr(item, field_name)
+        if key not in grouped:
+            grouped[key] = []
+        grouped[key].append(item)
+    return grouped
+
+@register.filter
+def sum_values(queryset, field_name):
+    return sum(getattr(obj, field_name) for obj in queryset)
+
+@register.filter
+def multiply(value, arg):
+    try:
+        return int(value) * int(arg)
+    except (TypeError, ValueError):
+        return ''
+
+
