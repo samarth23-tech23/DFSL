@@ -123,7 +123,7 @@ def sum_values(queryset, field_name):
 @register.filter
 def multiply(value, arg):
     try:
-        return int(value) * int(arg)
+        return float(value) * float(arg)
     except (TypeError, ValueError):
         return ''
 

@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
 from itertools import groupby
+from django.db import models
+
 
 
 def load_form(request):
@@ -47,13 +49,18 @@ def letter_detail4(request, subproduct_id):
 
 
 
+from decimal import Decimal
+
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
     amc_provider = subproduct.amc_provider
-    quotations = Quotation.objects.filter(product=product).prefetch_related('quotationitem_set__subproduct__amc_provider')
-
     subproducts = Subproduct.objects.filter(product=product).select_related('amc_provider')
+    
+    # Calculate global variables
+    global_total_basic_price = Decimal('0')
+    global_gst_value = Decimal('0')
+    global_total_price_inclusive = Decimal('0')
     
     # Group subproducts by amc_provider name
     grouped_subproducts = {}
@@ -62,14 +69,16 @@ def letter_detail6(request, subproduct_id):
         if provider_name not in grouped_subproducts:
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(sub)
-
-    return render(request, 'letter6.html', {
-        'product': product,
-        'grouped_subproducts': grouped_subproducts,
-        'quotations': quotations,
-    })
-
-
+        
+        # Calculate total basic price, GST value, and total price inclusive
+        total_basic_price = sub.quotationitem_set.first().unit_price * sub.quantity
+        gst_value = total_basic_price * Decimal('0.18')
+        total_price_inclusive = total_basic_price + gst_value
+        
+        # Update global variables
+        global_total_basic_price += total_basic_price
+        global_gst_value += gst_value
+        global_total_price_inclusive += total_price_inclusive
 
 def product_list6(request):
     letters = Letter.objects.all()
