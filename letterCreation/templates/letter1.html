@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <title>Office Quotation request</title>
 </head>
-<body class="font-times text-sm">
+<body class="font-times text-sm text-lg">
     <div>
         <div class="grid grid-cols-1 float-right">
             <p class="font-bold m-4">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. </p>
@@ -35,7 +35,7 @@
 
         <div>
             <div class="flex justify-center p-6">
-                <table class="table-auto" style="page-break-inside: avoid; border: 4px solid black;">
+                <table class="table-auto border border-black-300" style="page-break-inside: avoid; border: 4px solid black;">
                     <thead>
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
@@ -65,7 +65,7 @@
 
     <ul class="list-disc text-left mx-4">
            
-        <ul class="list-disc text-left mx-4">
+        <ul class="list-disc text-left">
             {% for subproduct in subproducts %}
                 <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
                 <li>तसेच सदर उपकरणाचा 
