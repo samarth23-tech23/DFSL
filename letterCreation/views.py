@@ -36,7 +36,11 @@ def load_form(request):
     return render(request,'form1.html')
 
 def load_demo(request):
-    return render(request,'demo.html')
+    return render(request,'demotable.html')
+
+    
+def load_demotable(request):
+    return render(request,'demotable.html')
 
 def product_list(request):
     letters = Letter.objects.all()
@@ -76,11 +80,11 @@ def letter_detail4(request, subproduct_id):
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
-    amc_provider_name = subproduct.amc_provider  # Assuming amc_provider is a string
-    amc_provider = AMCProvider.objects.get(name=amc_provider_name)  # Fetch the AMCProvider object
-    # subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
-    letter = product.letter  # Assuming there is a ForeignKey from Product to Letter
-    return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'subproductquotationinfo': subproductquotationinfo, 'letter': letter})
+    amc_provider = subproduct.amc_provider  # Assuming amc_provider is a ForeignKey field
+    quotation_items = QuotationItem.objects.filter(subproduct=subproduct)
+    letter = product.letter
+    return render(request, 'letter6.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotation_items': quotation_items, 'letter': letter})
+
 
 def product_list6(request):
     letters = Letter.objects.all()
@@ -103,10 +107,9 @@ def letter_detail7(request, subproduct_id):
     product = subproduct.product
     amc_provider = subproduct.amc_provider
     letter = product.letter 
-    # quotationinfo = QuotationInfo.objects.get(subproduct=subproduct)
-    # subproductquotationinfo = SubproductQuotationInfo.objects.get(subproduct=subproduct)
-    return render(request, 'letter.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotationinfo': quotationinfo, 'subproductquotationinfo': subproductquotationinfo,'letter': letter})
-
+    quotation_items = QuotationItem.objects.filter(subproduct=subproduct)
+    return render(request, 'letter.html', {'product': product, 'subproduct': subproduct, 'amc_provider': amc_provider, 'quotation_items': quotation_items, 'letter': letter})
+    
 
 @csrf_exempt
 def submit_form(request):

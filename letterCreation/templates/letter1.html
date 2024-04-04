@@ -35,7 +35,7 @@
 
         <div>
             <div class="flex justify-center p-6">
-                <table class="table-auto">
+                <table class="table-auto" style="page-break-inside: avoid; border: 4px solid black;">
                     <thead>
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
@@ -81,8 +81,8 @@
                 
                     देखभाल सेवा करार करण्यात आलेला आहे.</li>
                 <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत  देखभाल सेवा करार पुरवठादार कंपनी</li>
-                {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.
-                {{ subproduct.amc_provider }} याचेकडून दरपत्रक मागविण्यास मंजूरी प्रदान करावी ही विनंती.
+                {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मंजूरी प्रदान करावी ही विनंती.
+                {{ subproduct.amc_provider }} याचेकडून दरपत्रक मंजूरी प्रदान करावी ही विनंती.
             {% endfor %}
         </ul>
 
@@ -91,7 +91,7 @@
 
 
          
-        </div><br><br><br><br><br>
+        </div><br><br><br><br>
         
         <div class="ml-16 font-bold">
             <p>श्री  वि . ग .विरकर : </p><br><br>

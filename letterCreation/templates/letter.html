@@ -24,7 +24,7 @@
       }
     }
   </style>
-  <title>Letter Format 7</title>
+  <title>Letter 7</title>
 </head>
 <body class="font-times text-sm">
   <div class="">
@@ -32,7 +32,7 @@
       <img
         src="{% static '/images/header1.jpg' %}"
         alt="Description of the image"
-        class="w-full h-56 rounded-lg"
+        class="w-full h-40 rounded-lg"
       />
     </div>
     <div class="float-left">
@@ -41,7 +41,7 @@
     <div class="float-right">
       <p class="font-bold float-right mt-2 pr-20 mr-12">दिनांक/Date:</p>
     </div>
-    <br><br><br>
+    <br><br>
     <div class="text-1xl text-left m-2 p-2">
         <p>
           To. <br />
@@ -54,7 +54,6 @@
           <p>
             <b>Sub:-</b> Supply of {{subproduct.type_of_part}} for {{product.name}} Instrument. ( Sr. No. {{product.sr_no}})<br>
             <b>Ref:-</b> 1. Service report dated-{{subproduct.service_report_date}}<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Your Quotation No.- {{quotationinfo.ref_no}} dated-{{quotationinfo.date}}
           </p>
         </div>
         <div class="w-[600] text-left">
@@ -65,16 +64,13 @@
                 Regional Forensic Science Laboratory, {{ letter.lab_name }}
             {% endif %}
             </p>
-          & submit your invoice along with delivery challan & installation report to Director, DFSLmumbai at earliest.            
+          & submit your invoice along with delivery challan & installation report to Director, DFSL, mumbai at earliest.            
         </div>
       </div>
       <div class="flex justify-center p-10 ">
-        <ol class="list-decimal">
-          {% for subproduct in product.subproducts.all %}
-          <li>
-             
-              <div class="flex justify-center p-10">
-                <table class="border border-collapse w-auto">
+          {% for subproduct in product.subproducts.all %}             
+              <div class="flex justify-center">
+                <table class="border border-collapse w-auto" style="page-break-inside: avoid;">
                   <tr>
                       <th class="border p-8 m-2">Part No & Description</th>
                       <th class="border p-8 m-2">Qty</th>
@@ -108,17 +104,15 @@
                   {% endfor %}
               </table>
               </div>
-          </li>
           {% endfor %}
-      </ol>
       </div>
       <div class="pl-28">Thanking You</div>
     <div class="float-right">
-      <p class="text-center">Yours </p><br><br><br>
-      <p class="text-center">(Dr. S.V. Ghumatkar) Director</p><br>
+      <p class="text-center">Yours </p><br><br>
+      <p class="text-center">(Dr. S.V. Ghumatkar) Director</p>
       <p>Directorate of Forensic Science Laboratories,</p>
       <p>M.S.and Chemical Analyser to Government.</p>
-    </div><br><br>
+    </div>
     </div>
     
     <div>
@@ -128,8 +122,8 @@
         For information w.r.t to your Letter No:- {{letter.letter_no}} Dated :- {{letter.letter_date}}</p>
 
     {% else %}
-        The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }} 
-        For information w.r.t to your Letter no:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
+        The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }}<br> 
+        For information w.r.t to Letter no:- {{letter.letter_no}} Dated :- {{letter.letter_date}}
 
     {% endif %}
     
