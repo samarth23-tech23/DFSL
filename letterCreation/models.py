@@ -1,3 +1,4 @@
+
 from django.db import models
 
 class Letter(models.Model):
@@ -55,4 +56,4 @@ class QuotationItem(models.Model):
     gst_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     gst_value = models.DecimalField(max_digits=10, decimal_places=2)
     expected_delivery = models.CharField(max_length=255)
-    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE)  # Assuming you want to store the AMCProvider instance
+    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE)  # Assuming you want to store the AMCProvider instance it does exist

@@ -42,10 +42,11 @@ def product_list4(request):
 def letter_detail4(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
+    letter = product.letter
     amc_provider = subproduct.amc_provider
     related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
     service_report_date = subproduct.service_report_date
-    return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date})
+    return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date,'letter':letter})
 
 
 
@@ -202,7 +203,7 @@ def submit_quotation_info(request):
         total_price = 0  # Initialize total_price
 
         # Process each subproduct
-        subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id_')]
+        subproduct_ids = [key.split('')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
             amc_provider = subproduct.amc_provider
