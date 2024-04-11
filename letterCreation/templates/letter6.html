@@ -1,6 +1,20 @@
 {% load static %}
 {% load custom_tags %}
 
+{% block variables %}
+    {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+        {% with gst_value=total_basic_price|calc:0.18 %}
+            {% with total_price_inclusive=total_basic_price|add:gst_value %}
+                {% with total_basic_price as global_total_basic_price %}
+                {% with gst_value as global_gst_value %}
+                {% with total_price_inclusive as global_total_price_inclusive %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -24,35 +38,38 @@
         <div class="text-1xl text-left m-8">
             <p>&emsp;&emsp;सादर,</p><br>
 
-            <p>&emsp;&emsp;<b> विषय :-</b> {{ product.name }} करिता{{ product.subproducts.all|unique_amc_providers }}यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार</p>
+            <p>&emsp;&emsp;<b> विषय :-</b> {{ product.name }} करिता {{ product.subproducts.all|unique_amc_providers }} यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार
 
-            {% for subproduct in product.subproducts.all %}
-            {{ subproduct.type_of_part }}
-        {% endfor %} ची खरेदी करणे बाबत.</p><br>
+                {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
+                {{ subproduct_type }},
+            {% endfor %} ची खरेदी करणे बाबत.</p><br>
         
         <ol class="list-decimal">
             {% for subproduct in product.subproducts.all %}
-                {% if forloop.first or subproduct.amc_provider != product.subproducts.first.amc_provider %}
-                    {% with subproduct.amc_provider as amc_provider %}
-                        <li class="m-4">
-                            <div class="properlyalign">
-                                <p>{{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
-                            </div>
-                            <ul>
-                                <li class="m-4">
-                                    <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.          .</p>
-                                </li>
-                                <li class="m-4">
-                                    <p>{{ amc_provider.name }} यांना देण्यात आलेले पत्र क्र.             दि.           .</p>
-                                </li>
-                                <li class="m-4">
-                                    <p>{{ amc_provider.name }} यांचे पत्र क्र. {{ subproduct.quotationinfo.ref_no }} दि.{{ subproduct.quotationinfo.date }}.</p>
-                                </li>
-                            </ul>
-                        </li>
-                    {% endwith %}
-                {% endif %}
-            {% endfor %}
+            {% if forloop.first or subproduct.amc_provider != product.subproducts.first.amc_provider %}
+                {% with subproduct.amc_provider as amc_provider %}
+                    <li class="m-4">
+                        <div class="properlyalign">
+                            <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
+                        </div>
+                        <ul>
+                            <li class="m-4">
+                                <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.          .</p>
+                            </li>
+                            <li class="m-4">
+                                <p>{{ amc_provider.name     }} यांना देण्यात आलेले पत्र क्र.             दि.           .</p>
+                            </li>
+                            <li class="m-4">
+                                {% for quotation in subproduct.quotationitem_set.all %}
+                                    <p>{{ amc_provider.name }} यांचे पत्र क्र. {{ quotation.quotation.ref_no }} दि.{{ quotation.quotation.quotation_date }}.</p>
+                                {% endfor %}
+                            </li>
+                        </ul>
+                    </li>
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+        
         </ol>
         
 
@@ -62,8 +79,8 @@
                     {% for subproduct in product.subproducts.all %}
                         {% if forloop.first or subproduct.amc_provider != product.subproducts.first.amc_provider %}
                             {% with subproduct.amc_provider as amc_provider %}
-                                <li>सहायक संचालक, {{ letter.lab_name }} प्रयोगशळेतील {{ product.department_name }} विभाग यांनी पत्र संदर्भ क्र.{{forloop.counter}} अन्वये
-                                    {{ product.name }} करिता {{ amc_provider.name }} यांना पुढील {{ subproduct.type_of_part }} ची मागणी केली आहे.</li>
+                                <li>सहायक संचालक, {{ letter.lab_name }} प्रयोगशाळेतील {{ product.department_name }} विभाग यांनी पत्र संदर्भ क्र.{{forloop.counter}} अन्वये
+                                    {{ product.name }} करिता {{ amc_provider.name }} यांचे पुढील {{ subproduct.type_of_part }} ची मागणी केली आहे.</li>
                             {% endwith %}
                         {% endif %}
                     {% endfor %}
@@ -84,8 +101,8 @@
                     <tbody>
                         {% for subproduct in product.subproducts.all %}
                         <tr>
-                            <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
-                            <td class="border px-4 py-2 text-left">{{ subproduct.part_name }}<br>Specification: {{ subproduct.specification }}</td>
+                            <td class="border px-4 py-2">{{ forloop.counter }}</td>
+                            <td class="border px-4 py-2">{{ subproduct.part_name }}<br>Specification: {{ subproduct.specification }}</td>
                             <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>
                         {% endfor %}
@@ -147,51 +164,54 @@
         </thead>
         <tbody>
             {% for provider_name, subproducts_group in grouped_subproducts.items %}
-                {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
-                {% with gst_value=total_basic_price|calc:0.18 %}
-                {% with total_price_inclusive=total_basic_price|add:gst_value %} 
-                    {% for subproduct in subproducts_group %}
-                        {% with quotationitem=subproduct.quotationitem_set.first %}
-                            <tr>
-                                <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
-                                <td class="border text-center">{{ subproduct.quantity }}</td>
-                                {% if quotationitem %}
-                                    <td class="border p-10 m-2">{{ quotationitem.unit_price }} /-</td>
-                                    <td class="border p-10 m-2">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
-                                {% else %}
-                                    <td class="border p-10 m-2">N/A</td>
-                                    <td class="border p-10 m-2">N/A</td>
-                                {% endif %}
-                            </tr>
+                {% for subproduct in subproducts_group %}
+                    {% with subproduct.quotationitem_set.first as quotationitem %}
+                        <tr>
+                            <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                            <td class="border text-center">{{ subproduct.quantity }}</td>
+                            {% if quotationitem %}
+                                <td class="border p-10 m-2 text-center">{{ quotationitem.unit_price }} /-</td>
+                                <td class="border p-10 m-2 text-center">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
+                            {% else %}
+                                <td class="border p-10 m-2 text-center">N/A</td>
+                                <td class="border p-10 m-2 text-center">N/A</td>
+                            {% endif %}
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" class="border text-center"></td>
+                    <th class="border">Total Basic Price in INR</th>
+                    <td class="border text-center">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border text-center"></td>
+                    <th class="border">+18% GST</th>
+                    <td class="border text-center">
+                        {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                            {% with gst_value=total_basic_price|calc:0.18 %}
+                                {{ gst_value }}.00/-
+                            {% endwith %}
                         {% endwith %}
-                    {% endfor %}
-                    <tr>
-                        <td colspan="2" class="border"></td>
-                        <th class="border">Total Basic Price in INR</th>
-                        <td class="border">{{ total_basic_price }}/-</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="border"></td>
-                        <th class="border">+18% GST</th>
-                        <td class="border">{{ gst_value }}/-</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="border"></td>
-                        <th class="border">Total Price inclusive of GST</th>
-                        <td class="border">{{ total_price_inclusive }}/-</td>
-                    </tr>
-                {% endwith %}
-                {% endwith %}
-                {% endwith %}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border"></td>
+                    <th class="border">Total Price inclusive of GST</th>
+                    <td class="border p-10 m-2 text-center">
+                        {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                            {% with gst_value=total_basic_price|calc:0.18 %}
+                                {% with total_price_inclusive=total_basic_price|add:gst_value %}
+                                    {{ total_price_inclusive|floatformat:"2" }}
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    </td>
+                                                   
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    
-        
-    
-    
-    
     
     
 </div>
@@ -200,44 +220,41 @@
     {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
     {% with gst_value=total_basic_price|calc:0.18 %}
     {% with total_price_inclusive=total_basic_price|add:gst_value %} 
-    <li>Debug: Total Basic Price: {{ total_basic_price }}, GST Value: {{ gst_value }}, Total Price Inclusive: {{ total_price_inclusive }}</li>
     <li>उपरोक्त मुद्दा क्र. 3 नुसार एकूण आवश्यक
-        {% for subproduct in product.subproducts.all %}
-        {{ subproduct.type_of_part }}
-        {% endfor %}
-         ची किंमत रु.
-        {{ total_basic_price }}
-       
-     
-        /- + रु.
-        {{ gst_value }}
-        (GST) = रु.
-        
-        {{ total_price_inclusive }}
-        /- अशी आहे.
+        {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
+    {{ subproduct_type }}
+{% endfor %} ची किंमत रु. {{ global_total_basic_price }}/-
+        + रु. {{ global_gst_value }} (GST) = रु. {{ global_total_price_inclusive }}/-
+        अशी आहे.
     </li><br>
     {% endwith %}
     {% endwith %}
     {% endwith %}
 </div>
 
-    <li>शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल, २०१५ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने  व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करिता यंत्र सामग्रीच्या पुस्तकी किमतीच्या २०% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत.</li><br>
-    <li>मुद्दा क्र.4 नुसार आवश्यक
-        {% for subproduct in product.subproducts.all %}
-        {{ subproduct.type_of_part }}
-        {% endfor %} ची एकूण प्रस्तावित खरेदी रु. 
-        {% with quotationitem=subproduct.quotationitem_set.first %}
-        {% multiply_and_add quotationitem.unit_price subproduct.quantity quotationitem.gst_value %}
-        {% endwith %}
-        /- GST सह आहे. सदरची रक्कम यंत्रसामग्री पुस्तके किंमतीच्या 20% मर्यादेत (यंत्रसामग्री पुस्तकी किंमत रु. {{ product.price }}/-) असल्याने, मा. महोदयांना विनंती करण्यात येते की, उपरोक्त नमुद केलेल्या अधिकारानुसार, 
-        {% with quotationitem=subproduct.quotationitem_set.first %}
+{% if quotation_expense_criteria_text %}
+    <li>{{ quotation_expense_criteria_text }}</li><br>
+{% endif %}
+
+<li>मुद्दा क्र.4 नुसार आवश्यक
+    {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
+        {{ subproduct_type }}
+    {% endfor %}
+    {% if quotation_expense_criteria_text %}
+      
+        ची एकूण प्रस्तावित खरेदी रु. {{ global_total_price_inclusive }}/- GST सह आहे. सदरची रक्कम यंत्रसामग्री पुस्तके किंमतीच्या {% if '25%' in quotation_expense_criteria_text %}२५{% else %}२०{% endif %} % मर्यादेत 
+    {% endif %}
+    (यंत्रसामग्री पुस्तकी किंमत रु. {{ product.price }}/-) असल्याने, मा. महोदयांना विनंती करण्यात येते की, उपरोक्त नमूद केलेल्या अधिकारानुसार, 
+    {% with quotationitem=subproduct.quotationitem_set.first %}
         {{ quotationitem.amc_provider.name }}
-        {% endwith %}
-        यांचेकडून प्रस्तावात नमुद केलेल्या
-        {% for subproduct in product.subproducts.all %}
-        {{ subproduct.type_of_part }}
-        {% endfor %} parts ची खरेदी करण्यास व त्यानुसार खरेदी आदेश वितरित करण्यास मंजूरी प्रदान करावी.</li>
+    {% endwith %}
+    यांचेकडून प्रस्तावात नमूद केलेल्या
+    {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
+                {{ subproduct_type }},
+            {% endfor %}
+    ची खरेदी करण्यास व त्यानुसार खरेदी आदेश वितरित करण्यास मंजूरी प्रदान करावी.</li>
 </div>
+
 
                 </ul>
         </div><br>

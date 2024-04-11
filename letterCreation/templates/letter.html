@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <style>
+
+       
         /* Print-specific styles */
         @media print {
             /* Hide headers and footers */
@@ -27,8 +29,8 @@
   <title>Letter 7</title>
 </head>
 
-<body class="font-times text-sm">
-    <div class="border border-solid border-black border-2 m-4 max-w-screen">
+<body class="font-times text-lg">
+    <div>
         <div class="img">
             <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-56 rounded-lg" />
         </div>
@@ -75,24 +77,26 @@
                     
                 </div>
                 <div class="w-[600] text-left">
-                    <p>Sir,<br> With reference to your quotation No {{quotation.ref_no}} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at
+                    {% for quotation in quotations %}
+                    <p>Sir,<br> With reference to your quotation No {{ quotation.ref_no }} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at </p>
+                {% endfor %}
+                
                         {% if letter.lab_name == "Mumbai" %}
                         Directorate of forensic Science Laboratories, Mumbai
                         {% else %}
                         Regional Forensic Science Laboratory, {{ letter.lab_name }}
                         {% endif %}
-                    </p>
-                    & submit your invoice along with delivery challan & installation report to this department immediately.
+                  
+                    & submit your invoice along with delivery challan & installation report to this department immediately. </p>
                 </div>
             </div>
             <div class="flex justify-center p-10 ">
-                <ol class="list-decimal">
 
-                    <li>
+                    
 
-                        <div class="flex justify-center p-10">
+                        <div class="flex justify-center">
 
-                            <table class="border border-collapse w-auto">
+                            <table class="border border-collapse w-auto" style="page-break-inside: avoid;">
                                 <thead>
                                     <tr>
                                         <th class="border p-8 m-2">Part No & Description</th>
@@ -110,7 +114,7 @@
                                         <td class="border text-center">{{ subproduct.quantity }}</td>
                                         {% if quotationitem %}
                                         <td class="border p-10 m-2">{{ quotationitem.unit_price }} /-</td>
-                                        <td class="border p-10 m-2">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
+                                        <td class="border p-10 m-2 text-center">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
                                         {% else %}
                                         <td class="border p-10 m-2">N/A</td>
                                         <td class="border p-10 m-2">N/A</td>
@@ -120,13 +124,13 @@
                                     {% endfor %}
                                     <tr>
                                         <td colspan="2" class="border"></td>
-                                        <th class="border">Total Basic Price in INR</th>
-                                        <td class="border">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
+                                        <th class="border text-left">Total Basic Price in INR</th>
+                                        <td class="border text-center">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="border"></td>
-                                        <th class="border">+18% GST</th>
-                                        <td class="border">
+                                        <th class="border text-left">+18% GST</th>
+                                        <td class="border text-center">
                                             {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
                                             {% with gst_value=total_basic_price|calc:0.18 %}
                                             {{ gst_value }}/-
@@ -136,8 +140,8 @@
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="border"></td>
-                                        <th class="border">Total Price inclusive of GST</th>
-                                        <td class="border p-10 m-2">
+                                        <th class="border text-left">Total Price inclusive of GST</th>
+                                        <td class="border p-10 m-2 text-center">
                                             {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
                                             {% with gst_value=total_basic_price|calc:0.18 %}
                                             {% with total_price_inclusive=total_basic_price|add:gst_value %}
@@ -153,21 +157,24 @@
                                 </tbody>
                             </table>
                         </div>
-                    </li>
+                    
 
-                </ol>
             </div><br>
         </div>
+        
         <div class="float-right">
-            <p>(Dr. S.V. Ghumatkar) Director</p><br>
+            <p class="px-32">Yours</p><br><br>
+            <p class="text-center">(Dr. S.V. Ghumatkar) Director</p>
             <p>Directorate of Forensic Science Laboratories,</p>
             <p>M.S.and Chemical Analyser to Government.</p>
         </div><br>
         <div>
+            <p class="px-8">Thanking You </p>
+            <br><br><br><br>
             <p> Copy to:-</p>
             {% if letter.lab_name == "Mumbai" %}
-            The Deputy Director, Directorate of forensic Science Laboratories, Mumbai <br>
-            For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}
+            <p>The Deputy Director, Directorate of forensic Science Laboratories, Mumbai </p><br><br>
+            <p>For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
 
             {% else %}
             The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }}

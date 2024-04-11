@@ -4,7 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
 from itertools import groupby
+from django.db import models
 
+def index(request):
+    return render(request,'index.html')
 
 def load_form(request):
     return render(request,'form1.html')
@@ -16,8 +19,9 @@ def product_list(request):
 
 def letter_detail(request, product_id):
     product = Product.objects.get(pk=product_id)
+    letter_id = product.letter_id
     subproducts = product.subproducts.all()
-    return render(request, 'letter1.html', {'product': product,'subproducts':subproducts})
+    return render(request, 'letter1.html', {'product': product,'subproducts':subproducts, 'letter_id':letter_id})
 
 def quotation_form(request):
     letters = Letter.objects.all()
@@ -47,14 +51,20 @@ def letter_detail4(request, subproduct_id):
 
 
 
+from decimal import Decimal
+
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
     product = subproduct.product
     amc_provider = subproduct.amc_provider
-    quotations = Quotation.objects.filter(product=product).prefetch_related('quotationitem_set__subproduct__amc_provider')
-
     subproducts = Subproduct.objects.filter(product=product).select_related('amc_provider')
-    
+    quotations = Quotation.objects.filter(product=product, quotationitem__subproduct=subproduct)
+
+    # Calculate global variables
+    global_total_basic_price = Decimal('0')
+    global_gst_value = Decimal('0')
+    global_total_price_inclusive = Decimal('0')
+
     # Group subproducts by amc_provider name
     grouped_subproducts = {}
     for sub in subproducts:
@@ -63,14 +73,36 @@ def letter_detail6(request, subproduct_id):
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(sub)
 
+        # Calculate total basic price, GST value, and total price inclusive
+        total_basic_price = sub.quotationitem_set.first().unit_price * sub.quantity
+        gst_value = total_basic_price * Decimal('0.18')
+        total_price_inclusive = total_basic_price + gst_value
+
+        # Update global variables
+        global_total_basic_price += total_basic_price
+        global_gst_value += gst_value
+        global_total_price_inclusive += total_price_inclusive
+
+    # Load the text based on the quotation_expense_criteria value from Quotation model
+    quotation_expense_criteria_text = ""
+    for quotation in quotations:
+        if quotation.quotation_expense_criteria == '20%':
+            quotation_expense_criteria_text = "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करिता यंत्र सामग्रीच्या पुस्तकी किमतीच्या २०% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत."
+        elif quotation.quotation_expense_criteria == '25%':
+            quotation_expense_criteria_text = "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करितासंयत्रे , यंत्रसामग्री आणि साधनसामग्री इत्यादीच्या दुरुस्ती करिता वार्षिक खर्च यंत्रसामग्रीच्या पुस्तकी किंमतीच्या 25% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत."
+
     return render(request, 'letter6.html', {
         'product': product,
         'grouped_subproducts': grouped_subproducts,
+        'global_total_basic_price': global_total_basic_price,
         'quotations': quotations,
+        'global_gst_value': global_gst_value,
+        'global_total_price_inclusive': global_total_price_inclusive,
+        'quotation_expense_criteria_text': quotation_expense_criteria_text,
     })
 
-
-
+    
+    
 def product_list6(request):
     letters = Letter.objects.all()
     return render(request, 'table6.html', {'letters': letters})
@@ -82,8 +114,7 @@ def product_list6(request):
 
 
 def product_list7(request):
-    letters = Letter.objects.filter(products__subproducts__quotationitem__isnull=False).distinct()
-    
+    letters = Letter.objects.all()
     return render(request, 'table7.html', {'letters': letters})
 
 
@@ -91,7 +122,7 @@ def letter_detail7(request, product_id):
     product = Product.objects.get(pk=product_id)
     subproducts = product.subproducts.all()
     letter = product.letter
-    quotations = product.quotations.all()
+    quotations = Quotation.objects.filter(product=product)
 
     grouped_subproducts = {}
     for subproduct in subproducts:
@@ -157,10 +188,16 @@ def submit_quotation_info(request):
         product_id = request.POST.get('product_id')
         date = request.POST.get('date')
         ref_no = request.POST.get('ref_no')
+        quotation_expense_criteria = request.POST.get('quotation_criteria')
 
         # Create the quotation
         product = Product.objects.get(pk=product_id)
-        quotation = Quotation.objects.create(product=product, quotation_date=date, ref_no=ref_no)
+        quotation = Quotation.objects.create(
+            product=product,
+            quotation_date=date,
+            ref_no=ref_no,
+            quotation_expense_criteria=quotation_expense_criteria
+        )
 
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id_')]

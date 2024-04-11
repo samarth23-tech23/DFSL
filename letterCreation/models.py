@@ -27,6 +27,11 @@ class Quotation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quotation_date = models.DateField()
     ref_no = models.CharField(max_length=255)
+    QUOTATION_EXPENSE_CHOICES = [
+        ('20%', '20%'),
+        ('25%', '25%'),
+    ]
+    quotation_expense_criteria = models.CharField(max_length=3, choices=QUOTATION_EXPENSE_CHOICES, default='20%')
 
 class AMCProvider(models.Model):
     name = models.CharField(max_length=255)
