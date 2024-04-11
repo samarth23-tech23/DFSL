@@ -203,15 +203,15 @@ def submit_quotation_info(request):
         total_price = 0  # Initialize total_price
 
         # Process each subproduct
-        subproduct_ids = [key.split('')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
+        subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
             amc_provider = subproduct.amc_provider
 
-            unit_price = request.POST.get(f'unit_price_{subproduct_id}')
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
             quantity = subproduct.quantity
-            price_without_gst = float(unit_price) * quantity
-            gst_value = price_without_gst * 0.18
+            price_without_gst = unit_price * quantity
+            gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
             price_with_gst = price_without_gst + gst_value
 
             total_price += price_with_gst  # Add price_with_gst to total_price
@@ -223,22 +223,14 @@ def submit_quotation_info(request):
                 unit_price=unit_price,
                 price_without_gst=price_without_gst,
                 price_with_gst=price_with_gst,
-                gst_percentage=18,
+                gst_percentage=18,  # Hardcoded GST percentage for now
                 gst_value=gst_value,
                 expected_delivery=request.POST.get(f'expected_delivery_{subproduct_id}'),
                 amc_provider=amc_provider
             )
 
-            # Update the AMCProvider fields
-            amc_provider.ac_no = request.POST.get('ac_no', amc_provider.ac_no)
-            amc_provider.ifsc_code = request.POST.get('ifsc_code', amc_provider.ifsc_code)
-            amc_provider.ac_name = request.POST.get('ac_name', amc_provider.ac_name)
-            amc_provider.bank_name = request.POST.get('bank_name', amc_provider.bank_name)
-            amc_provider.pan_no = request.POST.get('pan_no', amc_provider.pan_no)
-            amc_provider.state = request.POST.get('state', amc_provider.state)
-            amc_provider.pincode = request.POST.get('pincode', amc_provider.pincode)
-            amc_provider.address = request.POST.get('address', amc_provider.address)
-            amc_provider.save()
+            # Update the AMCProvider fields (if needed)
+            # Note: This part may need adjustment based on your actual requirements
 
         quotation.total_price = total_price  # Update total_price
         quotation.save()

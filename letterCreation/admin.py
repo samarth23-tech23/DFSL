@@ -11,7 +11,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):
-    list_display = ['type_of_part', 'part_name', 'specification', 'quantity', 'period_of_amc_contract', 'service_report_date', 'amc_provider_name']
+    list_display = ['part_name','type_of_part', 'specification', 'quantity', 'period_of_amc_contract', 'service_report_date', 'amc_provider_name']
 
     def amc_provider_name(self, obj):
         return obj.amc_provider.name

@@ -4,6 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -114,7 +115,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 p-8">
+<body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">
         <div class="content-wrapper">
             <div class="search-bar">
@@ -127,41 +128,73 @@
                     </svg>
                 </div>
             </div>
-        <table id="productTable" class="content-table">
-            <thead>
-                <tr>
-                    <th class="border border-gray-200 px-4 py-2">Letter No</th>
-                    <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                    <th class="border border-gray-200 px-4 py-2">Letter Date</th>
-                    <th class="border border-gray-200 px-4 py-2">Product Name</th>
-                    <th class="border border-gray-200 px-4 py-2">Department</th>
-                    <th class="border border-gray-200 px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for letter in letters %}
-                {% for product in letter.products.all %}
-             
-             
-                <tr>
-                    <td class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
-                    <td class="border border-gray-200 px-4 py-2">
-                        <a href="{% url 'letter_detail7' product.id %}" class="print-button">Print</a>
-                    </td>
-                </tr>
-             
-                {% endfor %}
-        
-                {% endfor %}
-            </tbody>
-        </table>
+
+
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-200 px-4 py-2">Letter No</th>
+                        <th class="border border-gray-200 px-4 py-2">Lab Name</th>
+                        <th class="border border-gray-200 px-4 py-2">Letter Date</th>
+                        <th class="border border-gray-200 px-4 py-2">Product Name</th>
+                        <th class="border border-gray-200 px-4 py-2">Department</th>
+                        <th class="border border-gray-200 px-4 py-2">AMC Provider</th>
+                        <th class="border border-gray-200 px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for letter in letters %}
+                        {% for product in letter.products.all %}
+                            {% for subproduct in product.subproducts.all %}
+                                <tr>
+                                    {% if forloop.first %}
+                                        <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
+                                        <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
+                                        <td rowspan="{{ product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
+                                    {% endif %}
+                                    <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
+                                    <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
+                                    <td class="border border-gray-200 px-4 py-2">{{ subproduct.amc_provider.name }}</td>
+                                    <td class="border border-gray-200 px-4 py-2">
+                                        <a href="{% url 'letter_detail7' product.id %}" class="print-button">Print</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% include 'footer.html' %}
 
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const rows = document.querySelectorAll('.content-table tbody tr');
+
+        searchInput.addEventListener('input', function () {
+            const searchText = this.value.toLowerCase().trim();
+
+            rows.forEach(row => {
+                let isVisible = false;
+                row.querySelectorAll('td').forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchText)) {
+                        isVisible = true;
+                    }
+                });
+
+                if (isVisible) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
 </html>
 {%endblock%}
