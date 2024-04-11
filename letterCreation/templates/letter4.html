@@ -38,7 +38,12 @@
                     </p>
                 </div>
                 <div class="w-[600] text-justify">
-                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at Deputy Director, Regional Forensic Science Laboratory. {{ product.letter.lab_name }}.
+                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at  
+                      {% if letter.lab_name == "Mumbai" %}
+                    Directorate of forensic Science Laboratories, Mumbai
+                    {% else %}
+                    Regional Forensic Science Laboratory, {{ letter.lab_name }}
+                    {% endif %}. 
 
                 
                 </div>

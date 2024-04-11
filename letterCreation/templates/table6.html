@@ -169,5 +169,32 @@
         </div>
     </div>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const rows = document.querySelectorAll('.content-table tbody tr');
+
+        searchInput.addEventListener('input', function () {
+            const searchText = this.value.toLowerCase().trim();
+
+            rows.forEach(row => {
+                let isVisible = false;
+                row.querySelectorAll('td').forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchText)) {
+                        isVisible = true;
+                    }
+                });
+
+                if (isVisible) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
 </html>
 {% endblock %}
