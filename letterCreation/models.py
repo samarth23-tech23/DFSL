@@ -32,6 +32,8 @@ class Quotation(models.Model):
         ('25%', '25%'),
     ]
     quotation_expense_criteria = models.CharField(max_length=3, choices=QUOTATION_EXPENSE_CHOICES, default='20%')
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
 
 class AMCProvider(models.Model):
     name = models.CharField(max_length=255)

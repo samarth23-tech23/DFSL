@@ -69,7 +69,7 @@
                                 class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500" required>
                         </div>
                     </div>
-
+<!-- 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="mb-4">
                             <label for="price_without_gst_{{ subproduct.id }}" class="block text-sm font-semibold text-title-color">Price Without GST:</label>
@@ -81,7 +81,7 @@
                             <input type="text" id="price_with_gst_{{ subproduct.id }}" name="price_with_gst_{{ subproduct.id }}"
                                 class="w-full border-2 border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-indigo-500" required>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="mb-4">
                         <label for="expected_delivery_{{ subproduct.id }}" class="block text-sm font-semibold text-title-color">Expected Delivery:</label>
@@ -98,13 +98,20 @@
 
     <script>
         document.getElementById('quotationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-            let subproductIds = Array.from(new Set(Array.from(formData.keys()).filter(key => key.startsWith('subproduct_id_')).map(key => formData.get(key))));
-            subproductIds.forEach(subproductId => {
-                formData.append(`gst_percentage_${subproductId}`, ((parseFloat(formData.get(`price_with_gst_${subproductId}`)) - parseFloat(formData.get(`price_without_gst_${subproductId}`))) / parseFloat(formData.get(`price_without_gst_${subproductId}`))) * 100);
-                formData.append(`gst_value_${subproductId}`, parseFloat(formData.get(`price_with_gst_${subproductId}`)) - parseFloat(formData.get(`price_without_gst_${subproductId}`)));
-            });
+        e.preventDefault();
+        let formData = new FormData(this);
+        let subproductIds = Array.from(new Set(Array.from(formData.keys()).filter(key => key.startsWith('subproduct_id_')).map(key => formData.get(key))));
+        subproductIds.forEach(subproductId => {
+            let unitPrice = parseFloat(formData.get(`unit_price_${subproductId}`));
+            let quantity = parseFloat(formData.get(`quantity_${subproductId}`));
+            let priceWithoutGst = unitPrice * quantity;
+            let gstValue = priceWithoutGst * 0.18;
+            let priceWithGst = priceWithoutGst + gstValue;
+
+            formData.append(`price_without_gst_${subproductId}`, priceWithoutGst);
+            formData.append(`gst_value_${subproductId}`, gstValue);
+            formData.append(`price_with_gst_${subproductId}`, priceWithGst);
+        });
             fetch('/letterGenerate/submit_quotation_info/', {
                 method: 'POST',
                 body: formData

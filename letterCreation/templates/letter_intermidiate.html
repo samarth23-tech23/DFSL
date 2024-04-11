@@ -23,8 +23,7 @@
             <tbody>
                 {% for letter in letters %}
                 {% for product in letter.products.all %}
-             
-             
+                {% if not product.quotation_set.all %}
                 <tr>
                     <td class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
                     <td class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
@@ -35,9 +34,8 @@
                         <a href="{% url 'quotation_page' product.id %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add info</a>
                     </td>
                 </tr>
-             
+                {% endif %}
                 {% endfor %}
-        
                 {% endfor %}
             </tbody>
         </table>
