@@ -199,6 +199,8 @@ def submit_quotation_info(request):
             quotation_expense_criteria=quotation_expense_criteria
         )
 
+        total_price = 0  # Initialize total_price
+
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id_')]
         for subproduct_id in subproduct_ids:
@@ -206,9 +208,12 @@ def submit_quotation_info(request):
             amc_provider = subproduct.amc_provider
 
             unit_price = request.POST.get(f'unit_price_{subproduct_id}')
-            price_without_gst = request.POST.get(f'price_without_gst_{subproduct_id}')
-            price_with_gst = request.POST.get(f'price_with_gst_{subproduct_id}')
-            expected_delivery = request.POST.get(f'expected_delivery_{subproduct_id}')
+            quantity = subproduct.quantity
+            price_without_gst = float(unit_price) * quantity
+            gst_value = price_without_gst * 0.18
+            price_with_gst = price_without_gst + gst_value
+
+            total_price += price_with_gst  # Add price_with_gst to total_price
 
             # Create the quotation item
             quotation_item = QuotationItem.objects.create(
@@ -217,9 +222,9 @@ def submit_quotation_info(request):
                 unit_price=unit_price,
                 price_without_gst=price_without_gst,
                 price_with_gst=price_with_gst,
-                gst_percentage=((float(price_with_gst) - float(price_without_gst)) / float(price_without_gst)) * 100,
-                gst_value=float(price_with_gst) - float(price_without_gst),
-                expected_delivery=expected_delivery,
+                gst_percentage=18,
+                gst_value=gst_value,
+                expected_delivery=request.POST.get(f'expected_delivery_{subproduct_id}'),
                 amc_provider=amc_provider
             )
 
@@ -233,6 +238,9 @@ def submit_quotation_info(request):
             amc_provider.pincode = request.POST.get('pincode', amc_provider.pincode)
             amc_provider.address = request.POST.get('address', amc_provider.address)
             amc_provider.save()
+
+        quotation.total_price = total_price  # Update total_price
+        quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
