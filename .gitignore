@@ -14,3 +14,4 @@ storefront/
 dfsl_env/
 .DS_Store
 *.pyc
+.env
