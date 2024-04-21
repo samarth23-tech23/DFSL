@@ -18,7 +18,7 @@ RUN chown -R appuser:appuser /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN mkdir /app/static
+# RUN mkdir /app/static
 RUN python3 manage.py collectstatic --noinput
 
 USER appuser
@@ -28,5 +28,6 @@ ENTRYPOINT [\
                 "-c",\
                 "python3 manage.py makemigrations; \
                 python3 manage.py migrate; \
+                python3 manage.py createsuperuser --noinput; \
                 gunicorn --bind 0.0.0.0:8000 DFSL.wsgi:application;"\
             ]
