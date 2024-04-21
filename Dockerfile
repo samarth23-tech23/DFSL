@@ -18,7 +18,7 @@ RUN chown -R appuser:appuser /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# RUN mkdir /app/static
+RUN mkdir /app/static
 RUN python3 manage.py collectstatic --noinput
 
 USER appuser
