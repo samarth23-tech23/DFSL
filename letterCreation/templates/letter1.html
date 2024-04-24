@@ -33,31 +33,7 @@
                 
             </div>
 
-        {% for product in product.letter.products.all %}
-    <div class="w-[600] ml-20 text-left">
-        <ul class="list-disc text-left mx-4">
-            {% regroup product.subproducts.all by amc_provider as grouped_subproducts %}
-
-            {% for amc_provider_group in grouped_subproducts %}
-                {% for subproduct in amc_provider_group.list %}
-                    <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
-                    <li>तसेच सदर उपकरणाचा 
-                        {% if subproduct.period_of_amc_contract == 12 %}
-                            वार्षिक
-                        {% elif subproduct.period_of_amc_contract == 24 %}
-                            द्वैवार्षिक
-                        {% elif subproduct.period_of_amc_contract == 36 %}
-                            त्रैवार्षिक
-                        {% else %}
-                            {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
-                        {% endif %}
-                        देखभाल सेवा करार करण्यात आलेला आहे.</li>
-                    <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endfor %}
+            
 
             <div>
                 <div class="flex justify-center p-6">
