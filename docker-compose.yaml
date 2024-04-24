@@ -12,6 +12,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: always
 
   db:
     image: postgres:latest
@@ -26,6 +27,7 @@ services:
       interval: 10s  # Check every 10 seconds
       timeout: 5s  # Wait up to 5 seconds for response
       retries: 3  # Retry up to 3 times before declaring unhealthy
+    restart: always
 
   proxy:
     build: ./nginx
@@ -35,6 +37,7 @@ services:
       - static_volume:/app/static
     depends_on:
       - web-app
+    restart: always
 
 volumes:
   dfsl_postgres_data:

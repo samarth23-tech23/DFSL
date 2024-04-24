@@ -238,3 +238,4 @@ def submit_quotation_info(request):
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
+    
