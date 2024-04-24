@@ -40,7 +40,5 @@ To install and run the project, follow these steps:
 
    Open your web browser and navigate to `http://localhost:8086/letterGenerate/` to view the application.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+## Ownership and Development
+The DFSL Project is the property of the Directorate of Forensic Science Laboratories (DFSL), and it was developed by students of K J Somaiya Institute of Technology, Information Technology department.
