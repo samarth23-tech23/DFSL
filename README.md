@@ -38,23 +38,7 @@ To install and run the project, follow these steps:
 
 4. Access the web application:
 
-   Open your web browser and navigate to `http://localhost:8086` to view the application.
-
-## Usage
-
-To use the application, follow these steps:
-
-1. [Describe how users can interact with your application, including any login or registration processes.]
-
-2. [Provide any additional information or instructions for using your application.]
-
-## Troubleshooting
-
-If you encounter any issues or errors, try the following troubleshooting steps:
-
-- [List common issues and their solutions.]
-
-- [Provide contact information for support or assistance.]
+   Open your web browser and navigate to `http://localhost:8086/letterGenerate/` to view the application.
 
 ## License
 
