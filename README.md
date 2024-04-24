@@ -5,7 +5,7 @@
 This project is a Django-based web application for The DFSL (Directorate of Forensic Science Laboratories) project is a comprehensive software solution designed for managing digital forensic investigations and generating store managing and generating related documents.
 
 ## Overview
-The DFSL project provides a range of functionalities for digital forensic investigators to streamline their workflow and manage case-related information effectively. The lettergenerate module specifically focuses on generating various types of letters and reports required during an investigation.
+The DFSL project provides a range of functionalities for digital forensic investigators to streamline their workflow and manage buying of items and keep records of information effectively. The lettergenerate module specifically focuses on generating various types of letters and reports required during an ordering process.
 
 ## Prerequisites
 
