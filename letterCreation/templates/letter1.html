@@ -1,3 +1,6 @@
+{% load custom_tags %}
+
+    
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -29,35 +32,11 @@
                 {% else %}
                     {{ subproducts.first.type_of_part }}
                 {% endif %}
-                ची आवश्यकता असल्याचे सादर केले आहे.(सोबत मागणीपत्र व सर्व्हस रिपोर्ट प्रत)
+                ची आवश्यकता असल्याचे सादर केले आहे.(सोबत मागणीपत्र व सर्विस रिपोर्ट प्रत)
                 
             </div>
 
-        {% for product in product.letter.products.all %}
-    <div class="w-[600] ml-20 text-left">
-        <ul class="list-disc text-left mx-4">
-            {% regroup product.subproducts.all by amc_provider as grouped_subproducts %}
-
-            {% for amc_provider_group in grouped_subproducts %}
-                {% for subproduct in amc_provider_group.list %}
-                    <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
-                    <li>तसेच सदर उपकरणाचा 
-                        {% if subproduct.period_of_amc_contract == 12 %}
-                            वार्षिक
-                        {% elif subproduct.period_of_amc_contract == 24 %}
-                            द्वैवार्षिक
-                        {% elif subproduct.period_of_amc_contract == 36 %}
-                            त्रैवार्षिक
-                        {% else %}
-                            {{ subproduct.period_of_amc_contract }} महिन्यांसाठी
-                        {% endif %}
-                        देखभाल सेवा करार करण्यात आलेला आहे.</li>
-                    <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endfor %}
+            
 
             <div>
                 <div class="flex justify-center p-6">
@@ -86,14 +65,11 @@
                 </div>
             </div>
 
-            {% for product in product.letter.products.all %}
-        <div class="w-[600] ml-20 text-left">
-            <ul class="list-disc text-left mx-4">
-                {% regroup product.subproducts.all by amc_provider as grouped_subproducts %}
-
-                {% for amc_provider_group in grouped_subproducts %}
-                    {% for subproduct in amc_provider_group.list %}
-                        <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+            {% for amc_provider, subproduct_group in product.subproducts.all|group_by_amc_provider %}
+            <div class="w-[600] ml-20 text-left">
+                <ul class="list-disc text-left mx-4">
+                    <li>{{ product.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+                    {% for subproduct in subproduct_group %}
                         <li>तसेच सदर उपकरणाचा 
                             {% if subproduct.period_of_amc_contract == 12 %}
                                 वार्षिक
@@ -107,11 +83,10 @@
                             देखभाल सेवा करार करण्यात आलेला आहे.</li>
                         <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
                     {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-    {% endfor %}
-
+                </ul>
+            </div>
+        {% endfor %}
+        
 
             <br><br>
             

@@ -1,4 +1,3 @@
-
 {% extends 'sidebar.html' %}
 {% load static %}
 {% block content %} 
@@ -140,15 +139,19 @@
                     </label>
                 </div>
             </div><br><br>
+           
+            <label for="main_item" class="sr-only">Main Item</label>
+            <select id="main_item" name="main_item" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                <option selected>Main Item</option>
+                {% for main_item in main_items %}
+                <option value="{{ main_item.id }}">{{ main_item.name }}</option>
+                {% endfor %}
+            </select><br>
+
             <div id="productDetails">
                 <!-- Product Detail Section -->
             </div>
-            {% comment %} <button onclick="addProduct()" class="btn font-bold py-2 px-4 rounded mt-6 mr-6"><i class="fas fa-plus"></i>Add Product
-        </button>
-        <button
-          onclick="submitForm()"
-          class="border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-bold py-2 px-4 rounded mt-4">
-          <i class="fas fa-check"></i> Submit</button> {% endcomment %}
+            
 
           <div class="flex justify-start">
             <button onclick="addProduct()" class="btn font-bold py-2 px-4 rounded mt-6 mr-6">
@@ -176,14 +179,14 @@
     productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
 
     // Product Title
-    const productTitle = document.createElement('h3');
+    const productTitle = document.createElement('h2');
     productTitle.style.color = '#3593aa'; 
     productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-    productTitle.textContent = `Product ${productId}`;
+    productTitle.textContent = Product ${productId};
     productSection.appendChild(productTitle);
 
     // Array of labels for each input field
-    const labels = ['Product SR', 'Product Name', 'Product Price', 'Buying Date', 'Department Name'];
+    const labels = ['Product SR', 'Product Name', 'Product Price', 'Buying Date', 'Department Name','Period of AMC Contract', 'Service Report Date', 'AMC Provider'];
 
     labels.forEach(label => {
         // Label
@@ -193,13 +196,37 @@
         inputLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-1');
         productSection.appendChild(inputLabel);
 
+
         // Input field
-        const inputField = document.createElement('input');
-        inputField.setAttribute('type', label === 'Buying Date' ? 'date' : 'text');
-        inputField.setAttribute('placeholder', label);
-        inputField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'w-full');
-        productSection.appendChild(inputField);
+        if (label === 'Product Name') {
+            // Create a select element for dropdown
+            const selectField = document.createElement('select');
+            selectField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'w-full');
+            
+            // Populate options from database or static list
+            // For example, you can fetch options from an API or define a static list
+            const productNames = ['Product A', 'Product B', 'Product C']; // Replace this with your dynamic data
+            
+            // Add options to the select element
+            productNames.forEach(name => {
+                const option = document.createElement('option');
+                option.textContent = name;
+                selectField.appendChild(option);
+            });
+    
+            // Append the select field to the product section
+            productSection.appendChild(selectField);
+        } else {
+            // Create a regular text input field
+            const inputField = document.createElement('input');
+            inputField.setAttribute('type', label === 'Buying Date' || label === 'Service Report Date' ? 'date' : 'text');
+            inputField.setAttribute('placeholder', label);
+            inputField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'w-full');
+            productSection.appendChild(inputField);
+        }
+        
     });
+    
 
     // Add Subproduct Button
     const addSubproductBtn = document.createElement('button');
@@ -223,7 +250,7 @@
 }
 
      
-      function addSubproduct(event) {
+      {% comment %} function addSubproduct(event) {
         const productSection = event.target.parentElement;
    
         // Find the number of existing subproducts
@@ -236,11 +263,11 @@
         // Subproduct Title
         const subproductTitle = document.createElement('h4');
         subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-        subproductTitle.textContent = `Part Information ${subproducts + 1}`;
+        subproductTitle.textContent = Part Information ${subproducts + 1};
         subproductSection.appendChild(subproductTitle);
    
         // Subproduct Inputs
-        const inputs = ['Type of Part', 'Part Name', 'Specification', 'Quantity', 'Period of AMC Contract', 'Service Report Date', 'AMC Provider'];
+        const inputs = ['Type of Part', 'Part Name', 'Specification', 'Quantity'];
         inputs.forEach(input => {
             const inputLabel = document.createElement('label');
             inputLabel.textContent = input;
@@ -257,7 +284,7 @@
                 inputField.addEventListener('change', () => {
                     const dateParts = inputField.value.split('-');
                     if (dateParts.length === 3) {
-                        const formattedDate = `${dateParts[0]}-${dateParts[1].padStart(2, '0')}-${dateParts[2].padStart(2, '0')}`;
+                        const formattedDate = ${dateParts[0]}-${dateParts[1].padStart(2, '0')}-${dateParts[2].padStart(2, '0')};
                         inputField.value = formattedDate;
                     }
                 });
@@ -281,9 +308,89 @@
         subproductSection.appendChild(deleteSubproductBtn);
    
         productSection.appendChild(subproductSection);
-    }
+    } {% endcomment %}
      
 
+    function addSubproduct(event) {
+        const productSection = event.target.parentElement;
+    
+        // Find the number of existing subproducts
+        const subproducts = productSection.querySelectorAll('.subproduct-section').length;
+    
+        // Create Subproduct Section
+        const subproductSection = document.createElement('div');
+        subproductSection.classList.add('ml-8', 'subproduct-section', 'border', 'border-gray-300', 'rounded', 'p-4', 'shadow-md', 'mb-4', 'mt-8');
+    
+        // Subproduct Title
+        const subproductTitle = document.createElement('h4');
+        subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
+        subproductTitle.textContent = Part Information ${subproducts + 1};
+        subproductSection.appendChild(subproductTitle);
+    
+        // Dropdown options for Part Name and Type of Part
+        const partNames = ['Part A', 'Part B', 'Part C'];
+        const partTypes = ['Type A', 'Type B', 'Type C'];
+    
+        // Dropdown for Part Name
+        const partNameLabel = document.createElement('label');
+        partNameLabel.textContent = 'Part Name';
+        partNameLabel.style.color = '#3593aa';
+        partNameLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+        subproductSection.appendChild(partNameLabel);
+    
+        const partNameSelect = document.createElement('select');
+        partNameSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+        partNames.forEach(name => {
+            const option = document.createElement('option');
+            option.textContent = name;
+            partNameSelect.appendChild(option);
+        });
+        subproductSection.appendChild(partNameSelect);
+    
+        // Dropdown for Type of Part
+        const partTypeLabel = document.createElement('label');
+        partTypeLabel.textContent = 'Type of Part';
+        partTypeLabel.style.color = '#3593aa';
+        partTypeLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+        subproductSection.appendChild(partTypeLabel);
+    
+        const partTypeSelect = document.createElement('select');
+        partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+        partTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.textContent = type;
+            partTypeSelect.appendChild(option);
+        });
+        subproductSection.appendChild(partTypeSelect);
+    
+        // Additional Inputs (if any)
+        const additionalInputs = ['Specification', 'Quantity'];
+        additionalInputs.forEach(input => {
+            const inputLabel = document.createElement('label');
+            inputLabel.textContent = input;
+            inputLabel.style.color = '#3593aa';
+            inputLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+            subproductSection.appendChild(inputLabel);
+    
+            const inputField = document.createElement('input');
+            inputField.setAttribute('type', 'text');
+            inputField.setAttribute('placeholder', input);
+            inputField.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+            subproductSection.appendChild(inputField);
+        });
+    
+        // Delete Subproduct Button
+        const deleteSubproductBtn = document.createElement('button');
+        deleteSubproductBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+        deleteSubproductBtn.addEventListener('click', () => {
+            subproductSection.remove();
+        });
+        subproductSection.appendChild(deleteSubproductBtn);
+    
+        productSection.appendChild(subproductSection);
+    }
+    
 
     function submitForm() {
       const letterNo = document.getElementById('letter_no').value;
@@ -308,9 +415,7 @@
                   'Part Name': subproductSection.querySelector('input[placeholder="Part Name"]').value,
                   'Specification': subproductSection.querySelector('input[placeholder="Specification"]').value,
                   'Quantity': subproductSection.querySelector('input[placeholder="Quantity"]').value,
-                  'Period of AMC Contract': subproductSection.querySelector('input[placeholder="Period of AMC Contract"]').value,
-                  'Service Report Date': subproductSection.querySelector('input[placeholder="Service Report Date"]').value,
-                  'AMC Provider': subproductSection.querySelector('input[placeholder="AMC Provider"]').value
+              
               };
               subproducts.push(subproduct);
           });
@@ -381,4 +486,4 @@
 
 
 </html>
-{% endblock %} 
+{% endblock %}

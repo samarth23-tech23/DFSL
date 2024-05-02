@@ -121,3 +121,14 @@ def calculate_total_price(unit_price, quantity):
 @register.filter
 def unique_values(queryset, field_name):
     return queryset.values_list(field_name, flat=True).distinct()
+
+
+@register.filter(name='group_by_amc_provider')
+def group_by_amc_provider(subproducts):
+    groups = {}
+    for subproduct in subproducts:
+        amc_provider_name = subproduct.amc_provider.name
+        if amc_provider_name not in groups:
+            groups[amc_provider_name] = []
+        groups[amc_provider_name].append(subproduct)
+    return groups.items()
