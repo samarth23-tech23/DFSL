@@ -111,6 +111,13 @@
         
 
     </style>
+   <!-- Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
+
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script>
+
+    
 </head>
 
 
@@ -141,13 +148,20 @@
             </div><br><br>
            
             <label for="main_item" class="sr-only">Main Item</label>
-            <select id="main_item" name="main_item" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-                <option selected>Main Item</option>
-                {% for main_item in main_items %}
-                <option value="{{ main_item.id }}">{{ main_item.name }}</option>
+            <input id="main_item" name="main_item" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer" list="main_item_list">
+            
+            <datalist id="main_item_list">
+                {% for name in main_item_names %}
+                <option value="{{ name }}">
                 {% endfor %}
-            </select><br>
-
+            </datalist>
+            
+            <label for="manufacturer_select" class="sr-only">Manufacturer</label>
+            <select id="manufacturer_select" name="manufacturer_select" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+            </select>
+            
+            
+            
             <div id="productDetails">
                 <!-- Product Detail Section -->
             </div>
@@ -167,8 +181,52 @@
     </div>
 
 
-    <script>
-        let productId = 1;
+
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+    const mainItemSelect = document.getElementById('main_item');
+    const manufacturerNameInput = document.getElementById('manufacturer_name');
+    const manufacturerSelect = document.getElementById('manufacturer_select');
+
+    mainItemSelect.addEventListener('change', function () {
+        const mainItem = mainItemSelect.value;
+        if (mainItem) {
+            fetch(`/letterGenerate/get_manufacturer_names/?main_item=${mainItem}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.manufacturer_names.length > 0) {
+                        manufacturerNameInput.value = data.manufacturer_names.join(', ');
+                    } else {
+                        manufacturerNameInput.value = 'No manufacturers found';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    manufacturerNameInput.value = 'Error getting manufacturers';
+                });
+
+            fetch('/letterGenerate/get_manufacturers/')
+                .then(response => response.json())
+                .then(data => {
+                    manufacturerSelect.innerHTML = '';
+                    data.manufacturer_names.forEach(name => {
+                        const option = document.createElement('option');
+                        option.textContent = name;
+                        manufacturerSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else {
+            manufacturerNameInput.value = '';
+            manufacturerSelect.innerHTML = '';
+        }
+    });
+});
+
+
+  let productId = 1;
 
 
        function addProduct() {
@@ -182,7 +240,7 @@
     const productTitle = document.createElement('h2');
     productTitle.style.color = '#3593aa'; 
     productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-    productTitle.textContent = Product ${productId};
+    productTitle.textContent = `Product ${productId}`;
     productSection.appendChild(productTitle);
 
     // Array of labels for each input field
@@ -263,7 +321,7 @@
         // Subproduct Title
         const subproductTitle = document.createElement('h4');
         subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-        subproductTitle.textContent = Part Information ${subproducts + 1};
+        subproductTitle.textContent = `Part Information ${subproducts + 1}`;
         subproductSection.appendChild(subproductTitle);
    
         // Subproduct Inputs
@@ -284,7 +342,7 @@
                 inputField.addEventListener('change', () => {
                     const dateParts = inputField.value.split('-');
                     if (dateParts.length === 3) {
-                        const formattedDate = ${dateParts[0]}-${dateParts[1].padStart(2, '0')}-${dateParts[2].padStart(2, '0')};
+                        const formattedDate = `${dateParts[0]}-${dateParts[1].padStart(2, '0')}-${dateParts[2].padStart(2, '0')}`;
                         inputField.value = formattedDate;
                     }
                 });
@@ -324,7 +382,7 @@
         // Subproduct Title
         const subproductTitle = document.createElement('h4');
         subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-        subproductTitle.textContent = Part Information ${subproducts + 1};
+        subproductTitle.textContent = `Part Information ${subproducts + 1}`;
         subproductSection.appendChild(subproductTitle);
     
         // Dropdown options for Part Name and Type of Part

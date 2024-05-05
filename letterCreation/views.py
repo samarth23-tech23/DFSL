@@ -2,7 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer
 from itertools import groupby
 from django.db import models
 
@@ -10,8 +10,20 @@ def index(request):
     return render(request,'index.html')
 
 def load_form(request):
-    return render(request,'form1.html')
+    main_item_names = list(MainItem.objects.values_list('name', flat=True).distinct())
+    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
+    return render(request, 'form1.html', {'main_item_names': main_item_names, 'manufacturer_names': manufacturer_names})
 
+def get_manufacturer_names(request):
+    main_item_name = request.GET.get('main_item', '')
+    main_items = MainItem.objects.filter(name=main_item_name)
+    manufacturer_names = [main_item.manufacturer.name for main_item in main_items if main_item.manufacturer]
+    return JsonResponse({'manufacturer_names': manufacturer_names})
+
+def get_manufacturers(request):
+    manufacturers = Manufacturer.objects.all()
+    manufacturer_names = [manufacturer.name for manufacturer in manufacturers]
+    return JsonResponse({'manufacturer_names': manufacturer_names})
 
 def product_list(request):
     letters = Letter.objects.all()

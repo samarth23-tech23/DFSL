@@ -41,7 +41,7 @@ class Letter(models.Model):
 
 class MainItem(models.Model):
     name = models.CharField(max_length=255)
-    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, default=1)
     def __str__(self):
         return self.name
 
