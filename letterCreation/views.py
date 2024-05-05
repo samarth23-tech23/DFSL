@@ -2,16 +2,34 @@ from django.shortcuts import render,get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer
 from itertools import groupby
 from django.db import models
-
+from django.http import JsonResponse
+from .models import Product, Department
+ 
 def index(request):
     return render(request,'index.html')
 
-def load_form(request):
-    return render(request,'form1.html')
+def mainitem(request):
+    return render(request,'mainitems.html')
 
+def load_form(request):
+    main_item_names = list(MainItem.objects.values_list('name', flat=True))
+    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
+    return render(request, 'form1.html', {'main_item_names': main_item_names, 'manufacturer_names': manufacturer_names})
+
+def get_product_names(request):
+    # Fetch product names from the database
+    product_names = Product.objects.values_list('name', flat=True)
+    return JsonResponse(list(product_names), safe=False)
+
+
+def get_department_names(request):
+    # Fetch department names from the database based on the selected lab
+    lab_name = request.GET.get('lab_name')
+    departments = Department.objects.filter(lab__name=lab_name).values_list('name', flat=True)
+    return JsonResponse(list(departments), safe=False)
 
 def product_list(request):
     letters = Letter.objects.all()

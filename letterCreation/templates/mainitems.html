@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>manufacturer</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!--
+// v0 by Vercel.
+// https://v0.dev/t/XbF2qnV095f
+-->
+
+<div dir="ltr" data-orientation="horizontal" class="w-full max-w-3xl">
+    <div
+      role="tablist"
+      aria-orientation="horizontal"
+      class="h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground grid w-full grid-cols-3"
+      tabindex="0"
+      data-orientation="horizontal"
+      style="outline: none;"
+    >
+      <button
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="radix-:r18:-content-main-item"
+        data-state="active"
+        id="radix-:r18:-trigger-main-item"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
+        tabindex="-1"
+        data-orientation="horizontal"
+        data-radix-collection-item=""
+      >
+        Main Item
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="radix-:r18:-content-manufacturer-amc"
+        data-state="inactive"
+        id="radix-:r18:-trigger-manufacturer-amc"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
+        tabindex="-1"
+        data-orientation="horizontal"
+        data-radix-collection-item=""
+      >
+        Manufacturer &amp; AMC Provider
+      </button>
+    </div>
+    <div
+      data-state="active"
+      data-orientation="horizontal"
+      role="tabpanel"
+      aria-labelledby="radix-:r18:-trigger-main-item"
+      id="radix-:r18:-content-main-item"
+      tabindex="0"
+      class="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      style=""
+    >
+      <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-v0-t="card">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <h3 class="whitespace-nowrap text-2xl font-semibold leading-none tracking-tight">Main Item</h3>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                for="name"
+              >
+                Name
+              </label>
+              <input
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                id="name"
+                placeholder="Enter name"
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                for="manufacturer"
+              >
+                Manufacturer
+              </label>
+              <input
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                id="manufacturer"
+                placeholder="Enter manufacturer"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center p-6">
+          <button
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            type="submit"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      data-state="inactive"
+      data-orientation="horizontal"
+      role="tabpanel"
+      aria-labelledby="radix-:r18:-trigger-manufacturer-amc"
+      hidden=""
+      id="radix-:r18:-content-manufacturer-amc"
+      tabindex="0"
+      class="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    ></div>
+  </div>
+</body>
+</html>

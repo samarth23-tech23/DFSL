@@ -127,4 +127,3 @@ class PrintTrack(models.Model):
     printed_date3 = models.DateField(null=True, blank=True)
     printed_date4 = models.DateField(null=True, blank=True)
     letter_no = models.CharField(max_length=255)  # Reference to letter_no from Letter model
-

@@ -4,7 +4,12 @@ urlpatterns = [
     path('',views.index),
     
     path('form/',views.load_form), 
-   
+    path('mainitems/', views.mainitem),
+
+       
+    path('product_names/', views.get_product_names, name='get_product_names'),
+    path('department_names/', views.get_department_names, name='get_department_names'),
+
     path('submit_form/', views.submit_form, name='submit_form'),
 
 #letter 3
