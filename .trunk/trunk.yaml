@@ -19,13 +19,13 @@ lint:
   enabled:
     - bandit@1.7.8
     - black@24.4.2
-    - checkov@3.2.74
+    - checkov@3.2.79
     - git-diff-check
     - isort@5.13.2
     - markdownlint@0.40.0
     - prettier@3.2.5
     - ruff@0.4.2
-    - trufflehog@3.74.0
+    - trufflehog@3.75.0
 actions:
   disabled:
     - trunk-announce

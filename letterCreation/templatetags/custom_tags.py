@@ -132,3 +132,8 @@ def group_by_amc_provider(subproducts):
             groups[amc_provider_name] = []
         groups[amc_provider_name].append(subproduct)
     return groups.items()
+
+
+@register.filter(name='get_item')
+def get_item(dictionary, key):
+    return dictionary.get(key)

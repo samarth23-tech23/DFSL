@@ -2,13 +2,11 @@ from django.urls import path
 from . import views
 urlpatterns = [
     path('',views.index),
-    
+    path('mainitems/',views.mainitem), 
     path('form/',views.load_form), 
-    path('mainitems/', views.mainitem),
-
-       
-    path('product_names/', views.get_product_names, name='get_product_names'),
-    path('department_names/', views.get_department_names, name='get_department_names'),
+   
+    path('get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
+    path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
 
     path('submit_form/', views.submit_form, name='submit_form'),
 

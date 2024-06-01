@@ -3,252 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="../static/css/sidebar.css"> -->
     <title>Document</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins',sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-}
+        body {
+            min-height: 100vh;
+            background-color: #fff;
+            display: flex;
+        }
 
-body {
-    min-height: 100vh;
-    background-color: #fff;
-}
-#main-content {
-    margin-left: 25%; /* Ensure main content starts after the sidebar */
-    padding: 20px;
-}
-.main {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    width: 100%;
-    overflow: hidden;
-    transition: all 0.35s ease-in-out;
-}
-.content {
-    flex: 1;
-    max-width: 100vw;
-    width: 100vw;
-}
-.navigation{
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    width: 70px;
-    {% comment %} border-radius: 10px; {% endcomment %}
-    box-sizing: initial;
-    border-left: 5px solid #01a1df;
-    background-color: #3ab1df; 
-    transition: width 0.5s;
-    overflow-x: hidden;
-}
+        .navigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            border-left: 5px solid #01a1df;
+            background-color: #3ab1df;
+            overflow-x: hidden;
+            padding-top: 40px;
+            transition: width 0.3s;
+        }
 
+        .navigation .sidebar-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            padding: 10px 0;
+            background-color: #01a1df;
+        }
 
-.navigation.active{ 
-    width: 300px;
-}
-.navigation ul{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 10px;
-    padding-left: 5px;
-    padding-top: 40px;
-  
-}
+        .navigation ul {
+            list-style-type: none;
+            padding: 0;
+        }
 
+        .navigation ul li {
+            width: 100%;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
 
-.navigation ul li{
-    position: relative    ;
-    list-style:  none;
-    width: 100%;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
+        .navigation ul li a {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #F5F5F5;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
 
-.navigation ul li.active{
-    background: #F5F5F5;
-}
-.navigation ul li b:nth-child(1)
-{
-    position: absolute;
-    top: -20px;
-    height: 20px;
-    width: 100%;
-    background: #F5F5F5 ;
-    display: none;
-}
-.navigation ul li b:nth-child(1)::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-bottom-right-radius: 20px;
-    background: #3ab1df;
-}
+        .navigation ul li a .icon {
+            min-width: 60px;
+            text-align: center;
+        }
 
+        .navigation ul li a .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
+        .navigation ul li.active {
+            background: #F5F5F5;
+        }
 
-.navigation ul li b:nth-child(2)
-{
-    position: absolute;
-    bottom: -20px;
-    height: 20px;
-    width: 100%;
-    background: #3ab1df ;
-    display: none;
-}
-.navigation ul li b:nth-child(2)::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-top-right-radius: 20px;
-    background: #3ab1df;
-}
+        .navigation ul li.active a {
+            color: #333;
+        }
 
-.navigation ul li.active b:nth-child(1),
-.navigation ul li.active b:nth-child(2){
-    display: block;
-}
+        .toggle {
+            display: none;
+        }
 
+        main.content {
+            margin-left: 300px;
+            padding: 20px;
+            width: calc(100% - 300px);
+        }
 
-.navigation ul li a {
-    position: relative;
-    display: block;
-    width: 100%;
-    display: flex;
-    text-decoration: none;
-    color: #F5F5F5;
-}
-.navigation ul li.active a{
-    color: #333;
-}
+        @media (max-width: 768px) {
+            .navigation {
+                width: 70px;
+                padding-top: 0;
+            }
 
-.navigation ul li a .icon
-{
-    position: relative;
-    display: block;
-    min-width: 60px;
-    height: 60px;
-    line-height: 70px;
-    text-align: center;
-}
-.navigation ul li a .icon ion-icon{
-    font-size: 1.5em;
-}
-.navigation ul li a .title{
-    position: relative;
-    display: block;
-    padding-left: 10px ;
-    height: 60px;
-    line-height: 60px;
-    white-space: normal;
-}
+            .navigation ul li a .title {
+                display: none;
+            }
 
-.toggle
-{
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    background: #3ab1df;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+            main.content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
 
-.toggle.active{
-    background-color: #ff4d89 ;
-}
+            .toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: #3ab1df;
+                border-radius: 10px;
+                cursor: pointer;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
 
-.toggle ion-icon{
-    position: absolute;
-    color: #fff;
-    font-size: 34px;
-    display: none;
-}
+            .toggle ion-icon {
+                font-size: 34px;
+                color: #fff;
+            }
 
-.toggle ion-icon.open,
-.toggle.active ion-icon.close{
-    display: block;
-}
+            .navigation.active {
+                width: 300px;
+            }
 
-.toggle ion-icon.close,
-.toggle.active ion-icon.open{
-    display: none;
-}
+            .navigation.active ul li a .title {
+                display: inline;
+            }
 
-
+            main.content.active {
+                margin-left: 300px;
+                width: calc(100% - 300px);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="navigation">
+        <div class="sidebar-title">DFSL</div>
         <ul>
-            
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/form">
                     <span class="icon"><ion-icon name="create-outline"></ion-icon></span>
-                    
-                    {% comment %} <span class="title">Product Form</span> {% endcomment %}
+                    <span class="title">Product Form</span>
                 </a>
             </li>
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/products">
                     <span class="icon"><ion-icon name="folder-open-outline"></ion-icon></span>
                     <span class="title">Office Quotation Request</span>
                 </a>
             </li>
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/products4">
                     <span class="icon"><ion-icon name="document-text-outline"></ion-icon></span>
                     <span class="title">Supplier Quotation Request</span>
                 </a>
             </li>
-
-
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/quotations">
                     <span class="icon"><ion-icon name="create-outline"></ion-icon></span>
-                    
-                    {% comment %} <span class="title">Product Form</span> {% endcomment %}
+                    <span class="title">Quotations</span>
                 </a>
             </li>
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/products6">
                     <span class="icon"><ion-icon name="checkbox-outline"></ion-icon></span>
                     <span class="title">Office Quotation Approval</span>
                 </a>
             </li>
             <li class="list">
-                <b></b>
-                <b></b>
                 <a href="/letterGenerate/products7">
                     <span class="icon"><ion-icon name="checkmark-done-outline"></ion-icon></span>
                     <span class="title">Supplier Quotation Approval</span>
@@ -257,41 +189,37 @@ body {
         </ul>
     </div>
     <div class="toggle">
-        <ion-icon name="menu-outline" class="open"></ion-icon>
-        <ion-icon name="close-outline" class="close"></ion-icon>
+        <ion-icon name="menu-outline"></ion-icon>
     </div>
-    <main class="content px-3 py-2">
+    <main class="content">
         <div class="container-fluid">
             <div class="mb-3">
                 {% block content %}{% endblock %}
             </div>
         </div>
-    </main> 
+    </main>
     {% include 'footer.html' %}
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>    
-<script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>    
+    <script>
+        let list = document.querySelectorAll('.list');
+        list.forEach((el, index) => el.addEventListener('click', () => {
+            localStorage.setItem('SelectedTabIndex', index);
+        }));
+        let selectedTabIndex = localStorage.getItem('SelectedTabIndex');
+        if (selectedTabIndex !== null) {
+            list[selectedTabIndex].classList.add('active');
+        }
 
-let menuToggle = document.querySelector('.toggle');
-let navigation = document.querySelector('.navigation');
-menuToggle.onclick = function(){
-    menuToggle.classList.toggle('active');
-    navigation.classList.toggle('active');
-}
+        const toggleButton = document.querySelector('.toggle');
+        const navigation = document.querySelector('.navigation');
+        const content = document.querySelector('main.content');
 
-
-
-    let list = document.querySelectorAll('.list');
-    // console.dir(list)
-    list.forEach((el,index) => el.addEventListener('click', () => {
-            console.log("Element CLicked",index)
-            
-            localStorage.setItem('SelectedTabIndex',index)
-        }))
-        console.log([localStorage.getItem('SelectedTabIndex')])
-        list[localStorage.getItem('SelectedTabIndex')].className= 'list active';
-  
-</script>
+        toggleButton.addEventListener('click', () => {
+            navigation.classList.toggle('active');
+            content.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

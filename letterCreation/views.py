@@ -11,19 +11,27 @@ from .models import Product, Department
 def index(request):
     return render(request,'index.html')
 
+def mainitems(request):
+    return render(request,'mainitems.html')
+
 def mainitem(request):
     return render(request,'mainitems.html')
 
 def load_form(request):
-    main_item_names = list(MainItem.objects.values_list('name', flat=True))
+    main_item_names = list(MainItem.objects.values_list('name', flat=True).distinct())
     manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
     return render(request, 'form1.html', {'main_item_names': main_item_names, 'manufacturer_names': manufacturer_names})
 
-def get_product_names(request):
-    # Fetch product names from the database
-    product_names = Product.objects.values_list('name', flat=True)
-    return JsonResponse(list(product_names), safe=False)
+def get_manufacturer_names(request):
+    main_item_name = request.GET.get('main_item', '')
+    main_items = MainItem.objects.filter(name=main_item_name)
+    manufacturer_names = [main_item.manufacturer.name for main_item in main_items if main_item.manufacturer]
+    return JsonResponse({'manufacturer_names': manufacturer_names})
 
+def get_manufacturers(request):
+    manufacturers = Manufacturer.objects.all()
+    manufacturer_names = [manufacturer.name for manufacturer in manufacturers]
+    return JsonResponse({'manufacturer_names': manufacturer_names})
 
 def get_department_names(request):
     # Fetch department names from the database based on the selected lab
