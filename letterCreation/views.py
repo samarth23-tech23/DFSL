@@ -5,33 +5,60 @@ import json
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer
 from itertools import groupby
 from django.db import models
-from django.http import JsonResponse
-from .models import Product, Department
- 
+
 def index(request):
     return render(request,'index.html')
 
-def mainitems(request):
-    return render(request,'mainitems.html')
+def get_sr_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
+    manufacturer = request.GET.get('manufacturer')
 
-def mainitem(request):
-    return render(request,'mainitems.html')
+    if lab_id and main_item and manufacturer:
+        sr_numbers = Product.objects.filter(
+            lab_name__id=lab_id,
+            main_item__name=main_item,
+            main_item__manufacturer__name=manufacturer
+        ).values_list('sr_no', flat=True).distinct()
+        sr_numbers_list = list(sr_numbers)
+        return JsonResponse({'sr_numbers': sr_numbers_list})
+    return JsonResponse({'sr_numbers': []})
+
 
 def load_form(request):
-    main_item_names = list(MainItem.objects.values_list('name', flat=True).distinct())
+    main_items = MainItem.objects.values('name', 'id').annotate(total=Count('name')).filter(total=1)
+    labs = Lab.objects.all()
     manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
-    return render(request, 'form1.html', {'main_item_names': main_item_names, 'manufacturer_names': manufacturer_names})
+    departments = Department.objects.all()
 
-def get_manufacturer_names(request):
-    main_item_name = request.GET.get('main_item', '')
-    main_items = MainItem.objects.filter(name=main_item_name)
-    manufacturer_names = [main_item.manufacturer.name for main_item in main_items if main_item.manufacturer]
-    return JsonResponse({'manufacturer_names': manufacturer_names})
+    return render(request, 'form1.html', {'main_items': main_items, 'manufacturer_names': manufacturer_names, 'departments': departments, 'labs': labs})
+
+
 
 def get_manufacturers(request):
-    manufacturers = Manufacturer.objects.all()
-    manufacturer_names = [manufacturer.name for manufacturer in manufacturers]
-    return JsonResponse({'manufacturer_names': manufacturer_names})
+    main_item = request.GET.get('main_item')
+    print(f"Received main_item: {main_item}")  # Debugging statement
+    if main_item:
+        manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
+    else:
+        manufacturers = Manufacturer.objects.none()
+    print(f"Manufacturers found: {list(manufacturers)}")  # Debugging statement
+    return JsonResponse({'manufacturer_names': list(manufacturers)})
+
+
+
+def get_manufacturer_names(request):
+    main_item = request.GET.get('main_item')
+    manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
+    return JsonResponse({'manufacturer_names': list(manufacturers)})
+
+def get_product_serial_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    manufacturer = request.GET.get('manufacturer')
+    products = Product.objects.filter(lab_id=lab_id, manufacturer__name=manufacturer).values_list('serial_number', flat=True)
+    return JsonResponse({'product_serial_numbers': list(products)})
+
+
 
 def get_department_names(request):
     # Fetch department names from the database based on the selected lab
@@ -76,9 +103,6 @@ def letter_detail4(request, subproduct_id):
 
 
 
-
-
-from decimal import Decimal
 
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)
@@ -164,51 +188,75 @@ def letter_detail7(request, product_id):
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
+        try:
+            # Get form data
+            letter_no = request.POST.get('letter_no')
+            lab_name_id = request.POST.get('lab_name')
+            letter_date = request.POST.get('date')
 
-        letter_no = data.get('letter_no')
-        lab_name = data.get('lab_name')
-        letter_date = data.get('letter_date')
+            if not lab_name_id.isdigit():
+                raise ValueError(f"lab_name_id is not a digit: {lab_name_id}")
 
-        letter = Letter.objects.create(
-            letter_no=letter_no,
-            lab_name=lab_name,
-            letter_date=letter_date
-        )
-
-        products_data = data.get('products', [])
-        for product_data in products_data:
-            product = Product.objects.create(
-                letter=letter,
-                sr_no=product_data.get('Product SR'),
-                name=product_data.get('Product Name'),
-                price=product_data.get('Product Price'),
-                buying_date=product_data.get('Buying Date'),
-                department_name=product_data.get('Department Name')
+            # Create a Letter instance
+            letter = Letter.objects.create(
+                letter_no=letter_no,
+                lab_name_id=lab_name_id,
+                letter_date=letter_date
             )
 
-            subproducts_data = product_data.get('Subproducts', [])
-            for subproduct_data in subproducts_data:
-                amc_provider_name = subproduct_data.get('AMC Provider')
-                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name.strip())
+            # Process products
+            product_index = 0
+            while True:
+                sr_no = request.POST.get(f'products[{product_index}][sr_no]')
+                service_report_date = request.POST.get(f'products[{product_index}][service_report_date]')
 
-                Subproduct.objects.create(
-                    product=product,
-                    type_of_part=subproduct_data.get('Type of Part'),
-                    part_name=subproduct_data.get('Part Name'),
-                    specification=subproduct_data.get('Specification'),
-                    quantity=subproduct_data.get('Quantity'),
-                    period_of_amc_contract=subproduct_data.get('Period of AMC Contract'),
-                    service_report_date=subproduct_data.get('Service Report Date'),
-                    amc_provider=amc_provider
-                )
+                if not sr_no:
+                    break
 
-        return JsonResponse({'message': 'Form submitted successfully!'})
+                # Find the product by SR No
+                try:
+                    product = Product.objects.get(sr_no=sr_no)
+                    amc_provider = product.amc_provider  # Assume AMC provider is a field in the Product model
+                except Product.DoesNotExist:
+                    raise ValueError(f"Product with SR No {sr_no} does not exist")
 
-    return JsonResponse({'message': 'Error submitting form. Please try again.'}, status=400)
+                # Update service report date
+                product.service_report_date = service_report_date
+                product.save()
 
+                # Process subproducts
+                subproduct_index = 0
+                while True:
+                    part_name = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_name]')
+                    if not part_name:
+                        break
 
+                    part_type = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_type]')
+                    part_specification = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_specification]')
+                    part_quantity = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_quantity]')
+                    
+                    if not part_quantity.isdigit():
+                        raise ValueError(f"Part quantity is not a digit: {part_quantity}")
 
+                    # Create a Subproduct instance
+                    Subproduct.objects.create(
+                        product=product,
+                        part_name=part_name,
+                        type_of_part=part_type,
+                        specification=part_specification,
+                        quantity=part_quantity,
+                        amc_provider=amc_provider  # Use AMC provider from the Product model
+                    )
+                    subproduct_index += 1
+
+                product_index += 1
+
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 @csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':

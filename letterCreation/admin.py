@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack
+from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
@@ -32,15 +32,17 @@ class MainItemAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_mainitem_name', 'sr_no', 'price', 'buying_date', 'get_department_name', 'get_lab_name', 'get_amc_provider_name','service_report_date', 'amc_period', 'expenditure_cost', 'manufacturer_warranty_period']
+    list_display = ['id', 'get_mainitem_name', 'sr_no', 'price', 'buying_date', 'get_department_name', 'get_lab_name', 'get_amc_provider_name', 'service_report_date', 'amc_period', 'expenditure_cost', 'manufacturer_warranty_period']
 
     def get_department_name(self, obj):
         return obj.department.name if obj.department else ''
     get_department_name.short_description = 'Department'
 
     def get_mainitem_name(self, obj):
-        return obj.main_item.name if obj.main_item else ''
-    get_mainitem_name.short_description = 'Main Item'
+        if obj.main_item:
+            return f"{obj.main_item.name}-{obj.main_item.manufacturer}"
+        return ''
+    get_mainitem_name.short_description = 'Product Name' 
 
     def get_lab_name(self, obj):
         return obj.lab_name.name if obj.lab_name else ''
@@ -50,16 +52,9 @@ class ProductAdmin(admin.ModelAdmin):
         return obj.amc_provider.name if obj.amc_provider else ''
     get_amc_provider_name.short_description = 'AMC Provider'
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'department':
-            lab_id = request.GET.get('lab_name', None)
-            if lab_id:
-                kwargs['queryset'] = Department.objects.filter(lab_id=lab_id)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-    
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity', 'period_of_amc_contract', 'amc_provider']
+    list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity', 'amc_provider']
 
 @admin.register(Quotation)
 class QuotationAdmin(admin.ModelAdmin):
@@ -76,3 +71,8 @@ class QuotationItemAdmin(admin.ModelAdmin):
 @admin.register(PrintTrack)
 class PrintTrackAdmin(admin.ModelAdmin):
     list_display = ['id', 'printed_date1', 'printed_date2', 'printed_date3', 'printed_date4', 'letter_no']
+
+@admin.register(ServiceReportTrack)
+class ServiceReportTrackAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'service_date']
+
