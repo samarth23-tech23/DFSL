@@ -2,28 +2,62 @@ from django.shortcuts import render,get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer
-from itertools import groupby
-from django.db import models
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
+from django.db.models import Count
 
 def index(request):
     return render(request,'index.html')
 
-def load_form(request):
-    main_item_names = list(MainItem.objects.values_list('name', flat=True).distinct())
-    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
-    return render(request, 'form1.html', {'main_item_names': main_item_names, 'manufacturer_names': manufacturer_names})
+def get_sr_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
+    manufacturer = request.GET.get('manufacturer')
 
-def get_manufacturer_names(request):
-    main_item_name = request.GET.get('main_item', '')
-    main_items = MainItem.objects.filter(name=main_item_name)
-    manufacturer_names = [main_item.manufacturer.name for main_item in main_items if main_item.manufacturer]
-    return JsonResponse({'manufacturer_names': manufacturer_names})
+    if lab_id and main_item and manufacturer:
+        sr_numbers = Product.objects.filter(
+            lab_name__id=lab_id,
+            main_item__name=main_item,
+            main_item__manufacturer__name=manufacturer
+        ).values_list('sr_no', flat=True).distinct()
+        sr_numbers_list = list(sr_numbers)
+        return JsonResponse({'sr_numbers': sr_numbers_list})
+    return JsonResponse({'sr_numbers': []})
+
+
+def load_form(request):
+    main_items = MainItem.objects.values('name', 'id').annotate(total=Count('name')).filter(total=1)
+    labs = Lab.objects.all()
+    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
+    departments = Department.objects.all()
+
+    return render(request, 'form1.html', {'main_items': main_items, 'manufacturer_names': manufacturer_names, 'departments': departments, 'labs': labs})
+
+
 
 def get_manufacturers(request):
-    manufacturers = Manufacturer.objects.all()
-    manufacturer_names = [manufacturer.name for manufacturer in manufacturers]
-    return JsonResponse({'manufacturer_names': manufacturer_names})
+    main_item = request.GET.get('main_item')
+    print(f"Received main_item: {main_item}")  # Debugging statement
+    if main_item:
+        manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
+    else:
+        manufacturers = Manufacturer.objects.none()
+    print(f"Manufacturers found: {list(manufacturers)}")  # Debugging statement
+    return JsonResponse({'manufacturer_names': list(manufacturers)})
+
+
+
+def get_manufacturer_names(request):
+    main_item = request.GET.get('main_item')
+    manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
+    return JsonResponse({'manufacturer_names': list(manufacturers)})
+
+def get_product_serial_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    manufacturer = request.GET.get('manufacturer')
+    products = Product.objects.filter(lab_id=lab_id, manufacturer__name=manufacturer).values_list('serial_number', flat=True)
+    return JsonResponse({'product_serial_numbers': list(products)})
+
+
 
 def product_list(request):
     letters = Letter.objects.all()
@@ -62,9 +96,6 @@ def letter_detail4(request, subproduct_id):
 
 
 
-
-
-from decimal import Decimal
 
 def letter_detail6(request, subproduct_id):
     subproduct = Subproduct.objects.get(pk=subproduct_id)

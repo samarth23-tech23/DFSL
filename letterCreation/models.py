@@ -40,10 +40,11 @@ class Letter(models.Model):
         return self.letter_no
 
 class MainItem(models.Model):
-    name = models.CharField(max_length=255)
-    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, default=1)
+    name = models.CharField(max_length=100)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
+
     def __str__(self):
-        return self.name
+        return f"{self.name}-{self.manufacturer.name}"
 
 
 class Product(models.Model):

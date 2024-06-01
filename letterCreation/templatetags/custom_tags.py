@@ -137,3 +137,7 @@ def group_by_amc_provider(subproducts):
 @register.filter(name='get_item')
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+@register.filter
+def get_last(value, arg):
+    return value[arg-1] if value else None

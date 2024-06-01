@@ -39,8 +39,11 @@ class ProductAdmin(admin.ModelAdmin):
     get_department_name.short_description = 'Department'
 
     def get_mainitem_name(self, obj):
-        return obj.main_item.name if obj.main_item else ''
-    get_mainitem_name.short_description = 'Main Item'
+            if obj.main_item:
+                return f"{obj.main_item.name}-{obj.main_item.manufacturer}"
+            return ''
+    get_mainitem_name.short_description = 'Product Name' 
+
 
     def get_lab_name(self, obj):
         return obj.lab_name.name if obj.lab_name else ''
@@ -52,10 +55,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'department':
-            lab_id = request.GET.get('lab_name', None)
+            lab_id = request.GET.get('lab_name', None) or request.POST.get('lab_name', None)
             if lab_id:
                 kwargs['queryset'] = Department.objects.filter(lab_id=lab_id)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):

@@ -7,11 +7,14 @@ urlpatterns = [
    
     path('get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
     path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
+    path('get_sr_numbers/', views.get_sr_numbers, name='get_sr_numbers'),
 
+    # path('letterGenerate/get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
+    # path('letterGenerate/get_product_serial_numbers/', views.get_product_serial_numbers, name='get_product_serial_numbers'),
 
 
    
-    path('submit_form/', views.submit_form, name='submit_form'),
+   path('submit_form/', views.submit_form, name='submit_form'),
 
 #letter 3
     path('products/', views.product_list, name='product_list'),
