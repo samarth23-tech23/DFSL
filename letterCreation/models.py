@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
 
 class Lab(models.Model):
     name = models.CharField(max_length=255)
@@ -46,7 +45,6 @@ class MainItem(models.Model):
     def __str__(self):
         return f"{self.name}-{self.manufacturer.name}"
 
-
 class Product(models.Model):
     main_item = models.ForeignKey(MainItem, on_delete=models.CASCADE)
     sr_no = models.CharField(max_length=255)
@@ -58,11 +56,24 @@ class Product(models.Model):
     amc_period = models.CharField(max_length=255)
     expenditure_cost = models.DecimalField(max_digits=10, decimal_places=2)
     manufacturer_warranty_period = models.CharField(max_length=255)
-    service_report_date = models.DateField()
+    service_report_date = models.DateField(null=True, blank=True)  # New field for current service report date
 
     def __str__(self):
         return self.sr_no
+    
+    def save(self, *args, **kwargs):
+        if self.pk:  # Check if the instance has already been saved
+            original_product = Product.objects.get(pk=self.pk)  # Get the original instance from the database
+            if original_product.service_report_date != self.service_report_date:
+                ServiceReportTrack.objects.create(product=self, service_date=original_product.service_report_date)
+        super().save(*args, **kwargs)
 
+class ServiceReportTrack(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='service_reports')
+    service_date = models.DateField()
+
+    def __str__(self):
+        return f"Service report for {self.product} on {self.service_date}"
 
 class Subproduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='subproducts')
@@ -71,7 +82,6 @@ class Subproduct(models.Model):
     specification = models.TextField()
     quantity = models.IntegerField()
     period_of_amc_contract = models.CharField(max_length=255)
-  
     amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -107,7 +117,6 @@ class AMCProvider(models.Model):
     def __str__(self):
         return self.name
 
-
 class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     subproduct = models.ForeignKey(Subproduct, on_delete=models.CASCADE)
@@ -129,3 +138,5 @@ class PrintTrack(models.Model):
     printed_date4 = models.DateField(null=True, blank=True)
     letter_no = models.CharField(max_length=255)  # Reference to letter_no from Letter model
 
+    def __str__(self):
+        return self.letter_no
