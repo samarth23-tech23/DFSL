@@ -181,51 +181,75 @@ def letter_detail7(request, product_id):
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
+        try:
+            # Get form data
+            letter_no = request.POST.get('letter_no')
+            lab_name_id = request.POST.get('lab_name')
+            letter_date = request.POST.get('date')
 
-        letter_no = data.get('letter_no')
-        lab_name = data.get('lab_name')
-        letter_date = data.get('letter_date')
+            if not lab_name_id.isdigit():
+                raise ValueError(f"lab_name_id is not a digit: {lab_name_id}")
 
-        letter = Letter.objects.create(
-            letter_no=letter_no,
-            lab_name=lab_name,
-            letter_date=letter_date
-        )
-
-        products_data = data.get('products', [])
-        for product_data in products_data:
-            product = Product.objects.create(
-                letter=letter,
-                sr_no=product_data.get('Product SR'),
-                name=product_data.get('Product Name'),
-                price=product_data.get('Product Price'),
-                buying_date=product_data.get('Buying Date'),
-                department_name=product_data.get('Department Name')
+            # Create a Letter instance
+            letter = Letter.objects.create(
+                letter_no=letter_no,
+                lab_name_id=lab_name_id,
+                letter_date=letter_date
             )
 
-            subproducts_data = product_data.get('Subproducts', [])
-            for subproduct_data in subproducts_data:
-                amc_provider_name = subproduct_data.get('AMC Provider')
-                amc_provider, created = AMCProvider.objects.get_or_create(name=amc_provider_name.strip())
+            # Process products
+            product_index = 0
+            while True:
+                sr_no = request.POST.get(f'products[{product_index}][sr_no]')
+                service_report_date = request.POST.get(f'products[{product_index}][service_report_date]')
 
-                Subproduct.objects.create(
-                    product=product,
-                    type_of_part=subproduct_data.get('Type of Part'),
-                    part_name=subproduct_data.get('Part Name'),
-                    specification=subproduct_data.get('Specification'),
-                    quantity=subproduct_data.get('Quantity'),
-                    period_of_amc_contract=subproduct_data.get('Period of AMC Contract'),
-                    service_report_date=subproduct_data.get('Service Report Date'),
-                    amc_provider=amc_provider
-                )
+                if not sr_no:
+                    break
 
-        return JsonResponse({'message': 'Form submitted successfully!'})
+                # Find the product by SR No
+                try:
+                    product = Product.objects.get(sr_no=sr_no)
+                    amc_provider = product.amc_provider  # Assume AMC provider is a field in the Product model
+                except Product.DoesNotExist:
+                    raise ValueError(f"Product with SR No {sr_no} does not exist")
 
-    return JsonResponse({'message': 'Error submitting form. Please try again.'}, status=400)
+                # Update service report date
+                product.service_report_date = service_report_date
+                product.save()
 
+                # Process subproducts
+                subproduct_index = 0
+                while True:
+                    part_name = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_name]')
+                    if not part_name:
+                        break
 
+                    part_type = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_type]')
+                    part_specification = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_specification]')
+                    part_quantity = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_quantity]')
+                    
+                    if not part_quantity.isdigit():
+                        raise ValueError(f"Part quantity is not a digit: {part_quantity}")
 
+                    # Create a Subproduct instance
+                    Subproduct.objects.create(
+                        product=product,
+                        part_name=part_name,
+                        type_of_part=part_type,
+                        specification=part_specification,
+                        quantity=part_quantity,
+                        amc_provider=amc_provider  # Use AMC provider from the Product model
+                    )
+                    subproduct_index += 1
+
+                product_index += 1
+
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 @csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':

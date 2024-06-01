@@ -148,21 +148,7 @@
                 </div>
             </div><br><br>
            
-            <label for="main_item" class="sr-only">Main Item</label>
-                <input id="main_item" name="main_item" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer" list="main_item_list">
-                
-                
-                <datalist id="main_item_list">
-                    {% for main_item in main_items %}
-                        <option value="{{ main_item.name }}" data-id="{{ main_item.id }}">
-                    {% endfor %}
-                </datalist>
-                
-                
-            <select id="manufacturer">
-                <option value="">Select Manufacturer</option>
-            </select>
-            
+  
             
             <div id="productDetails">
                 <!-- Product Detail Section -->
@@ -181,7 +167,6 @@
 
         </div>
     </div>
-
 
 
     <script>
@@ -208,63 +193,64 @@
         }
     
         // Event listener for main item change
-        document.getElementById('main_item').addEventListener('change', function() {
-            var mainItem = this.value;
-            console.log(`Selected main item: ${mainItem}`);  // Debugging statement
+        function addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect) {
+            mainItemInput.addEventListener('change', function() {
+                var mainItem = this.value;
+                console.log(`Selected main item: ${mainItem}`);  // Debugging statement
     
-            fetch(`/letterGenerate/get_manufacturers/?main_item=${mainItem}`)
-                .then(response => {
-                    console.log('Fetch response:', response);  // Debugging statement
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Fetched manufacturer names:', data.manufacturer_names);  // Debugging statement
+                fetch(`/letterGenerate/get_manufacturers/?main_item=${mainItem}`)
+                    .then(response => {
+                        console.log('Fetch response:', response);  // Debugging statement
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Fetched manufacturer names:', data.manufacturer_names);  // Debugging statement
     
-                    var manufacturerSelect = document.getElementById('manufacturer');
-                    manufacturerSelect.innerHTML = '';
+                        manufacturerSelect.innerHTML = '';
     
-                    if (data.manufacturer_names.length > 0) {
-                        data.manufacturer_names.forEach(function(manufacturer) {
+                        if (data.manufacturer_names.length > 0) {
+                            data.manufacturer_names.forEach(function(manufacturer) {
+                                var option = document.createElement('option');
+                                option.value = manufacturer;
+                                option.textContent = manufacturer;
+                                manufacturerSelect.appendChild(option);
+                            });
+    
+                            // Automatically select the first manufacturer and fetch SR numbers
+                            const firstManufacturer = data.manufacturer_names[0];
+                            manufacturerSelect.value = firstManufacturer;
+    
+                            const labId = document.getElementById('lab_select').value;
+                            fetchSrNumbers(labId, mainItem, firstManufacturer, srNoSelect);
+                        } else {
                             var option = document.createElement('option');
-                            option.value = manufacturer;
-                            option.textContent = manufacturer;
+                            option.textContent = 'No manufacturers found';
                             manufacturerSelect.appendChild(option);
-                        });
-    
-                        // Automatically select the first manufacturer and fetch SR numbers
-                        const firstManufacturer = data.manufacturer_names[0];
-                        manufacturerSelect.value = firstManufacturer;
-    
-                        const labId = document.getElementById('lab_select').value;
-                        fetchSrNumbers(labId, mainItem, firstManufacturer, document.querySelector(`#sr_no_1`));
-                    } else {
-                        var option = document.createElement('option');
-                        option.textContent = 'No manufacturers found';
-                        manufacturerSelect.appendChild(option);
-                    }
-                })
-                .catch(error => console.error('Error fetching manufacturers:', error));
-        });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching manufacturers:', error));
+            });
+        }
     
         // Event listener for lab, main item, and manufacturer changes to fetch SR numbers
-        function addSrNumberEventListeners(srNoSelect) {
+        function addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect) {
             document.getElementById('lab_select').addEventListener('change', function() {
                 const labId = this.value;
-                const mainItemName = document.getElementById('main_item').value;
-                const manufacturer = document.getElementById('manufacturer').value;
+                const mainItemName = mainItemInput.value;
+                const manufacturer = manufacturerSelect.value;
                 fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
             });
     
-            document.getElementById('main_item').addEventListener('change', function() {
+            mainItemInput.addEventListener('change', function() {
                 const labId = document.getElementById('lab_select').value;
                 const mainItemName = this.value;
-                const manufacturer = document.getElementById('manufacturer').value;
+                const manufacturer = manufacturerSelect.value;
                 fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
             });
     
-            document.getElementById('manufacturer').addEventListener('change', function() {
+            manufacturerSelect.addEventListener('change', function() {
                 const labId = document.getElementById('lab_select').value;
-                const mainItemName = document.getElementById('main_item').value;
+                const mainItemName = mainItemInput.value;
                 const manufacturer = this.value;
                 fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
             });
@@ -287,6 +273,57 @@
             productTitle.textContent = `Product ${productId}`;
             productSection.appendChild(productTitle);
     
+            // Main Item Input
+            const mainItemLabel = document.createElement('label');
+            mainItemLabel.textContent = 'Main Item';
+            mainItemLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+            productSection.appendChild(mainItemLabel);
+    
+            const mainItemInput = document.createElement('input');
+            mainItemInput.setAttribute('id', `main_item_${productId}`);
+            mainItemInput.setAttribute('name', `main_item_${productId}`);
+            mainItemInput.setAttribute('list', `main_item_list_${productId}`);
+            mainItemInput.classList.add('block', 'py-2.5', 'px-0', 'w-full', 'text-sm', 'text-gray-500', 'bg-transparent', 'border-0', 'border-b-2', 'border-gray-200', 'appearance-none', 'dark:text-gray-400', 'dark:border-gray-700', 'focus:outline-none', 'focus:ring-0', 'focus:border-gray-200', 'peer');
+            productSection.appendChild(mainItemInput);
+    
+            const mainItemDatalist = document.createElement('datalist');
+            mainItemDatalist.setAttribute('id', `main_item_list_${productId}`);
+            {% for main_item in main_items %}
+            const mainItemOption_{{main_item.id}} = document.createElement('option');
+            mainItemOption_{{main_item.id}}.setAttribute('value', '{{ main_item.name }}');
+            mainItemOption_{{main_item.id}}.setAttribute('data-id', '{{ main_item.id }}');
+            mainItemDatalist.appendChild(mainItemOption_{{main_item.id}});
+            {% endfor %}
+            productSection.appendChild(mainItemDatalist);
+    
+            // Manufacturer Select
+            const manufacturerLabel = document.createElement('label');
+            manufacturerLabel.textContent = 'Manufacturer';
+            manufacturerLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
+            productSection.appendChild(manufacturerLabel);
+    
+            const manufacturerSelect = document.createElement('select');
+            manufacturerSelect.setAttribute('id', `manufacturer_${productId}`);
+            manufacturerSelect.classList.add('block', 'py-2.5', 'px-0', 'w-full', 'text-sm', 'text-gray-500', 'bg-transparent', 'border-0', 'border-b-2', 'border-gray-200', 'appearance-none', 'dark:text-gray-400', 'dark:border-gray-700', 'focus:outline-none', 'focus:ring-0', 'focus:border-gray-200', 'peer');
+            const manufacturerOption = document.createElement('option');
+            manufacturerOption.setAttribute('value', '');
+            manufacturerOption.textContent = 'Select Manufacturer';
+            manufacturerSelect.appendChild(manufacturerOption);
+            productSection.appendChild(manufacturerSelect);
+    
+            // Service Report Date
+            const serviceReportDateLabel = document.createElement('label');
+            serviceReportDateLabel.textContent = 'Service Report Date';
+            serviceReportDateLabel.style.color = '#3593aa';
+            serviceReportDateLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2', 'mt-4');
+            productSection.appendChild(serviceReportDateLabel);
+    
+            const serviceReportDateInput = document.createElement('input');
+            serviceReportDateInput.setAttribute('type', 'date');
+            serviceReportDateInput.setAttribute('id', `service_report_date_${productId}`);
+            serviceReportDateInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+            productSection.appendChild(serviceReportDateInput);
+    
             // SR No Dropdown
             const srNoLabel = document.createElement('label');
             srNoLabel.textContent = 'SR No';
@@ -300,110 +337,154 @@
             productSection.appendChild(srNoSelect);
     
             // Add event listeners for fetching SR numbers
-            addSrNumberEventListeners(srNoSelect);
+            addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect);
+            addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect);
     
             // Add Subproduct Button
             const addSubproductBtn = document.createElement('button');
             addSubproductBtn.innerHTML = '<i class="fas fa-plus"></i> Add Part information';
-            addSubproductBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-2');
+            addSubproductBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
             addSubproductBtn.addEventListener('click', addSubproduct);
             productSection.appendChild(addSubproductBtn);
     
             // Delete Product Button
             const deleteProductBtn = document.createElement('button');
-            deleteProductBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
-            deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'ml-2');
+            deleteProductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Product';
+            deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
             deleteProductBtn.addEventListener('click', () => {
                 productSection.remove();
             });
             productSection.appendChild(deleteProductBtn);
     
-            // Append the product section to the product details container
+            // Append Product Section to the Product Details Container
             productDetails.appendChild(productSection);
     
-            // Increment the product ID for the next product
             productId++;
         }
     
+        // Function to add subproduct sections
         function addSubproduct(event) {
-        const productSection = event.target.parentElement;
+    event.preventDefault();
 
-        // Find the number of existing subproducts
-        const subproducts = productSection.querySelectorAll('.subproduct-section').length;
+    const subproductSection = document.createElement('div');
+    subproductSection.classList.add('mb-4', 'subproduct-section');
 
-        // Create Subproduct Section
-        const subproductSection = document.createElement('div');
-        subproductSection.classList.add('ml-8', 'subproduct-section', 'border', 'border-gray-300', 'rounded', 'p-4', 'shadow-md', 'mb-4', 'mt-8');
+    const partNameLabel = document.createElement('label');
+    partNameLabel.textContent = 'Part Name';
+    partNameLabel.classList.add('block', 'text-gray-700', 'text-sm', 'font-bold', 'mb-2');
+    subproductSection.appendChild(partNameLabel);
 
-        // Subproduct Title
-        const subproductTitle = document.createElement('h4');
-        subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-        subproductTitle.textContent = `Part Information ${subproducts + 1}`;
-        subproductSection.appendChild(subproductTitle);
+    const partNameInput = document.createElement('input');
+    partNameInput.type = 'text';
+    partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    subproductSection.appendChild(partNameInput);
 
-        // Input for Part Name
-        const partNameLabel = document.createElement('label');
-        partNameLabel.textContent = 'Part Name';
-        partNameLabel.style.color = '#3593aa';
-        partNameLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
-        subproductSection.appendChild(partNameLabel);
+    const partTypeLabel = document.createElement('label');
+    partTypeLabel.textContent = 'Part Type';
+    partTypeLabel.classList.add('block', 'text-gray-700', 'text-sm', 'font-bold', 'mb-2');
+    subproductSection.appendChild(partTypeLabel);
 
-        const partNameInput = document.createElement('input');
-        partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-        subproductSection.appendChild(partNameInput);
+    const partTypeSelect = document.createElement('select');
+    partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
 
-        // Dropdown for Type of Part
-        const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
-        const partTypeLabel = document.createElement('label');
-        partTypeLabel.textContent = 'Type of Part';
-        partTypeLabel.style.color = '#3593aa';
-        partTypeLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
-        subproductSection.appendChild(partTypeLabel);
+    const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
+    partTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        partTypeSelect.appendChild(option);
+    });
 
-        const partTypeSelect = document.createElement('select');
-        partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-        partTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.textContent = type;
-            partTypeSelect.appendChild(option);
-        });
-        subproductSection.appendChild(partTypeSelect);
+    subproductSection.appendChild(partTypeSelect);
 
-        // Input for Specification
-        const specLabel = document.createElement('label');
-        specLabel.textContent = 'Specification';
-        specLabel.style.color = '#3593aa';
-        specLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
-        subproductSection.appendChild(specLabel);
+    const partSpecLabel = document.createElement('label');
+    partSpecLabel.textContent = 'Part Specification';
+    partSpecLabel.classList.add('block', 'text-gray-700', 'text-sm', 'font-bold', 'mb-2');
+    subproductSection.appendChild(partSpecLabel);
 
-        const specInput = document.createElement('input');
-        specInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-        subproductSection.appendChild(specInput);
+    const partSpecInput = document.createElement('input');
+    partSpecInput.type = 'text';
+    partSpecInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    subproductSection.appendChild(partSpecInput);
 
-        // Numeric input for Quantity
-        const quantityLabel = document.createElement('label');
-        quantityLabel.textContent = 'Quantity';
-        quantityLabel.style.color = '#3593aa';
-        quantityLabel.classList.add('block', 'text-gray-700', 'text-base', 'font-bold', 'mb-2');
-        subproductSection.appendChild(quantityLabel);
+    const partQtyLabel = document.createElement('label');
+    partQtyLabel.textContent = 'Part Quantity';
+    partQtyLabel.classList.add('block', 'text-gray-700', 'text-sm', 'font-bold', 'mb-2');
+    subproductSection.appendChild(partQtyLabel);
 
-        const quantityInput = document.createElement('input');
-        quantityInput.setAttribute('type', 'number');
-        quantityInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-        subproductSection.appendChild(quantityInput);
+    const partQtyInput = document.createElement('input');
+    partQtyInput.type = 'number';
+    partQtyInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    subproductSection.appendChild(partQtyInput);
 
-        // Append the subproduct section to the product section
-        productSection.appendChild(subproductSection);
-    }
+    const parentProductSection = event.target.closest('.product-section');
+    parentProductSection.appendChild(subproductSection);
+}
+
     
-        // Add initial product section on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initial call to add first product section
+        document.addEventListener('DOMContentLoaded', function() {
             addProduct();
-        });
     
-        // Add more product sections on button click
-        document.getElementById('addProductBtn').addEventListener('click', addProduct);
+            const addProductBtn = document.getElementById('addProductBtn');
+            addProductBtn.addEventListener('click', function() {
+                addProduct();
+            });
+        });
+
+
+        function submitForm() {
+    const formData = new FormData();
+
+    // Add letter number, lab name, and date
+    formData.append('letter_no', document.getElementById('letter_no').value);
+    formData.append('lab_name', document.getElementById('lab_select').value);
+    formData.append('date', document.getElementById('letter_date').value);
+
+    // Get all product sections
+    const productSections = document.querySelectorAll('.product-section');
+
+    productSections.forEach((productSection, index) => {
+        const srNoSelect = productSection.querySelector(`[id^=sr_no]`);
+        const serviceReportDateInput = productSection.querySelector(`[id^=service_report_date]`);
+
+        formData.append(`products[${index}][sr_no]`, srNoSelect.value);
+        formData.append(`products[${index}][service_report_date]`, serviceReportDateInput.value);
+
+        // Get all subproduct sections within the current product section
+        const subproductSections = productSection.querySelectorAll('.subproduct-section');
+        subproductSections.forEach((subproductSection, subIndex) => {
+            const partNameInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(1)`);
+            const partTypeSelect = subproductSection.querySelector(`select`);
+            const partSpecInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(2)`);
+            const partQtyInput = subproductSection.querySelector(`input[type="number"]`);
+
+            formData.append(`products[${index}][subproducts][${subIndex}][part_name]`, partNameInput.value);
+            formData.append(`products[${index}][subproducts][${subIndex}][part_type]`, partTypeSelect.value);
+            formData.append(`products[${index}][subproducts][${subIndex}][part_specification]`, partSpecInput.value);
+            formData.append(`products[${index}][subproducts][${subIndex}][part_quantity]`, partQtyInput.value);
+        });
+    });
+
+    // Send the form data to the server
+    fetch('/letterGenerate/submit_form/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        alert('Form submitted successfully!');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('There was an error submitting the form.');
+    });
+}
+
+
     </script>
+    
     
 
 </body>

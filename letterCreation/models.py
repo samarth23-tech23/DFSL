@@ -81,7 +81,7 @@ class Subproduct(models.Model):
     part_name = models.CharField(max_length=255)
     specification = models.TextField()
     quantity = models.IntegerField()
-    period_of_amc_contract = models.CharField(max_length=255)
+    # period_of_amc_contract = models.CharField(max_length=255)
     amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
 
     def __str__(self):
