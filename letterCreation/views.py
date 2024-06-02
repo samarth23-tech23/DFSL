@@ -2,12 +2,14 @@ from django.shortcuts import render,get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer
-from itertools import groupby
-from django.db import models
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
+from django.db.models import Count
 
 def index(request):
     return render(request,'index.html')
+
+def product_input(request):
+    return render(request,'product.html')
 
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
@@ -59,12 +61,6 @@ def get_product_serial_numbers(request):
     return JsonResponse({'product_serial_numbers': list(products)})
 
 
-
-def get_department_names(request):
-    # Fetch department names from the database based on the selected lab
-    lab_name = request.GET.get('lab_name')
-    departments = Department.objects.filter(lab__name=lab_name).values_list('name', flat=True)
-    return JsonResponse(list(departments), safe=False)
 
 def product_list(request):
     letters = Letter.objects.all()
