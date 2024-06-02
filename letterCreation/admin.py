@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack
+from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack, LetterProduct
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
@@ -12,7 +12,6 @@ class DepartmentAdmin(admin.ModelAdmin):
     def get_lab_name(self, obj):
         return obj.lab.name if obj.lab else ''
     get_lab_name.short_description = 'Lab Name'
-
 
 @admin.register(Manufacturer)
 class ManufacturerAdmin(admin.ModelAdmin):
@@ -76,3 +75,7 @@ class PrintTrackAdmin(admin.ModelAdmin):
 class ServiceReportTrackAdmin(admin.ModelAdmin):
     list_display = ['id', 'product', 'service_date']
 
+@admin.register(LetterProduct)
+class LetterProductAdmin(admin.ModelAdmin):
+    list_display = ('letter', 'product')
+    search_fields = ('letter__letter_no', 'product__sr_no')

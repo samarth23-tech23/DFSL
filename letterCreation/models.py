@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 class Lab(models.Model):
     name = models.CharField(max_length=255)
@@ -140,3 +139,11 @@ class PrintTrack(models.Model):
 
     def __str__(self):
         return self.letter_no
+    
+class LetterProduct(models.Model):
+    letter = models.ForeignKey(Letter, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.letter.letter_no} - {self.product.sr_no}"
+

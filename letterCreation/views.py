@@ -2,7 +2,8 @@ from django.shortcuts import render,get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
+import datetime
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
 from django.db.models import Count
 
 def index(request):
@@ -25,13 +26,24 @@ def get_sr_numbers(request):
 
 
 def load_form(request):
+    # Fetch required context data for the form
     main_items = MainItem.objects.values('name', 'id').annotate(total=Count('name')).filter(total=1)
     labs = Lab.objects.all()
     manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
     departments = Department.objects.all()
+    
+    # Fetch all letters with their related products and subproducts for the product information table
+    letters = Letter.objects.prefetch_related('products__subproducts').all()
 
-    return render(request, 'form1.html', {'main_items': main_items, 'manufacturer_names': manufacturer_names, 'departments': departments, 'labs': labs})
+    context = {
+        'main_items': main_items,
+        'manufacturer_names': manufacturer_names,
+        'departments': departments,
+        'labs': labs,
+        'letters': letters
+    }
 
+    return render(request, 'form1.html', context)
 
 
 def get_manufacturers(request):
@@ -60,8 +72,17 @@ def get_product_serial_numbers(request):
 
 
 def product_list(request):
-    letters = Letter.objects.all()
-    return render(request, 'table.html', {'letters': letters})
+    # Retrieve all LetterProduct objects
+    letter_products = LetterProduct.objects.all()
+    
+    # Pass the data to the template
+    context = {
+        'letter_products': letter_products
+    }
+    
+    # Render the template with the provided context
+    return render(request, 'table.html', context)
+
 
 def letter_detail(request, product_id):
     product = Product.objects.get(pk=product_id)
@@ -177,7 +198,6 @@ def letter_detail7(request, product_id):
 
     return render(request, 'letter.html', {'product': product, 'grouped_subproducts': grouped_subproducts, 'letter': letter, 'quotations': quotations})
 
-
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
@@ -189,6 +209,12 @@ def submit_form(request):
 
             if not lab_name_id.isdigit():
                 raise ValueError(f"lab_name_id is not a digit: {lab_name_id}")
+
+            # Validate and parse the date
+            try:
+                letter_date = datetime.datetime.strptime(letter_date, '%Y-%m-%d').date()
+            except ValueError:
+                raise ValueError(f"Letter date {letter_date} is not in the correct format YYYY-MM-DD")
 
             # Create a Letter instance
             letter = Letter.objects.create(
@@ -213,9 +239,22 @@ def submit_form(request):
                 except Product.DoesNotExist:
                     raise ValueError(f"Product with SR No {sr_no} does not exist")
 
-                # Update service report date
-                product.service_report_date = service_report_date
-                product.save()
+                # Validate and parse the service report date if provided
+                if service_report_date:
+                    try:
+                        service_report_date = datetime.datetime.strptime(service_report_date, '%Y-%m-%d').date()
+                    except ValueError:
+                        raise ValueError(f"Service report date {service_report_date} is not in the correct format YYYY-MM-DD")
+
+                    # Update service report date
+                    product.service_report_date = service_report_date
+                    product.save()
+
+                # Create a LetterProduct instance to link the Letter and Product
+                LetterProduct.objects.create(
+                    letter=letter,
+                    product=product
+                )
 
                 # Process subproducts
                 subproduct_index = 0
@@ -227,7 +266,7 @@ def submit_form(request):
                     part_type = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_type]')
                     part_specification = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_specification]')
                     part_quantity = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_quantity]')
-                    
+
                     if not part_quantity.isdigit():
                         raise ValueError(f"Part quantity is not a digit: {part_quantity}")
 
@@ -250,6 +289,7 @@ def submit_form(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
 @csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':
