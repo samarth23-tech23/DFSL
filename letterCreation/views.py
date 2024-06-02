@@ -9,9 +9,6 @@ from django.db.models import Count
 def index(request):
     return render(request,'index.html')
 
-def product_input(request):
-    return render(request,'product.html')
-
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
     main_item = request.GET.get('main_item')

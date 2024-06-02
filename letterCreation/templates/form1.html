@@ -1,4 +1,4 @@
-{% extends 'sidebar.html' %} {% load static %} {% block content %}
+`{% extends 'sidebar.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,7 +11,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
-    <title>Form</title>
+
     <style>
        *{
                font-size: 16px;
@@ -512,56 +512,82 @@
               });
 
 
-  function submitForm() {
-    const formData = new FormData();
-
-    // Add letter number, lab name, and date
-    formData.append('letter_no', document.getElementById('letter_no').value);
-    formData.append('lab_name', document.getElementById('lab_select').value);
-    formData.append('date', document.getElementById('letter_date').value);
-
-    // Get all product sections
-    const productSections = document.querySelectorAll('.product-section');
-
-    productSections.forEach((productSection, index) => {
-        const srNoSelect = productSection.querySelector(`[id^=sr_no]`);
-        const serviceReportDateInput = productSection.querySelector(`[id^=service_report_date]`);
-
-        formData.append(`products[${index}][sr_no]`, srNoSelect.value);
-        formData.append(`products[${index}][service_report_date]`, serviceReportDateInput.value);
-
-        // Get all subproduct sections within the current product section
-        const subproductSections = productSection.querySelectorAll('.subproduct-section');
-        subproductSections.forEach((subproductSection, subIndex) => {
-            const partNameInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(1)`);
-            const partTypeSelect = subproductSection.querySelector(`select`);
-            const partSpecInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(2)`);
-            const partQtyInput = subproductSection.querySelector(`input[type="number"]`);
-
-            formData.append(`products[${index}][subproducts][${subIndex}][part_name]`, partNameInput.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_type]`, partTypeSelect.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_specification]`, partSpecInput.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_quantity]`, partQtyInput.value);
-        });
-    });
-
-    // Send the form data to the server
-    fetch('/letterGenerate/submit_form/', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        alert('Form submitted successfully!');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('There was an error submitting the form.');
-    });
-}
-
-
+              function submitForm() {
+                const formData = new FormData();
+            
+                // Add letter number, lab name, and date
+                const letterNo = document.getElementById('letter_no').value;
+                const labName = document.getElementById('lab_select').value;
+                const date = document.getElementById('letter_date').value;
+            
+                if (!letterNo || !labName || !date) {
+                    alert('Please fill in all the required fields.');
+                    return; // Stop form submission if any required field is empty
+                }
+            
+                formData.append('letter_no', letterNo);
+                formData.append('lab_name', labName);
+                formData.append('date', date);
+            
+                // Get all product sections
+                const productSections = document.querySelectorAll('.product-section');
+            
+                for (let index = 0; index < productSections.length; index++) {
+                    const productSection = productSections[index];
+                    const srNoSelect = productSection.querySelector(`[id^=sr_no]`);
+                    const serviceReportDateInput = productSection.querySelector(`[id^=service_report_date]`);
+            
+                    if (!srNoSelect.value || !serviceReportDateInput.value) {
+                        alert('Please fill in all the required fields for each product.');
+                        return; // Stop form submission if any required field within a product section is empty
+                    }
+            
+                    formData.append(`products[${index}][sr_no]`, srNoSelect.value);
+                    formData.append(`products[${index}][service_report_date]`, serviceReportDateInput.value);
+            
+                    // Get all subproduct sections within the current product section
+                    const subproductSections = productSection.querySelectorAll('.subproduct-section');
+            
+                    if (subproductSections.length === 0) {
+                        alert('Please open the part section to fill in the required details.');
+                        return; // Stop form submission if the part section is not opened
+                    }
+            
+                    for (let subIndex = 0; subIndex < subproductSections.length; subIndex++) {
+                        const subproductSection = subproductSections[subIndex];
+                        const partNameInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(1)`);
+                        const partTypeSelect = subproductSection.querySelector(`select`);
+                        const partSpecInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(2)`);
+                        const partQtyInput = subproductSection.querySelector(`input[type="number"]`);
+            
+                        if (!partNameInput.value || !partTypeSelect.value || !partSpecInput.value || !partQtyInput.value) {
+                            alert('Please fill in all the required fields for each part.');
+                            return; // Stop form submission if any required field within a subproduct section is empty
+                        }
+            
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_name]`, partNameInput.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_type]`, partTypeSelect.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_specification]`, partSpecInput.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_quantity]`, partQtyInput.value);
+                    }
+                }
+            
+                // Send the form data to the server
+                fetch('/letterGenerate/submit_form/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Form submitted successfully!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error submitting the form.');
+                });
+            }
+            
     </script>
   </body>
 </html>

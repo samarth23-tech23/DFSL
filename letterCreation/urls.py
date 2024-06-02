@@ -4,7 +4,7 @@ urlpatterns = [
     path('',views.index),
     
     path('form/',views.load_form), 
-    path('product_input/',views.product_input), 
+   
     path('get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
     path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
     path('get_sr_numbers/', views.get_sr_numbers, name='get_sr_numbers'),

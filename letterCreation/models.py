@@ -146,4 +146,3 @@ class LetterProduct(models.Model):
 
     def __str__(self):
         return f"{self.letter.letter_no} - {self.product.sr_no}"
-
