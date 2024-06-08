@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,28 +25,45 @@
             top: 0;
             left: 0;
             bottom: 0;
-            width: 300px;
+            width: 284px;
             border-left: 5px solid #01a1df;
             background-color: #3ab1df;
             overflow-x: hidden;
-            padding-top: 40px;
             transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+            {% comment %} align-items: center; {% endcomment %}
         }
 
-        .navigation .sidebar-title {
+        .sidebar-header {
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 24px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header img {
+            width: 70px;
+            height: 70px;
+        }
+
+        .sidebar-header .sidebar-title {
+            font-size: 30px;
             font-weight: bold;
             color: #fff;
-            padding: 10px 0;
-            background-color: #01a1df;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .sidebar-header a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
 
         .navigation ul {
             list-style-type: none;
             padding: 0;
+            width: 100%;
         }
 
         .navigation ul li {
@@ -97,7 +115,7 @@
         @media (max-width: 768px) {
             .navigation {
                 width: 70px;
-                padding-top: 0;
+                padding-top: 20px;
             }
 
             .navigation ul li a .title {
@@ -147,7 +165,12 @@
 </head>
 <body>
     <div class="navigation">
-        <div class="sidebar-title">DFSL</div>
+        <div class="sidebar-header">
+            <a href="/">
+                <img src="{% static 'images/logo.png' %}" alt="Logo">
+                <div class="sidebar-title">DFSL</div>
+            </a>
+        </div>
         <ul>
             <li class="list">
                 <a href="/letterGenerate/form">
