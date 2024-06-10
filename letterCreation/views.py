@@ -59,24 +59,25 @@ def manufacturer_list(request):
     return render(request, 'manufacturer.html', {'manufacturers': manufacturers})
 
 
-def edit_manufacturer(request, pk):
-    manufacturer = get_object_or_404(Manufacturer, pk=pk)
+def edit_manufacturer(request, manufacturer_id):
+    manufacturer = Manufacturer.objects.get(id=manufacturer_id)
     if request.method == 'POST':
         form = ManufacturerForm(request.POST, instance=manufacturer)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Manufacturer edited successfully.')
-            return redirect(reverse('manufacturer_list') + '?edited=true')
+            return redirect('manufacturer_list')
     else:
         form = ManufacturerForm(instance=manufacturer)
     return render(request, 'edit_manufacturer.html', {'form': form})
 
-def delete_manufacturer(request, manufacturer_id):
-    if request.method == "POST":
+
+def delete_manufacturer(request):
+    if request.method == 'POST':
+        manufacturer_id = request.POST.get('id')
         manufacturer = get_object_or_404(Manufacturer, id=manufacturer_id)
         manufacturer.delete()
-        messages.success(request, 'Manufacturer deleted successfully.')
-    return redirect('manufacturer_list')  # Replace 'manufacturer_list' with your URL name for the manufacturer list view
+        messages.success(request, 'Manufacturer deleted successfully!')
+    return redirect('manufacturer_list')
 
 
 def manufacturer_list(request):
@@ -108,16 +109,7 @@ def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
     return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
 
-def edit_manufacturer(request, manufacturer_id):
-    manufacturer = Manufacturer.objects.get(id=manufacturer_id)
-    if request.method == 'POST':
-        form = ManufacturerForm(request.POST, instance=manufacturer)
-        if form.is_valid():
-            form.save()
-            return redirect('manufacturer_list')
-    else:
-        form = ManufacturerForm(instance=manufacturer)
-    return render(request, 'edit_manufacturer.html', {'form': form})
+
 
 
 def get_sr_numbers(request):
@@ -205,9 +197,10 @@ def get_departments(request):
 # Edit product view
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    
     if request.method == 'POST':
-        print(request.POST)  # Add this line to print form data
-        product.name = request.POST.get('name')
+        # Update product attributes based on form data
+        product.main_item.name = request.POST.get('name')
         product.price = request.POST.get('price')
         product.buying_date = request.POST.get('buying_date')
         product.department = request.POST.get('department')
@@ -217,10 +210,17 @@ def edit_product(request, product_id):
         product.expenditure_cost = request.POST.get('expenditure_cost')
         product.manufacturer_warranty_period = request.POST.get('manufacturer_warranty_period')
         product.service_report_date = request.POST.get('service_report_date')
-        product.manufacturer = request.POST.get('manufacturer')
+        product.main_item.manufacturer = request.POST.get('manufacturer')
+        
+        # Save the updated product and its associated MainItem
+        product.main_item.save()
         product.save()
+        
+        # Add success message and redirect to product list
         messages.success(request, 'Product updated successfully!')
         return redirect('product_list')
+    
+    # Render the edit product template with the product data
     return render(request, 'edit_product.html', {'product': product})
 
 
@@ -254,7 +254,16 @@ def product_detail_json(request, product_id):
     except Product.DoesNotExist:
         return JsonResponse({'error': 'Product not found'}, status=404)
 
-        
+    #am-provider
+def amc_providers_list(request):
+    providers = AMCProvider.objects.all()
+    return render(request, 'amc_providers_list.html', {'providers': providers})
+
+
+#service report history
+def service_report_history(request):
+    products = Product.objects.all()
+    return render(request, 'service_report_history.html', {'products': products})
 
 def product_list(request):
     # Retrieve all LetterProduct objects

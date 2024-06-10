@@ -57,19 +57,19 @@
             {% for product in products %}
             <tr>
               <td class="px-6 py-4">{{ product.sr_no }}</td>
-              <td class="px-6 py-4">{{ product.main_item.name }}</td>
+              <td class="px-6 py-4">{{ product.main_item.name }}-{{ product.main_item.manufacturer }}</td>
               <td class="px-6 py-4">{{ product.price }}</td>
-              <td class="px-6 py-4">{{ product.buying_date }}</td>
+              <td class="px-6 py-4">{{ product.buying_date|date:"Y-m-d" }}</td>
               <td class="px-6 py-4">{{ product.department.name }}</td>
               <td class="px-6 py-4">{{ product.lab_name.name }}</td>
               <td class="px-6 py-4">{{ product.amc_provider.name }}</td>
               <td class="px-6 py-4">{{ product.amc_period }}</td>
               <td class="px-6 py-4">{{ product.expenditure_cost }}</td>
               <td class="px-6 py-4">{{ product.manufacturer_warranty_period }}</td>
-              <td class="px-6 py-4">{{ product.service_report_date }}</td>
+              <td class="px-6 py-4">{{ product.service_report_date|date:"Y-m-d" }}</td>
               <td class="px-4 py-2">
                 <div class="flex space-x-4">
-                    <button onclick="openEditModal('{{ product.id }}', '{{ product.main_item.name }}', '{{ product.manufacturer }}', '{{ product.price }}', '{{ product.buying_date }}', '{{ product.department.name }}', '{{ product.lab_name.name }}', '{{ product.amc_provider.name }}', '{{ product.amc_period }}', '{{ product.expenditure_cost }}', '{{ product.manufacturer_warranty_period }}', '{{ product.service_report_date }}')" class="icon-button">
+                    <button onclick="openEditModal('{{ product.id }}', '{{ product.main_item.name }}', '{{ product.manufacturer }}', '{{ product.price }}', '{{ product.buying_date|date:"Y-m-d" }}', '{{ product.department.name }}', '{{ product.lab_name.name }}', '{{ product.amc_provider.name }}', '{{ product.amc_period }}', '{{ product.expenditure_cost }}', '{{ product.manufacturer_warranty_period }}', '{{ product.service_report_date|date:"Y-m-d" }}')" class="icon-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-green-500 dark:text-green-400">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"></path>
@@ -223,11 +223,15 @@
       document.getElementById('editExpenditureCost').value = expenditureCost;
       document.getElementById('editManufacturerWarrantyPeriod').value = manufacturerWarrantyPeriod;
       document.getElementById('editServiceReportDate').value = serviceReportDate;
-
+    
+      // Update form action with the appropriate URL
       const editForm = document.getElementById('edit-form');
-      editForm.action = `/edit/${productId}/`; // Update form action
-      document.getElementById('edit-modal').classList.remove('hidden'); // Show the modal
+      editForm.action = `/edit_product/${productId}/`;
+    
+      // Show the modal
+      document.getElementById('edit-modal').classList.remove('hidden');
     }
+    
 </script>
 
 </body>

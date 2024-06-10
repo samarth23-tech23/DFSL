@@ -37,7 +37,7 @@ urlpatterns = [
     
 
 # delete manufacturer
-    path('delete/<int:manufacturer_id>/', views.delete_manufacturer, name='delete_manufacturer'),
+    path('delete-manufacturer/', views.delete_manufacturer, name='delete_manufacturer'),
 
 #product_list
     path('product_list/', views.product_list_view, name='product_list'),
@@ -46,6 +46,11 @@ urlpatterns = [
     path('product/<int:product_id>/json/', views.product_detail_json, name='product_detail_json'),
     path('get_departments/', views.get_departments, name='get_departments'),
 
+#amcproviders 
+    path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
+
+#service-report-history
+    path('service-report-history/', views.service_report_history, name='service_report_history'),
 
 
    path('submit_form/', views.submit_form, name='submit_form'),
