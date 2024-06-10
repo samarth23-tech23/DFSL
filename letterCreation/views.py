@@ -1,15 +1,116 @@
 from decimal import Decimal
 from django.shortcuts import render,get_object_or_404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils import timezone
+
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
 from django.db.models import Count
-from django.utils import timezone
+from .forms import ManufacturerForm
+from django.shortcuts import render, redirect
+from .forms import MainItemForm
+from django.contrib import messages
 
+
+#mainitems
+# Render the list of main items
+def item_list(request):
+    items = MainItem.objects.all()
+    return render(request, 'items.html', {'mitem': items})
+
+# Handle editing of a main item
+def edit_item(request):
+    if request.method == 'POST':
+        item_id = request.POST.get('id')
+        item = get_object_or_404(MainItem, id=item_id)
+        form = MainItemForm(request.POST, instance=item)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Changes saved successfully.')
+        else:
+            messages.error(request, 'Failed to save changes. Please check the form.')
+    
+    # Redirect back to the item list page (items.html)
+    return redirect('item_list')
+
+# Handle deletion of a main item
+def delete_item(request):
+    if request.method == 'POST':
+        item_id = request.POST.get('id')
+        item = MainItem.objects.get(id=item_id)
+        item.delete()
+        messages.success(request, 'Item deleted successfully!')
+    
+    # Redirect back to the item list page (items.html)
+    return redirect('item_list')
+
+# def product_list1(request):
+#     products = Product.objects.all()
+#     return render(request, 'items.html', {'products': products})
+
+
+#manufacturer
+def manufacturer_list(request):
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'manufacturer.html', {'manufacturers': manufacturers})
+
+
+def edit_manufacturer(request, manufacturer_id):
+    manufacturer = Manufacturer.objects.get(id=manufacturer_id)
+    if request.method == 'POST':
+        form = ManufacturerForm(request.POST, instance=manufacturer)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer_list')
+    else:
+        form = ManufacturerForm(instance=manufacturer)
+    return render(request, 'edit_manufacturer.html', {'form': form})
+
+
+def delete_manufacturer(request):
+    if request.method == 'POST':
+        manufacturer_id = request.POST.get('id')
+        manufacturer = get_object_or_404(Manufacturer, id=manufacturer_id)
+        manufacturer.delete()
+        messages.success(request, 'Manufacturer deleted successfully!')
+    return redirect('manufacturer_list')
+
+
+def manufacturer_list(request):
+    return render(request,'manufacturer_list.html')  
+
+def mitem(request):
+    mitem = MainItem.objects.all()
+    context = {'mitem':mitem}
+    return render(request, 'items.html', context)
+
+def manufacturer_view(request):
+    manufacturers = Manufacturer.objects.all()
+    context = {'manufacturers': manufacturers}  
+    return render(request, 'manufacturer.html', context)
+    
 def index(request):
     return render(request,'index.html')
+
+def items(request):
+    return render(request,'items.html')
+
+def manufacturer(request):
+    return render(request,'manufacturer.html')
+
+def tracking(request):
+    return render(request,'tracking.html')
+ 
+def manufacturer_list(request):
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
+
+
+
 
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
@@ -64,14 +165,105 @@ def get_manufacturer_names(request):
     main_item = request.GET.get('main_item')
     manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
     return JsonResponse({'manufacturer_names': list(manufacturers)})
+def get_product_serial_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
+    manufacturer = request.GET.get('manufacturer')
+    department_id = request.GET.get('department_id')
+
+    products = Product.objects.filter(lab_id=lab_id, main_item=main_item, manufacturer__name=manufacturer, department_id=department_id).values_list('serial_number', flat=True)
+    
+    return JsonResponse({'product_serial_numbers': list(products)})
+# Product list view
+def product_list_view(request):
+    products = Product.objects.all()
+    return render(request, 'product_list.html', {'products': products})
 
 def get_product_serial_numbers(request):
     lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
     manufacturer = request.GET.get('manufacturer')
-    products = Product.objects.filter(lab_id=lab_id, manufacturer__name=manufacturer).values_list('serial_number', flat=True)
+    department_id = request.GET.get('department_id')
+
+    products = Product.objects.filter(lab_id=lab_id, main_item=main_item, manufacturer__name=manufacturer, department_id=department_id).values_list('serial_number', flat=True)
+    
     return JsonResponse({'product_serial_numbers': list(products)})
 
+def get_departments(request):
+    lab_id = request.GET.get('lab_id')
+    departments = Department.objects.filter(lab_id=lab_id).values('id', 'name')
+    return JsonResponse({'departments': list(departments)})
 
+# Edit product view
+def edit_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Update product attributes based on form data
+        product.main_item.name = request.POST.get('name')
+        product.price = request.POST.get('price')
+        product.buying_date = request.POST.get('buying_date')
+        product.department = request.POST.get('department')
+        product.lab_name = request.POST.get('lab_name')
+        product.amc_provider = request.POST.get('amc_provider')
+        product.amc_period = request.POST.get('amc_period')
+        product.expenditure_cost = request.POST.get('expenditure_cost')
+        product.manufacturer_warranty_period = request.POST.get('manufacturer_warranty_period')
+        product.service_report_date = request.POST.get('service_report_date')
+        product.main_item.manufacturer = request.POST.get('manufacturer')
+        
+        # Save the updated product and its associated MainItem
+        product.main_item.save()
+        product.save()
+        
+        # Add success message and redirect to product list
+        messages.success(request, 'Product updated successfully!')
+        return redirect('product_list')
+    
+    # Render the edit product template with the product data
+    return render(request, 'edit_product.html', {'product': product})
+
+
+# Delete product view
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Product deleted successfully!')
+        return redirect('product_list')
+    return render(request, 'product_list.html')
+
+def product_detail_json(request, product_id):
+    try:
+        product = Product.objects.get(pk=product_id)
+        data = {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'buying_date': product.buying_date,
+            'department': product.department.name,
+            'lab_name': product.lab_name.name,
+            'amc_provider': product.amc_provider.name,
+            'amc_period': product.amc_period,
+            'expenditure_cost': product.expenditure_cost,
+            'manufacturer_warranty_period': product.manufacturer_warranty_period,
+            'service_report_date': product.service_report_date,
+            'manufacturer': product.manufacturer
+        }
+        return JsonResponse(data)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+
+    #am-provider
+def amc_providers_list(request):
+    providers = AMCProvider.objects.all()
+    return render(request, 'amc_providers_list.html', {'providers': providers})
+
+
+#service report history
+def service_report_history(request):
+    products = Product.objects.all()
+    return render(request, 'service_report_history.html', {'products': products})
 
 def product_list(request):
     # Retrieve all LetterProduct objects
@@ -84,7 +276,6 @@ def product_list(request):
     
     # Render the template with the provided context
     return render(request, 'table.html', context)
-
 
 
 def letter_detail(request, product_id):
@@ -311,21 +502,12 @@ def submit_quotation_info(request):
 
         # Create the quotation
         product = Product.objects.get(pk=product_id)
-        quotation = Quotation.objects.create(
-            product=product,
-            quotation_date=date,
-            ref_no=ref_no,
-            quotation_expense_criteria=quotation_expense_criteria
-        )
-
         total_price = 0  # Initialize total_price
 
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
-            amc_provider = subproduct.amc_provider
-
             unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
@@ -333,6 +515,28 @@ def submit_quotation_info(request):
             price_with_gst = price_without_gst + gst_value
 
             total_price += price_with_gst  # Add price_with_gst to total_price
+
+        # Check if total price exceeds expenditure cost limit
+        if product.expenditure_cost - total_price < 0:
+            return JsonResponse({'message': 'Expenditure cost limit exceeded. Quotation cannot be submitted.'}, status=400)
+
+        # Create the quotation
+        quotation = Quotation.objects.create(
+            product=product,
+            quotation_date=date,
+            ref_no=ref_no,
+            quotation_expense_criteria=quotation_expense_criteria
+        )
+
+        # Process each subproduct and create quotation items
+        for subproduct_id in subproduct_ids:
+            subproduct = Subproduct.objects.get(pk=subproduct_id)
+            amc_provider = subproduct.amc_provider
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            quantity = subproduct.quantity
+            price_without_gst = unit_price * quantity
+            gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
+            price_with_gst = price_without_gst + gst_value
 
             # Create the quotation item
             quotation_item = QuotationItem.objects.create(
@@ -350,7 +554,8 @@ def submit_quotation_info(request):
             # Update the AMCProvider fields (if needed)
             # Note: This part may need adjustment based on your actual requirements
 
-        quotation.total_price = total_price  # Update total_price
+        # Update total_price and save quotation
+        quotation.total_price = total_price
         quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
