@@ -125,6 +125,9 @@ def unique_values(queryset, field_name):
 
 @register.filter(name='group_by_amc_provider')
 def group_by_amc_provider(subproducts):
+    if subproducts is None:
+        return {}
+    
     groups = {}
     for subproduct in subproducts:
         amc_provider_name = subproduct.amc_provider.name
@@ -141,14 +144,3 @@ def get_item(dictionary, key):
 @register.filter
 def get_last(value, arg):
     return value[arg-1] if value else None
-
-@register.simple_tag
-def empty_list():
-    return []
-
-@register.filter
-def check_amc_provider(amc_provider, processed_providers):
-    if amc_provider.id not in processed_providers:
-        processed_providers.append(amc_provider.id)
-        return True
-    return False
