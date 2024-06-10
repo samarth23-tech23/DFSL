@@ -11,6 +11,7 @@ urlpatterns = [
 
     # path('letterGenerate/get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
     # path('letterGenerate/get_product_serial_numbers/', views.get_product_serial_numbers, name='get_product_serial_numbers'),
+    path('get_departments/', views.get_departments, name='get_departments'),
 
 
    

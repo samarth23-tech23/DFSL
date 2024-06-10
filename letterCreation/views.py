@@ -25,21 +25,26 @@ def get_sr_numbers(request):
     return JsonResponse({'sr_numbers': []})
 
 
+def get_departments(request):
+    lab_id = request.GET.get('lab_id')
+    departments = Department.objects.filter(lab_id=lab_id).values('id', 'name')
+    return JsonResponse({'departments': list(departments)})
+
 def load_form(request):
     # Fetch required context data for the form
-    main_items = MainItem.objects.values('name', 'id').annotate(total=Count('name')).filter(total=1)
+    main_items = MainItem.objects.all()
+    manufacturer_names = Manufacturer.objects.all()
     labs = Lab.objects.all()
-    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
-    departments = Department.objects.all()
-    
-    # Fetch all letters with their related products and subproducts for the product information table
     letters = Letter.objects.prefetch_related('products__subproducts').all()
+
+    # Create a dictionary of labs with their associated departments
+    lab_departments = {lab.id: list(lab.departments.values('id', 'name')) for lab in labs}
 
     context = {
         'main_items': main_items,
         'manufacturer_names': manufacturer_names,
-        'departments': departments,
         'labs': labs,
+        'lab_departments': lab_departments,
         'letters': letters
     }
 
