@@ -105,31 +105,48 @@
 
     <script>
         document.getElementById('quotationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-            let subproductIds = Array.from(new Set(Array.from(formData.keys()).filter(key => key.startsWith('subproduct_id_')).map(key => formData.get(key))));
-            subproductIds.forEach(subproductId => {
-                formData.append(`gst_percentage_${subproductId}`, ((parseFloat(formData.get(`price_with_gst_${subproductId}`)) - parseFloat(formData.get(`price_without_gst_${subproductId}`))) / parseFloat(formData.get(`price_without_gst_${subproductId}`))) * 100);
-                formData.append(`gst_value_${subproductId}`, parseFloat(formData.get(`price_with_gst_${subproductId}`)) - parseFloat(formData.get(`price_without_gst_${subproductId}`)));
-            });
-            fetch('/letterGenerate/submit_quotation_info/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Form submitted successfully');
-                    // Redirect or do something else on success
-                } else {
-                    throw new Error('Failed to submit form');
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting form:', error);
-                alert('Error: ' + error.message);
-            });
+        e.preventDefault();
+        let formData = new FormData(this);
+        let subproductIds = Array.from(new Set(Array.from(formData.keys()).filter(key => key.startsWith('subproduct_id_')).map(key => formData.get(key))));
+        subproductIds.forEach(subproductId => {
+            let priceWithoutGST = parseFloat(formData.get(`price_without_gst_${subproductId}`));
+            let priceWithGST = parseFloat(formData.get(`price_with_gst_${subproductId}`));
+    
+            // Check if prices are valid numbers
+            if (!isNaN(priceWithoutGST) && !isNaN(priceWithGST) && priceWithoutGST !== 0) {
+                let gstPercentage = ((priceWithGST - priceWithoutGST) / priceWithoutGST) * 100;
+                let gstValue = priceWithGST - priceWithoutGST;
+    
+                // Append calculated GST values to form data
+                formData.append(`gst_percentage_${subproductId}`, gstPercentage);
+                formData.append(`gst_value_${subproductId}`, gstValue);
+            }
         });
+    
+        fetch('/letterGenerate/submit_quotation_info/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.message);
+                });
+            }
+        })
+        .then(data => {
+            alert(data.message); // Show message in alert box
+        })
+        .catch(error => {
+            console.error('Error submitting form:', error);
+            alert('Error: ' + error.message);
+        });
+    });
+    
     </script>
+    
 
 </body>
 

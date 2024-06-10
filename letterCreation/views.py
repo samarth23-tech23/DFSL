@@ -1,8 +1,10 @@
+from decimal import Decimal
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
 from django.db.models import Count
@@ -134,26 +136,21 @@ def get_sr_numbers(request):
     return JsonResponse({'sr_numbers': []})
 
 
-def get_departments(request):
-    lab_id = request.GET.get('lab_id')
-    departments = Department.objects.filter(lab_id=lab_id).values('id', 'name')
-    return JsonResponse({'departments': list(departments)})
-
 def load_form(request):
     # Fetch required context data for the form
-    main_items = MainItem.objects.all()
-    manufacturer_names = Manufacturer.objects.all()
+    main_items = MainItem.objects.values('name', 'id').annotate(total=Count('name')).filter(total=1)
     labs = Lab.objects.all()
+    manufacturer_names = list(Manufacturer.objects.values_list('name', flat=True))
+    departments = Department.objects.all()
+    
+    # Fetch all letters with their related products and subproducts for the product information table
     letters = Letter.objects.prefetch_related('products__subproducts').all()
-
-    # Create a dictionary of labs with their associated departments
-    lab_departments = {lab.id: list(lab.departments.values('id', 'name')) for lab in labs}
 
     context = {
         'main_items': main_items,
         'manufacturer_names': manufacturer_names,
+        'departments': departments,
         'labs': labs,
-        'lab_departments': lab_departments,
         'letters': letters
     }
 
@@ -176,17 +173,34 @@ def get_manufacturer_names(request):
     main_item = request.GET.get('main_item')
     manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
     return JsonResponse({'manufacturer_names': list(manufacturers)})
-
 def get_product_serial_numbers(request):
     lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
     manufacturer = request.GET.get('manufacturer')
-    products = Product.objects.filter(lab_id=lab_id, manufacturer__name=manufacturer).values_list('serial_number', flat=True)
-    return JsonResponse({'product_serial_numbers': list(products)})
+    department_id = request.GET.get('department_id')
 
+    products = Product.objects.filter(lab_id=lab_id, main_item=main_item, manufacturer__name=manufacturer, department_id=department_id).values_list('serial_number', flat=True)
+    
+    return JsonResponse({'product_serial_numbers': list(products)})
 # Product list view
 def product_list_view(request):
     products = Product.objects.all()
     return render(request, 'product_list.html', {'products': products})
+
+def get_product_serial_numbers(request):
+    lab_id = request.GET.get('lab_id')
+    main_item = request.GET.get('main_item')
+    manufacturer = request.GET.get('manufacturer')
+    department_id = request.GET.get('department_id')
+
+    products = Product.objects.filter(lab_id=lab_id, main_item=main_item, manufacturer__name=manufacturer, department_id=department_id).values_list('serial_number', flat=True)
+    
+    return JsonResponse({'product_serial_numbers': list(products)})
+
+def get_departments(request):
+    lab_id = request.GET.get('lab_id')
+    departments = Department.objects.filter(lab_id=lab_id).values('id', 'name')
+    return JsonResponse({'departments': list(departments)})
 
 # Edit product view
 def edit_product(request, product_id):
@@ -471,21 +485,12 @@ def submit_quotation_info(request):
 
         # Create the quotation
         product = Product.objects.get(pk=product_id)
-        quotation = Quotation.objects.create(
-            product=product,
-            quotation_date=date,
-            ref_no=ref_no,
-            quotation_expense_criteria=quotation_expense_criteria
-        )
-
         total_price = 0  # Initialize total_price
 
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
-            amc_provider = subproduct.amc_provider
-
             unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
@@ -493,6 +498,28 @@ def submit_quotation_info(request):
             price_with_gst = price_without_gst + gst_value
 
             total_price += price_with_gst  # Add price_with_gst to total_price
+
+        # Check if total price exceeds expenditure cost limit
+        if product.expenditure_cost - total_price < 0:
+            return JsonResponse({'message': 'Expenditure cost limit exceeded. Quotation cannot be submitted.'}, status=400)
+
+        # Create the quotation
+        quotation = Quotation.objects.create(
+            product=product,
+            quotation_date=date,
+            ref_no=ref_no,
+            quotation_expense_criteria=quotation_expense_criteria
+        )
+
+        # Process each subproduct and create quotation items
+        for subproduct_id in subproduct_ids:
+            subproduct = Subproduct.objects.get(pk=subproduct_id)
+            amc_provider = subproduct.amc_provider
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            quantity = subproduct.quantity
+            price_without_gst = unit_price * quantity
+            gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
+            price_with_gst = price_without_gst + gst_value
 
             # Create the quotation item
             quotation_item = QuotationItem.objects.create(
@@ -510,7 +537,8 @@ def submit_quotation_info(request):
             # Update the AMCProvider fields (if needed)
             # Note: This part may need adjustment based on your actual requirements
 
-        quotation.total_price = total_price  # Update total_price
+        # Update total_price and save quotation
+        quotation.total_price = total_price
         quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})

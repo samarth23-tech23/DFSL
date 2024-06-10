@@ -204,27 +204,29 @@
     <script>
           
 
+
     // Function to fetch and populate SR numbers
-    function fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect) {
-        fetch(`/letterGenerate/get_sr_numbers/?lab_id=${labId}&main_item=${mainItemName}&manufacturer=${manufacturer}`)
-            .then(response => response.json())
-            .then(data => {
-                srNoSelect.innerHTML = '';
-                if (data.sr_numbers.length > 0) {
-                    data.sr_numbers.forEach(srNo => {
-                        const option = document.createElement('option');
-                        option.value = srNo;
-                        option.textContent = srNo;
-                        srNoSelect.appendChild(option);
-                    });
-                } else {
+function fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, srNoSelect) {
+    fetch(`/letterGenerate/get_sr_numbers/?lab_id=${labId}&main_item=${mainItemName}&manufacturer=${manufacturer}&department_id=${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+            srNoSelect.innerHTML = '';
+            if (data.sr_numbers.length > 0) {
+                data.sr_numbers.forEach(srNo => {
                     const option = document.createElement('option');
-                    option.textContent = 'No SR Numbers found';
+                    option.value = srNo;
+                    option.textContent = srNo;
                     srNoSelect.appendChild(option);
-                }
-            })
-            .catch(error => console.error('Error fetching SR Numbers:', error));
-    }
+                });
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No SR Numbers found';
+                srNoSelect.appendChild(option);
+            }
+        })
+        .catch(error => console.error('Error fetching SR Numbers:', error));
+}
+
 
     // Event listener for main item change
     function addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect) {
@@ -266,29 +268,32 @@
         });
     }
 
-    // Event listener for lab, main item, and manufacturer changes to fetch SR numbers
-    function addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect) {
-        document.getElementById('lab_select').addEventListener('change', function() {
-            const labId = this.value;
-            const mainItemName = mainItemInput.value;
-            const manufacturer = manufacturerSelect.value;
-            fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
-        });
+  // Event listener for lab, main item, and manufacturer changes to fetch SR numbers
+function addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect) {
+    document.getElementById('lab_select').addEventListener('change', function() {
+        const labId = this.value;
+        const mainItemName = mainItemInput.value;
+        const manufacturer = manufacturerSelect.value;
+        const departmentId = departmentSelect.value; // Get the selected department ID
+        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, srNoSelect); // Pass departmentId to fetchSrNumbers
+    });
 
-        mainItemInput.addEventListener('change', function() {
-            const labId = document.getElementById('lab_select').value;
-            const mainItemName = this.value;
-            const manufacturer = manufacturerSelect.value;
-            fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
-        });
+    mainItemInput.addEventListener('change', function() {
+        const labId = document.getElementById('lab_select').value;
+        const mainItemName = this.value;
+        const manufacturer = manufacturerSelect.value;
+        const departmentId = departmentSelect.value; // Get the selected department ID
+        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, srNoSelect);
+    });
 
-        manufacturerSelect.addEventListener('change', function() {
-            const labId = document.getElementById('lab_select').value;
-            const mainItemName = mainItemInput.value;
-            const manufacturer = this.value;
-            fetchSrNumbers(labId, mainItemName, manufacturer, srNoSelect);
-        });
-    }
+    manufacturerSelect.addEventListener('change', function() {
+        const labId = document.getElementById('lab_select').value;
+        const mainItemName = mainItemInput.value;
+        const manufacturer = this.value;
+        const departmentId = departmentSelect.value; // Get the selected department ID
+        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, srNoSelect);
+    });
+}
 
 
     // Dynamic addition of product sections
@@ -362,21 +367,20 @@
     manufacturerDiv.appendChild(manufacturerSelect);
 
      // Department Select
-    const departmentDiv = document.createElement('div');
-    departmentDiv.classList.add('flex-1');
-    productSection.appendChild(departmentDiv);
+     const departmentDiv = document.createElement('div');
+        departmentDiv.classList.add('flex-1');
+        containerDiv.appendChild(departmentDiv);
 
-    const departmentLabel = document.createElement('label');
-    departmentLabel.textContent = 'Department';
-    departmentLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    departmentDiv.appendChild(departmentLabel);
+        const departmentLabel = document.createElement('label');
+        departmentLabel.textContent = 'Department';
+        departmentLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+        departmentDiv.appendChild(departmentLabel);
 
-    const departmentSelect = document.createElement('select');
-    departmentSelect.setAttribute('name', `department_${productId}`);
-    departmentSelect.setAttribute('id', `department_${productId}`);
-    departmentSelect.classList.add('shadow', 'appearance-none', 'border', 'rounded', 'w-full', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline');
-    departmentDiv.appendChild(departmentSelect);
-
+        const departmentSelect = document.createElement('select');
+        departmentSelect.setAttribute('name', `department_${productId}`);
+        departmentSelect.setAttribute('id', `department_${productId}`);
+        departmentSelect.classList.add('shadow', 'appearance-none', 'border', 'rounded', 'w-full', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline');
+        departmentDiv.appendChild(departmentSelect);
             
     // Service Report Date
     const serviceReportDateLabel = document.createElement('label');
@@ -408,7 +412,7 @@
 
     // Add event listeners for fetching SR numbers
     addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect);
-    addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect);
+    addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect.value); // Pass departmentSelect.value instead of departmentSelect
 
     // Add Subproduct Button
     const addSubproductBtn = document.createElement('button');
@@ -431,13 +435,11 @@
 
     productId++;
 }
-
-// Function to fetch departments for a given lab
 function fetchDepartments(labId, departmentSelect) {
     fetch(`/letterGenerate/get_departments/?lab_id=${labId}`)
         .then(response => response.json())
         .then(data => {
-            departmentSelect.innerHTML = '';
+            departmentSelect.innerHTML = ''; // Clear existing options
             if (data.departments.length > 0) {
                 data.departments.forEach(department => {
                     const option = document.createElement('option');
@@ -447,29 +449,28 @@ function fetchDepartments(labId, departmentSelect) {
                 });
             } else {
                 const option = document.createElement('option');
-                option.textContent = 'No departments found';
+                option.textContent = 'No Departments found';
                 departmentSelect.appendChild(option);
             }
         })
-        .catch(error => console.error('Error fetching departments:', error));
+        .catch(error => console.error('Error fetching Departments:', error));
 }
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    const labSelect = document.getElementById('lab_select');
-    const departmentSelect = document.getElementById(`department_1`);
-    const labId = labSelect.value;
+// Event listener for lab selection change to fetch departments
+document.getElementById('lab_select').addEventListener('change', function() {
+    const labId = this.value;
+    const departmentSelect = document.getElementById('department_1');
     fetchDepartments(labId, departmentSelect);
-
-    labSelect.addEventListener('change', function() {
-        const labId = this.value;
-        fetchDepartments(labId, departmentSelect);
-    });
 });
 
+// Initialize the first fetch of departments for the selected lab
+window.addEventListener('DOMContentLoaded', (event) => {
+    const labSelect = document.getElementById('lab_select');
+    const labId = labSelect.value;
+    const departmentSelect = document.getElementById('department_1');
+    fetchDepartments(labId, departmentSelect);
+});
 
-
-              // Function to add subproduct sections
              // Function to add subproduct sections
         function addSubproduct(event) {
             event.preventDefault();

@@ -8,7 +8,6 @@
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Apply the same styles as in the provided styled code */
         .content-wrapper {
             margin: 25px auto;
             width: 100%;
@@ -67,7 +66,6 @@
             color: #3ab1df;
         }
 
-        /* Additional styles */
         .content-table {
             border-collapse: collapse;
             margin: auto;
@@ -105,7 +103,6 @@
             color: #3ab1df;
         }
 
-        /* Animation keyframes */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -143,16 +140,16 @@
             </thead>
             <tbody>
             {% for letter in letters %}
-            {% for product in letter.products.all %}
-            {% if not product.quotation_set.all %}
+            {% for letter_product in letter.letterproduct_set.all %}
+            {% if not letter_product.product.quotation_set.exists %}
             <tr>
                 <td class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
                 <td class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
                 <td class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
+                <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.main_item.name }}</td>
+                <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.department.name }}</td>
                 <td class="border border-gray-200 px-4 py-2">
-                    <a href="{% url 'quotation_page' product.id %}"
+                    <a href="{% url 'quotation_page' letter_product.product.id %}"
                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add info</a>
                 </td>
             </tr>
@@ -190,4 +187,4 @@
     });
 </script>
 </html>
-{%endblock%}
+{% endblock %}
