@@ -309,13 +309,28 @@ def product_list4(request):
     return render(request, 'table2.html', {'letters': letters})
 
 def letter_detail4(request, subproduct_id):
-    subproduct = Subproduct.objects.get(pk=subproduct_id)
+    subproduct = get_object_or_404(Subproduct, pk=subproduct_id)
     product = subproduct.product
-    letter = product.letter
+    
+    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
+    letter_product_relations = product.letterproduct_set.all()
+    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
+    
     amc_provider = subproduct.amc_provider
     related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
-    service_report_date = subproduct.service_report_date
-    return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date,'letter':letter})
+    
+    # Accessing service report date from the product's service reports
+    service_report_date = None
+    if product.service_reports.exists():
+        service_report_date = product.service_reports.latest('service_date').service_date
+
+    return render(request, 'letter4.html', {
+        'product': product,
+        'amc_provider': amc_provider,
+        'related_subproducts': related_subproducts,
+        'service_report_date': service_report_date,
+        'letter': letter
+    })
 
 
 
@@ -386,9 +401,13 @@ def product_list7(request):
 
 
 def letter_detail7(request, product_id):
-    product = Product.objects.get(pk=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     subproducts = product.subproducts.all()
-    letter = product.letter
+    
+    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
+    letter_product_relations = product.letterproduct_set.all()
+    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
+
     quotations = Quotation.objects.filter(product=product)
 
     grouped_subproducts = {}
@@ -398,8 +417,12 @@ def letter_detail7(request, product_id):
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(subproduct)
 
-    return render(request, 'letter.html', {'product': product, 'grouped_subproducts': grouped_subproducts, 'letter': letter, 'quotations': quotations})
-
+    return render(request, 'letter.html', {
+        'product': product,
+        'grouped_subproducts': grouped_subproducts,
+        'letter': letter,
+        'quotations': quotations
+    })
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
