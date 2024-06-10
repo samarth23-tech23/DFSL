@@ -144,3 +144,15 @@ def get_item(dictionary, key):
 @register.filter
 def get_last(value, arg):
     return value[arg-1] if value else None
+
+
+@register.simple_tag
+def empty_list():
+    return []
+
+@register.filter
+def check_amc_provider(amc_provider, processed_providers):
+    if amc_provider.id not in processed_providers:
+        processed_providers.append(amc_provider.id)
+        return True
+    return False
