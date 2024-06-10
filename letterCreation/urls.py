@@ -40,11 +40,19 @@ urlpatterns = [
     path('delete-manufacturer/', views.delete_manufacturer, name='delete_manufacturer'),
 
 #product_list
-    path('product_list/', views.product_list_view, name='product_list'),
-    path('edit/<int:product_id>/', views.edit_product, name='edit_product'),
-    path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
-    path('product/<int:product_id>/json/', views.product_detail_json, name='product_detail_json'),
-    path('get_departments/', views.get_departments, name='get_departments'),
+    # path('product_list/', views.product_list_view, name='product_list'),
+    # path('edit/<int:product_id>/', views.edit_product, name='edit_product'),
+    # path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
+    # path('get_departments/', views.get_departments, name='get_departments'),
+
+    # path('product_list/', views.product_list_view, name='product_list'),
+    # path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
+    # path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
+    # path('get_departments/', views.get_departments, name='get_departments'),
+
+    path('product_list/', views.product_list_view, name='product_list_view'),
+    path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
 
 #amcproviders 
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),

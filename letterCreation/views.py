@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
 from django.db.models import Count
@@ -13,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .forms import MainItemForm
 from django.contrib import messages
+from .forms import ProductForm
 
 
 #mainitems
@@ -165,6 +165,7 @@ def get_manufacturer_names(request):
     main_item = request.GET.get('main_item')
     manufacturers = Manufacturer.objects.filter(mainitem__name=main_item).values_list('name', flat=True).distinct()
     return JsonResponse({'manufacturer_names': list(manufacturers)})
+
 def get_product_serial_numbers(request):
     lab_id = request.GET.get('lab_id')
     main_item = request.GET.get('main_item')
@@ -222,7 +223,23 @@ def edit_product(request, product_id):
     
     # Render the edit product template with the product data
     return render(request, 'edit_product.html', {'product': product})
+    
 
+
+def edit_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            # Add a success message if needed
+            messages.success(request, 'Product updated successfully!')
+            return redirect('product_list_view')  # Redirect to product_list URL name
+    else:
+        form = ProductForm(instance=product)
+    
+    return render(request, 'edit_product.html', {'form': form})
 
 # Delete product view
 def delete_product(request, product_id):
@@ -230,29 +247,29 @@ def delete_product(request, product_id):
     if request.method == 'POST':
         product.delete()
         messages.success(request, 'Product deleted successfully!')
-        return redirect('product_list')
+        return redirect('product_list_view')
     return render(request, 'product_list.html')
 
-def product_detail_json(request, product_id):
-    try:
-        product = Product.objects.get(pk=product_id)
-        data = {
-            'id': product.id,
-            'name': product.name,
-            'price': product.price,
-            'buying_date': product.buying_date,
-            'department': product.department.name,
-            'lab_name': product.lab_name.name,
-            'amc_provider': product.amc_provider.name,
-            'amc_period': product.amc_period,
-            'expenditure_cost': product.expenditure_cost,
-            'manufacturer_warranty_period': product.manufacturer_warranty_period,
-            'service_report_date': product.service_report_date,
-            'manufacturer': product.manufacturer
-        }
-        return JsonResponse(data)
-    except Product.DoesNotExist:
-        return JsonResponse({'error': 'Product not found'}, status=404)
+# def product_detail_json(request, product_id):
+#     try:
+#         product = Product.objects.get(pk=product_id)
+#         data = {
+#             'id': product.id,
+#             'name': product.name,
+#             'price': product.price,
+#             'buying_date': product.buying_date,
+#             'department': product.department.name,
+#             'lab_name': product.lab_name.name,
+#             'amc_provider': product.amc_provider.name,
+#             'amc_period': product.amc_period,
+#             'expenditure_cost': product.expenditure_cost,
+#             'manufacturer_warranty_period': product.manufacturer_warranty_period,
+#             'service_report_date': product.service_report_date,
+#             'manufacturer': product.manufacturer
+#         }
+#         return JsonResponse(data)
+#     except Product.DoesNotExist:
+#         return JsonResponse({'error': 'Product not found'}, status=404)
 
     #am-provider
 def amc_providers_list(request):

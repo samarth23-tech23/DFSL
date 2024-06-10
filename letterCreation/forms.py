@@ -1,7 +1,7 @@
 from django import forms
 from .models import Manufacturer
 from .models import MainItem
-
+from .models import Product
 
 class ManufacturerForm(forms.ModelForm):
     class Meta:
@@ -16,3 +16,9 @@ class MainItemForm(forms.ModelForm):
     class Meta:
         model = MainItem
         fields = ['name']
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__' 
