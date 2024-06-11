@@ -29,14 +29,22 @@ class Manufacturer(models.Model):
 
     def __str__(self):
         return self.name
-  
-class Letter(models.Model):
-    letter_no = models.CharField(max_length=255)
-    lab_name = models.ForeignKey(Lab, on_delete=models.CASCADE)
-    letter_date = models.DateField()
+    
+class AMCProvider(models.Model):
+    name = models.CharField(max_length=255)
+    ac_no = models.CharField(max_length=255)
+    ifsc_code = models.CharField(max_length=255)
+    ac_name = models.CharField(max_length=255)
+    bank_name = models.CharField(max_length=255)
+    pan_no = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    pincode = models.CharField(max_length=255)
+    address = models.TextField()
+    email_id = models.EmailField()
+    contact_no = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.letter_no
+        return self.name
 
 class MainItem(models.Model):
     name = models.CharField(max_length=100)
@@ -56,11 +64,11 @@ class Product(models.Model):
     amc_period = models.CharField(max_length=255)
     expenditure_cost = models.DecimalField(max_digits=10, decimal_places=2)
     manufacturer_warranty_period = models.CharField(max_length=255)
-    service_report_date = models.DateField(null=True, blank=True)  # New field for current service report date
+    service_report_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.sr_no
-    
+
     def save(self, *args, **kwargs):
         if self.pk:  # Check if the instance has already been saved
             original_product = Product.objects.get(pk=self.pk)  # Get the original instance from the database
@@ -81,11 +89,19 @@ class Subproduct(models.Model):
     part_name = models.CharField(max_length=255)
     specification = models.TextField()
     quantity = models.IntegerField()
-    # period_of_amc_contract = models.CharField(max_length=255)
     amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.part_name
+
+class Letter(models.Model):
+    letter_no = models.CharField(max_length=255)
+    lab_name = models.ForeignKey(Lab, on_delete=models.CASCADE)
+    letter_date = models.DateField()
+    subproducts = models.ManyToManyField(Subproduct, related_name='letters')  # Reference to subproducts related to the letter
+
+    def __str__(self):
+        return self.letter_no
 
 class Quotation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -101,22 +117,6 @@ class Quotation(models.Model):
     def __str__(self):
         return self.ref_no
 
-class AMCProvider(models.Model):
-    name = models.CharField(max_length=255)
-    ac_no = models.CharField(max_length=255)
-    ifsc_code = models.CharField(max_length=255)
-    ac_name = models.CharField(max_length=255)
-    bank_name = models.CharField(max_length=255)
-    pan_no = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    pincode = models.CharField(max_length=255)
-    address = models.TextField()
-    email_id = models.EmailField()
-    contact_no = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
 class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     subproduct = models.ForeignKey(Subproduct, on_delete=models.CASCADE)
@@ -131,6 +131,8 @@ class QuotationItem(models.Model):
     def __str__(self):
         return self.subproduct.part_name
 
+
+
 class PrintTrack(models.Model):
     printed_date1 = models.DateField(null=True, blank=True)
     printed_date2 = models.DateField(null=True, blank=True)
@@ -140,10 +142,3 @@ class PrintTrack(models.Model):
 
     def __str__(self):
         return self.letter_no
-    
-class LetterProduct(models.Model):
-    letter = models.ForeignKey(Letter, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.letter.letter_no} - {self.product.sr_no}"

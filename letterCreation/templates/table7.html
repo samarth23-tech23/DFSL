@@ -1,35 +1,66 @@
 {% extends 'sidebar.html' %}
+{% load custom_tags %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        *{
-            font-family: 'Poppins',sans-serif;
-        }
-        .custom-color {
-            color: #3ab1df;
-        }
-        .custom-bg {
-            color: #3ab1df;
-        }
-        .bg-custom-color:hover {
-            background-color: #3ab1df; /* Darker shade for hover effect */
+        * {
+            font-family: 'Poppins', sans-serif;
         }
         .content-wrapper {
             margin: 25px auto;
             width: 100%;
-            max-width: 900px; /* Adjust maximum width as needed */
+            max-width: 900px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             padding: 20px;
             border-radius: 10px;
             background-color: #fff;
             animation: fadeIn 1s ease-in-out;
+        }
+        .search-bar {
+            position: relative;
+            margin-top: 20px;
+        }
+        .search-input {
+            float: right;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: #3ab1df;
+        }
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            color: #ccc;
+            cursor: pointer;
+        }
+        .print-button {
+            border: 1px solid #3ab1df;
+            background-color: transparent;
+            color: #3ab1df;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            font-weight: bold;
+        }
+        .print-button:hover {
+            background-color: #3ab1df;
+            color: #fff;
+        }
+        .shadow-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            color: #3ab1df;
         }
         .content-table {
             border-collapse: collapse;
@@ -57,10 +88,6 @@
         .content-table tbody tr:last-of-type {
             border-bottom: 2px solid #009879;
         }
-        .content-table tbody tr.active-row {
-            font-weight: bold;
-            color: #3ab1df;
-        }
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -68,46 +95,6 @@
             to {
                 opacity: 1;
             }
-        }
-        .search-bar {
-            position: relative;
-            margin-top: 20px;
-        }
-        .search-input {
-            float: right;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .search-input:focus {
-            border-color: #3ab1df;
-        }
-        .search-icon {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            color: #ccc;
-            cursor: pointer;
-        }
-        .print-button {
-            border: 1px solid #3ab1df; 
-            background-color: transparent; 
-            color: #3ab1df; 
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s; 
-            font-weight: bold;
-        }
-        .print-button:hover {
-            background-color: #3ab1df; 
-            color: #fff; 
-        }
-        .shadow-text {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
-            color: #3ab1df; /* Text color */
         }
     </style>
 </head>
@@ -123,44 +110,51 @@
                     </svg>
                 </div>
             </div>
-
             <table class="content-table">
                 <thead>
                     <tr>
-                        <th class="border border-gray-200 px-4 py-2">Letter No</th>
-                        <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                        <th class="border border-gray-200 px-4 py-2">Letter Date</th>
-                        <th class="border border-gray-200 px-4 py-2">Product Name</th>
-                        <th class="border border-gray-200 px-4 py-2">Department</th>
-                        <th class="border border-gray-200 px-4 py-2">AMC Provider</th>
-                        <th class="border border-gray-200 px-4 py-2">Actions</th>
+                        <th class="px-4 py-2">Letter No</th>
+                        <th class="px-4 py-2">Lab Name</th>
+                        <th class="px-4 py-2">Letter Date</th>
+                        <th class="px-4 py-2">Product Name</th>
+                        <th class="px-4 py-2">Department</th>
+                        <th class="px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for letter in letters %}
-                        {% for letter_product in letter.letterproduct_set.all %}
-                            <tr>
-                                {% if forloop.first %}
-                                    <td rowspan="{{ letter.letterproduct_set.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
-                                    <td rowspan="{{ letter.letterproduct_set.count }}" class="border border-gray-200 px-4 py-2">{{ letter.lab_name.name }}</td>
-                                    <td rowspan="{{ letter.letterproduct_set.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                                {% endif %}
-                                <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.main_item.name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.department.name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.amc_provider.name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">
-                                    <a href="{% url 'letter_detail7' letter_product.product.id %}" class="print-button">Print</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                    <tr>
+                        <td class="px-4 py-2">{{ letter.letter_no }}</td>
+                        <td class="px-4 py-2">{{ letter.lab_name.name }}</td>
+                        <td class="px-4 py-2">{{ letter.letter_date }}</td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.main_item.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.department.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            <form action="{% url 'letter_detail7' letter.id %}" method="get" target="_blank">
+                                <button type="submit" class="text-blue-500 hover:text-blue-700">Print</button>
+                            </form>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-    {% include 'footer.html' %}
 </body>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('search');
@@ -186,6 +180,5 @@
         });
     });
 </script>
-
 </html>
 {% endblock %}

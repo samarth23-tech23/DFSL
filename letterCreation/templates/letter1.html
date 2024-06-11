@@ -17,7 +17,7 @@
         <br>
         <div class="text-1xl text-left m-8">
             <p class="m-28"></p>
-            <p>&emsp;सादर,<br><br>&emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ letter.lab_name.name }} यांनी त्याचे पत्र क्र. {{ letter.letter_no }} ,  दिनांक {{ letter.letter_date }} अन्वये {{ product.department.name }} विभागात कार्यरत असलेले {{ product.main_item.name }} या उपकरणासाठी खालील वर्णनाच्या 
+            <p>&emsp;सादर,<br><br>&emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ product.lab_name.name }} यांनी त्याचे पत्र क्र. {{ letters.0.letter_no }} , दिनांक {{ letters.0.letter_date }} अन्वये {{ product.department.name }} विभागात कार्यरत असलेले {{ product.main_item.name }} या उपकरणासाठी खालील वर्णनाच्या
                 {% if subproducts.count > 1 %}
                 {% for subproduct in subproducts %}
                     {% if not forloop.first %}
@@ -60,11 +60,10 @@
             </div>
         </div>
 
-        {% for amc_provider, subproduct_group in subproducts|group_by_amc_provider %}
+        {% for subproduct in subproducts %}
         <div class="w-[600] ml-20 text-left">
             <ul class="list-disc text-left mx-4">
                 <li>{{ product.main_item.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
-                {% for subproduct in subproduct_group %}
                 <li>तसेच सदर उपकरणाचा 
                     {% if product.amc_period == 12 %}
                         वार्षिक
@@ -77,7 +76,6 @@
                     {% endif %}
                     देखभाल सेवा करार करण्यात आलेला आहे.</li>
                 <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
-                {% endfor %}
             </ul>
         </div>
         {% endfor %}
@@ -90,3 +88,7 @@
             <p>श्री. प्र. ज. कदम : <br> प्रशासकिय अधिकारी (भांडार)</p><br><br>
             <p>श्री. सं. शा. प्रभावळे : <br> सहायक संचालक तथा भांडार विभाग नियंत्रक</p><br><br>
             <p>डॉ. सं. औ. चेट्टी : <br> उपसंचालक तथा
+        </div>
+    </div>
+</body>
+</html>
