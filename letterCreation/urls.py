@@ -11,6 +11,11 @@ urlpatterns = [
     path('items', views.item_list, name='item_list'),
     path('edit/', views.edit_item, name='edit_item'),
 
+#add item
+    path('item_list/', views.item_list, name='items_list'),  # Updated view function name
+    path('add_item/', views.add_item, name='add_item'),
+
+
 # delete
       path('delete/', views.delete_item, name='delete_item'),
 
@@ -34,7 +39,8 @@ urlpatterns = [
    
     path('edit/<int:id>/', views.edit_manufacturer, name='edit_manufacturer'),
 
-    
+# add manufacturer
+ path('add/', views.add_manufacturer, name='add_manufacturer'),
 
 # delete manufacturer
     path('delete-manufacturer/', views.delete_manufacturer, name='delete_manufacturer'),
@@ -50,6 +56,7 @@ urlpatterns = [
     # path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     # path('get_departments/', views.get_departments, name='get_departments'),
 
+    path('add_product/', views.add_product_view, name='add_product_view'),
     path('product_list/', views.product_list_view, name='product_list_view'),
     path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
     path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),

@@ -125,6 +125,9 @@ def unique_values(queryset, field_name):
 
 @register.filter(name='group_by_amc_provider')
 def group_by_amc_provider(subproducts):
+    if subproducts is None:
+        return {}
+    
     groups = {}
     for subproduct in subproducts:
         amc_provider_name = subproduct.amc_provider.name
@@ -141,6 +144,7 @@ def get_item(dictionary, key):
 @register.filter
 def get_last(value, arg):
     return value[arg-1] if value else None
+
 
 @register.simple_tag
 def empty_list():

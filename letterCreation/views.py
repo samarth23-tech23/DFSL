@@ -4,15 +4,18 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils import timezone
+
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
 from django.db.models import Count
 from .forms import ManufacturerForm
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from .forms import MainItemForm
 from django.contrib import messages
 from .forms import ProductForm
+from .forms import AddItemForm
+
 
 
 #mainitems
@@ -48,9 +51,18 @@ def delete_item(request):
     # Redirect back to the item list page (items.html)
     return redirect('item_list')
 
-# def product_list1(request):
-#     products = Product.objects.all()
-#     return render(request, 'items.html', {'products': products})
+#add item
+def add_item(request):
+    if request.method == 'POST':
+        form = AddItemForm(request.POST)
+        if form.is_valid():
+            # Save the form data to the database
+            form.save()
+            # Redirect to a success page or any other page
+            return redirect('items_list')  # Assuming you have a URL pattern named 'items_list' for displaying the list of items
+    else:
+        form = AddItemForm()
+    return render(request, 'add_item.html', {'form': form})
 
 
 #manufacturer
@@ -79,6 +91,28 @@ def delete_manufacturer(request):
         messages.success(request, 'Manufacturer deleted successfully!')
     return redirect('manufacturer_list')
 
+
+#add manufacturer
+def add_manufacturer(request):
+    if request.method == 'POST':
+        form = ManufacturerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer_list')  # Assuming you have a URL named 'manufacturer_list'
+    else:
+        form = ManufacturerForm()
+    return render(request, 'add_manufacturer.html', {'form': form})
+
+def add_product_view(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list_view')
+    else:
+        form = ProductForm()
+    return render(request, 'add_product.html', {'form': form})
+    
 
 def manufacturer_list(request):
     return render(request,'manufacturer_list.html')  
@@ -200,36 +234,6 @@ def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        # Update product attributes based on form data
-        product.main_item.name = request.POST.get('name')
-        product.price = request.POST.get('price')
-        product.buying_date = request.POST.get('buying_date')
-        product.department = request.POST.get('department')
-        product.lab_name = request.POST.get('lab_name')
-        product.amc_provider = request.POST.get('amc_provider')
-        product.amc_period = request.POST.get('amc_period')
-        product.expenditure_cost = request.POST.get('expenditure_cost')
-        product.manufacturer_warranty_period = request.POST.get('manufacturer_warranty_period')
-        product.service_report_date = request.POST.get('service_report_date')
-        product.main_item.manufacturer = request.POST.get('manufacturer')
-        
-        # Save the updated product and its associated MainItem
-        product.main_item.save()
-        product.save()
-        
-        # Add success message and redirect to product list
-        messages.success(request, 'Product updated successfully!')
-        return redirect('product_list')
-    
-    # Render the edit product template with the product data
-    return render(request, 'edit_product.html', {'product': product})
-    
-
-
-def edit_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    
-    if request.method == 'POST':
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
@@ -250,28 +254,11 @@ def delete_product(request, product_id):
         return redirect('product_list_view')
     return render(request, 'product_list.html')
 
-# def product_detail_json(request, product_id):
-#     try:
-#         product = Product.objects.get(pk=product_id)
-#         data = {
-#             'id': product.id,
-#             'name': product.name,
-#             'price': product.price,
-#             'buying_date': product.buying_date,
-#             'department': product.department.name,
-#             'lab_name': product.lab_name.name,
-#             'amc_provider': product.amc_provider.name,
-#             'amc_period': product.amc_period,
-#             'expenditure_cost': product.expenditure_cost,
-#             'manufacturer_warranty_period': product.manufacturer_warranty_period,
-#             'service_report_date': product.service_report_date,
-#             'manufacturer': product.manufacturer
-#         }
-#         return JsonResponse(data)
-#     except Product.DoesNotExist:
-#         return JsonResponse({'error': 'Product not found'}, status=404)
 
-    #am-provider
+
+
+
+#amc-provider
 def amc_providers_list(request):
     providers = AMCProvider.objects.all()
     return render(request, 'amc_providers_list.html', {'providers': providers})
@@ -296,10 +283,18 @@ def product_list(request):
 
 
 def letter_detail(request, product_id):
-    product = Product.objects.get(pk=product_id)
-    letter_id = product.letter_id
+    product = get_object_or_404(Product, id=product_id)
+    letter_product = get_object_or_404(LetterProduct, product=product)
+    letter = letter_product.letter
     subproducts = product.subproducts.all()
-    return render(request, 'letter1.html', {'product': product,'subproducts':subproducts, 'letter_id':letter_id})
+    current_date = timezone.now()
+    
+    return render(request, 'letter1.html', {
+        'product': product,
+        'letter': letter,
+        'subproducts': subproducts,
+        'current_date': current_date
+    })
 
 def quotation_form(request):
     letters = Letter.objects.all()
@@ -318,13 +313,28 @@ def product_list4(request):
     return render(request, 'table2.html', {'letters': letters})
 
 def letter_detail4(request, subproduct_id):
-    subproduct = Subproduct.objects.get(pk=subproduct_id)
+    subproduct = get_object_or_404(Subproduct, pk=subproduct_id)
     product = subproduct.product
-    letter = product.letter
+    
+    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
+    letter_product_relations = product.letterproduct_set.all()
+    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
+    
     amc_provider = subproduct.amc_provider
     related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
-    service_report_date = subproduct.service_report_date
-    return render(request, 'letter4.html', {'product': product, 'amc_provider': amc_provider, 'related_subproducts': related_subproducts, 'service_report_date': service_report_date,'letter':letter})
+    
+    # Accessing service report date from the product's service reports
+    service_report_date = None
+    if product.service_reports.exists():
+        service_report_date = product.service_reports.latest('service_date').service_date
+
+    return render(request, 'letter4.html', {
+        'product': product,
+        'amc_provider': amc_provider,
+        'related_subproducts': related_subproducts,
+        'service_report_date': service_report_date,
+        'letter': letter
+    })
 
 
 
@@ -384,20 +394,19 @@ def product_list6(request):
     return render(request, 'table6.html', {'letters': letters})
 
 
-
-
-
-
-
 def product_list7(request):
     letters = Letter.objects.all()
     return render(request, 'table7.html', {'letters': letters})
 
 
 def letter_detail7(request, product_id):
-    product = Product.objects.get(pk=product_id)
+    product = get_object_or_404(Product, pk=product_id)
     subproducts = product.subproducts.all()
-    letter = product.letter
+    
+    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
+    letter_product_relations = product.letterproduct_set.all()
+    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
+
     quotations = Quotation.objects.filter(product=product)
 
     grouped_subproducts = {}
@@ -407,8 +416,12 @@ def letter_detail7(request, product_id):
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(subproduct)
 
-    return render(request, 'letter.html', {'product': product, 'grouped_subproducts': grouped_subproducts, 'letter': letter, 'quotations': quotations})
-
+    return render(request, 'letter.html', {
+        'product': product,
+        'grouped_subproducts': grouped_subproducts,
+        'letter': letter,
+        'quotations': quotations
+    })
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
