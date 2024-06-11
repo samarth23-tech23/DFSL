@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from . import views
+admin.site.site_header = "DFSL-Dashboard"
+admin.site.index_title = "Welcome to DFSL-Dashboard!"
+admin.site.site_title = "DFSL"
 urlpatterns = [
+     path('',views.index),
     path('admin/', admin.site.urls),
     path('letterGenerate/',include('letterCreation.urls'))
     

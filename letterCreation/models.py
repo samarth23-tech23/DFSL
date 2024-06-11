@@ -28,7 +28,7 @@ class Manufacturer(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 class AMCProvider(models.Model):
     name = models.CharField(max_length=255)
     ac_no = models.CharField(max_length=255)
@@ -50,7 +50,7 @@ class MainItem(models.Model):
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.name}-{self.manufacturer.name}"
+        return f"{self.name} - {self.manufacturer.name}"
 
 class Product(models.Model):
     main_item = models.ForeignKey(MainItem, on_delete=models.CASCADE)
@@ -59,7 +59,7 @@ class Product(models.Model):
     buying_date = models.DateField()
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     lab_name = models.ForeignKey(Lab, on_delete=models.CASCADE)
-    amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
+    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE)
     amc_period = models.CharField(max_length=255)
     expenditure_cost = models.DecimalField(max_digits=10, decimal_places=2)
     manufacturer_warranty_period = models.CharField(max_length=255)
@@ -88,7 +88,7 @@ class Subproduct(models.Model):
     part_name = models.CharField(max_length=255)
     specification = models.TextField()
     quantity = models.IntegerField()
-    amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
+    amc_provider = models.ForeignKey(AMCProvider, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.part_name
@@ -97,7 +97,7 @@ class Letter(models.Model):
     letter_no = models.CharField(max_length=255)
     lab_name = models.ForeignKey(Lab, on_delete=models.CASCADE)
     letter_date = models.DateField()
-    subproducts = models.ManyToManyField(Subproduct, related_name='letters')  # Reference to subproducts related to the letter
+    subproducts = models.ManyToManyField(Subproduct, related_name='letters')
 
     def __str__(self):
         return self.letter_no
@@ -129,8 +129,6 @@ class QuotationItem(models.Model):
 
     def __str__(self):
         return self.subproduct.part_name
-
-
 
 class PrintTrack(models.Model):
     printed_date1 = models.DateField(null=True, blank=True)

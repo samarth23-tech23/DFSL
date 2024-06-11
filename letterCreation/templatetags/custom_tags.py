@@ -183,3 +183,4 @@ def remove_duplicates(subproducts):
             unique_subproducts.append(subproduct)
 
     return unique_subproducts
+

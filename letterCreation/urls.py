@@ -27,7 +27,7 @@ urlpatterns = [
 #manufacturer
     path('manufacturer/', views.manufacturer_view, name='manufacturer'), 
     path('edit/<int:manufacturer_id>/', views.edit_manufacturer, name='edit_manufacturer'),
-     path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
+    path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
     path('manufacturer/', views.manufacturer_list, name='manufacturer_list'),
     
     path('get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
@@ -48,6 +48,11 @@ urlpatterns = [
 
 #amcproviders 
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
+  
+    path('edit_amc_provider/<int:id>/', views.edit_amc_provider, name='edit_amc_provider'),
+    path('delete_amc_provider/<int:id>/', views.delete_amc_provider, name='delete_amc_provider'),
+    path('confirm_delete_amc_provider/<int:id>/', views.confirm_delete_amc_provider, name='confirm_delete_amc_provider'),
+
 
 #service-report-history
     path('service-report-history/', views.service_report_history, name='service_report_history'),

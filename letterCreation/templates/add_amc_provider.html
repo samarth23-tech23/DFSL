@@ -1,0 +1,50 @@
+<!-- add_amc_provider.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add AMC Provider</title>
+</head>
+<body>
+    <h1>Add AMC Provider</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_name">Name:</label><br>
+        {{ form.name }}<br>
+
+        <label for="id_ac_no">Account No:</label><br>
+        {{ form.ac_no }}<br>
+
+        <label for="id_ifsc_code">IFSC Code:</label><br>
+        {{ form.ifsc_code }}<br>
+
+        <label for="id_ac_name">Account Name:</label><br>
+        {{ form.ac_name }}<br>
+
+        <label for="id_bank_name">Bank Name:</label><br>
+        {{ form.bank_name }}<br>
+
+        <label for="id_pan_no">PAN No:</label><br>
+        {{ form.pan_no }}<br>
+
+        <label for="id_state">State:</label><br>
+        {{ form.state }}<br>
+
+        <label for="id_pincode">Pincode:</label><br>
+        {{ form.pincode }}<br>
+
+        <label for="id_address">Address:</label><br>
+        {{ form.address }}<br>
+
+        <label for="id_email_id">Email ID:</label><br>
+        {{ form.email_id }}<br>
+
+        <label for="id_contact_no">Contact No:</label><br>
+        {{ form.contact_no }}<br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

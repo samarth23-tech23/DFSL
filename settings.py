@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'DFSL.wsgi.application'
 
 DATABASES = {
     'default': {
-         'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'test_db',
         'USER': 'DFSL_users',
         'PASSWORD': 'admin',
