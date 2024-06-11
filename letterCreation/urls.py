@@ -6,15 +6,22 @@ urlpatterns = [
     
     path('',views.index),
 
-#main items
+# #main items
+#     path('items/', views.mitem, name="mitem"),
+#     path('items', views.item_list, name='item_list'),
+#     path('edit/', views.edit_item, name='edit_item'),
+# #add item
+#     path('item_list/', views.item_list, name='items_list'),  # Updated view function name
+#     path('add_item/', views.add_item, name='add_item'),
+
+#new path
+  #main items
     path('items/', views.mitem, name="mitem"),
     path('items', views.item_list, name='item_list'),
     path('edit/', views.edit_item, name='edit_item'),
 
-#add item
-    path('item_list/', views.item_list, name='items_list'),  # Updated view function name
-    path('add_item/', views.add_item, name='add_item'),
-
+    # path('items/', views.item_list, name='item_list'),
+    # path('edit/', views.edit_item, name='edit_item'),
 
 # delete
       path('delete/', views.delete_item, name='delete_item'),
@@ -46,16 +53,7 @@ urlpatterns = [
     path('delete-manufacturer/', views.delete_manufacturer, name='delete_manufacturer'),
 
 #product_list
-    # path('product_list/', views.product_list_view, name='product_list'),
-    # path('edit/<int:product_id>/', views.edit_product, name='edit_product'),
-    # path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
-    # path('get_departments/', views.get_departments, name='get_departments'),
-
-    # path('product_list/', views.product_list_view, name='product_list'),
-    # path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
-    # path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
-    # path('get_departments/', views.get_departments, name='get_departments'),
-
+    path('get_departments/', views.get_departments, name='get_departments'),
     path('add_product/', views.add_product_view, name='add_product_view'),
     path('product_list/', views.product_list_view, name='product_list_view'),
     path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),

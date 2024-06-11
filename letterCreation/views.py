@@ -15,9 +15,56 @@ from .forms import MainItemForm
 from django.contrib import messages
 from .forms import ProductForm
 from .forms import AddItemForm
+from .forms import AddItemForm
 
 
 
+
+#mainitems
+# Render the list of main items
+# def item_list(request):
+#     items = MainItem.objects.all()
+#     return render(request, 'items.html', {'mitem': items})
+
+# # Handle editing of a main item
+# def edit_item(request):
+#     if request.method == 'POST':
+#         item_id = request.POST.get('id')
+#         item = get_object_or_404(Item, id=item_id)
+#         form = ItemForm(request.POST, instance=item)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Item updated successfully!')
+#             return redirect('item_list')
+#     return redirect('item_list')
+
+# # Handle deletion of a main item
+# def delete_item(request):
+#     if request.method == 'POST':
+#         item_id = request.POST.get('id')
+#         item = MainItem.objects.get(id=item_id)
+#         item.delete()
+#         messages.success(request, 'Item deleted successfully!')
+    
+#     # Redirect back to the item list page (items.html)
+#     return redirect('item_list')
+
+# #add item
+# def add_item(request):
+#     if request.method == 'POST':
+#         form = AddItemForm(request.POST)
+#         if form.is_valid():
+#             # Save the form data to the database
+#             form.save()
+#             # Redirect to a success page or any other page
+#             return redirect('items_list')  # Assuming you have a URL pattern named 'items_list' for displaying the list of items
+#     else:
+#         form = AddItemForm()
+#     return render(request, 'add_item.html', {'form': form})
+
+
+
+#new
 #mainitems
 # Render the list of main items
 def item_list(request):
@@ -34,12 +81,14 @@ def edit_item(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Changes saved successfully.')
+            return redirect('item_list')
         else:
             messages.error(request, 'Failed to save changes. Please check the form.')
-    
-    # Redirect back to the item list page (items.html)
+            for field, errors in form.errors.items():
+                messages.error(request, f"{field}: {', '.join(errors)}")
+  
     return redirect('item_list')
-
+    
 # Handle deletion of a main item
 def delete_item(request):
     if request.method == 'POST':
@@ -50,19 +99,6 @@ def delete_item(request):
     
     # Redirect back to the item list page (items.html)
     return redirect('item_list')
-
-#add item
-def add_item(request):
-    if request.method == 'POST':
-        form = AddItemForm(request.POST)
-        if form.is_valid():
-            # Save the form data to the database
-            form.save()
-            # Redirect to a success page or any other page
-            return redirect('items_list')  # Assuming you have a URL pattern named 'items_list' for displaying the list of items
-    else:
-        form = AddItemForm()
-    return render(request, 'add_item.html', {'form': form})
 
 
 #manufacturer
