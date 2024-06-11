@@ -1,12 +1,10 @@
 {% extends 'sidebar.html' %}
 {% load custom_tags %}
-
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -112,48 +110,50 @@
                     </svg>
                 </div>
             </div>
-            <table id="productTable" class="content-table">
+            <table class="content-table">
                 <thead>
                     <tr>
-                        <th class="border border-gray-200 px-4 py-2">Letter No</th>
-                        <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                        <th class="border border-gray-200 px-4 py-2">Letter Date</th>
-                        <th class="border border-gray-200 px-4 py-2">Product Name</th>
-                        <th class="border border-gray-200 px-4 py-2">Department</th>
-                        <th class="border border-gray-200 px-4 py-2">AMC Provider</th>
-                        <th class="border border-gray-200 px-4 py-2">Actions</th>
+                        <th class="px-4 py-2">Letter No</th>
+                        <th class="px-4 py-2">Lab Name</th>
+                        <th class="px-4 py-2">Letter Date</th>
+                        <th class="px-4 py-2">Product Name</th>
+                        <th class="px-4 py-2">Department</th>
+                        <th class="px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for letter in letters %}
-                        {% for letter_product in letter.letterproduct_set.all %}
-                            {% empty_list as processed_providers %}
-                            {% for subproduct in letter_product.product.subproducts.all %}
-                                <tr>
-                                    {% if forloop.first %}
-                                        <td rowspan="{{ letter_product.product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
-                                        <td rowspan="{{ letter_product.product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.lab_name.name }}</td>
-                                        <td rowspan="{{ letter_product.product.subproducts.count }}" class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                                    {% endif %}
-                                    <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.main_item.name }}</td>
-                                    <td class="border border-gray-200 px-4 py-2">{{ letter_product.product.department.name }}</td>
-                                    <td class="border border-gray-200 px-4 py-2">{{ subproduct.amc_provider.name }}</td>
-                                    <td class="border border-gray-200 px-4 py-2">
-                                        {% if subproduct.amc_provider|check_amc_provider:processed_providers %}
-                                            <a href="{% url 'letter_detail6' subproduct.id %}" class="print-button">Print</a>
-                                        {% else %}
-                                            &nbsp; <!-- Placeholder to maintain table structure -->
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% endfor %}
+                    <tr>
+                        <td class="px-4 py-2">{{ letter.letter_no }}</td>
+                        <td class="px-4 py-2">{{ letter.lab_name.name }}</td>
+                        <td class="px-4 py-2">{{ letter.letter_date }}</td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.main_item.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.department.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            <form action="{% url 'letter_detail6' letter.id %}" method="get" target="_blank">
+                                <button type="submit" class="text-blue-500 hover:text-blue-700">Print</button>
+                            </form>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-    {% include 'footer.html' %}
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

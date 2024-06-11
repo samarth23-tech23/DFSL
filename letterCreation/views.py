@@ -7,7 +7,7 @@ import json
 from django.utils import timezone
 
 import datetime
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,LetterProduct
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
 from django.db.models import Count
 from .forms import ManufacturerForm
 from django.shortcuts import render, redirect
@@ -266,41 +266,58 @@ def service_report_history(request):
     return render(request, 'service_report_history.html', {'products': products})
 
 def product_list(request):
-    # Retrieve all LetterProduct objects
-    letter_products = LetterProduct.objects.all()
-    
+    # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+
     # Pass the data to the template
     context = {
-        'letter_products': letter_products
+        'letters': letters
     }
-    
+
     # Render the template with the provided context
     return render(request, 'table.html', context)
 
 
-def letter_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    letter_product = get_object_or_404(LetterProduct, product=product)
-    letter = letter_product.letter
-    subproducts = product.subproducts.all()
-    current_date = timezone.now()
+def letter_detail(request, letter_id):
+    # Fetch the letter
+    letter = get_object_or_404(Letter, id=letter_id)
     
+    # Get all subproducts associated with the letter
+    subproducts = Subproduct.objects.filter(letters=letter).distinct()
+    
+    # Get the product associated with the first subproduct (assuming all subproducts have the same product)
+    product = subproducts.first().product if subproducts.exists() else None
+
+    # Get the current date
+    current_date = timezone.now()
+
     return render(request, 'letter1.html', {
         'product': product,
-        'letter': letter,
+        'letters': [letter],  # Wrap the single letter in a list to maintain template structure
         'subproducts': subproducts,
         'current_date': current_date
     })
+
 
 def quotation_form(request):
     letters = Letter.objects.all()
     return render(request, 'letter_intermidiate.html', {'letters': letters})
 
-def quotation_page(request, product_id):
-    product = Product.objects.get(pk=product_id)
-    subproducts = product.subproducts.all()
+
+
+def quotation_page(request, letter_id):
+    letter = get_object_or_404(Letter, pk=letter_id)
+    subproducts = letter.subproducts.all()
+    
+    # Find the product associated with the subproduct
+    product = None
+    for subproduct in subproducts:
+        if subproduct.product:
+            product = subproduct.product
+            break
+    
     amc_providers_exist = set(AMCProvider.objects.values_list('name', flat=True))
-    return render(request, 'quotation_info.html', {'product': product, 'subproducts': subproducts, 'amc_providers_exist': amc_providers_exist})
+    return render(request, 'quotation_info.html', {'letter': letter, 'product': product, 'subproducts': subproducts, 'amc_providers_exist': amc_providers_exist})
 
 
 
@@ -308,20 +325,28 @@ def product_list4(request):
     letters = Letter.objects.all()
     return render(request, 'table2.html', {'letters': letters})
 
-def letter_detail4(request, subproduct_id):
-    subproduct = get_object_or_404(Subproduct, pk=subproduct_id)
-    product = subproduct.product
+
+def letter_detail4(request, letter_id):
+    # Fetch the letter
+    letter = get_object_or_404(Letter, id=letter_id)
+    subproducts = letter.subproducts.all()
+    # Get the product associated with the first subproduct (assuming all subproducts have the same product)
+    product = None
+    for subproduct in subproducts:
+        if subproduct.product:
+            product = subproduct.product
+            break
     
-    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
-    letter_product_relations = product.letterproduct_set.all()
-    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
-    
-    amc_provider = subproduct.amc_provider
+
+    # Get the AMC provider for the first subproduct
+    amc_provider = letter.subproducts.first().amc_provider if letter.subproducts.exists() else None
+
+    # Get all related subproducts for the product and AMC provider
     related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
-    
+
     # Accessing service report date from the product's service reports
     service_report_date = None
-    if product.service_reports.exists():
+    if product and product.service_reports.exists():
         service_report_date = product.service_reports.latest('service_date').service_date
 
     return render(request, 'letter4.html', {
@@ -335,12 +360,15 @@ def letter_detail4(request, subproduct_id):
 
 
 
-def letter_detail6(request, subproduct_id):
-    subproduct = Subproduct.objects.get(pk=subproduct_id)
-    product = subproduct.product
-    amc_provider = subproduct.amc_provider
-    subproducts = Subproduct.objects.filter(product=product).select_related('amc_provider')
-    quotations = Quotation.objects.filter(product=product, quotationitem__subproduct=subproduct)
+def letter_detail6(request, letter_id):
+    letter = get_object_or_404(Letter, pk=letter_id)
+    subproducts = letter.subproducts.select_related('amc_provider', 'product')
+    product = subproducts.first().product if subproducts else None
+    main_item = product.main_item if product else None
+    quotations = Quotation.objects.filter(
+        product=product,
+        quotationitem__subproduct__in=subproducts
+    ).distinct() if product else []
 
     # Calculate global variables
     global_total_basic_price = Decimal('0')
@@ -349,31 +377,52 @@ def letter_detail6(request, subproduct_id):
 
     # Group subproducts by amc_provider name
     grouped_subproducts = {}
+    amc_providers = set()
     for sub in subproducts:
-        provider_name = sub.amc_provider.name
+        provider_name = sub.amc_provider.name if sub.amc_provider else 'Unknown'
         if provider_name not in grouped_subproducts:
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(sub)
 
-        # Calculate total basic price, GST value, and total price inclusive
-        total_basic_price = sub.quotationitem_set.first().unit_price * sub.quantity
-        gst_value = total_basic_price * Decimal('0.18')
-        total_price_inclusive = total_basic_price + gst_value
+        # Collect unique AMC providers
+        amc_providers.add(sub.amc_provider)
 
-        # Update global variables
-        global_total_basic_price += total_basic_price
-        global_gst_value += gst_value
-        global_total_price_inclusive += total_price_inclusive
+        # Fetch the related QuotationItem
+        quotation_item = QuotationItem.objects.filter(subproduct=sub).first()
+        if quotation_item:
+            total_basic_price = quotation_item.unit_price * sub.quantity
+            gst_value = total_basic_price * Decimal('0.18')
+            total_price_inclusive = total_basic_price + gst_value
+
+            # Update global variables
+            global_total_basic_price += total_basic_price
+            global_gst_value += gst_value
+            global_total_price_inclusive += total_price_inclusive
 
     # Load the text based on the quotation_expense_criteria value from Quotation model
     quotation_expense_criteria_text = ""
     for quotation in quotations:
         if quotation.quotation_expense_criteria == '20%':
-            quotation_expense_criteria_text = "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करिता यंत्र सामग्रीच्या पुस्तकी किमतीच्या २०% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत."
+            quotation_expense_criteria_text = (
+                "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ "
+                "अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे "
+                "भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करिता यंत्र सामग्रीच्या पुस्तकी "
+                "किमतीच्या २०% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या "
+                "भागांची खरेदी करण्याबाबत अधिकार आहेत."
+            )
         elif quotation.quotation_expense_criteria == '25%':
-            quotation_expense_criteria_text = "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करितासंयत्रे , यंत्रसामग्री आणि साधनसामग्री इत्यादीच्या दुरुस्ती करिता वार्षिक खर्च यंत्रसामग्रीच्या पुस्तकी किंमतीच्या 25% मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी करण्याबाबत अधिकार आहेत."
+            quotation_expense_criteria_text = (
+                "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ "
+                "अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे "
+                "भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करितासंयत्रे , यंत्रसामग्री आणि "
+                "साधनसामग्री इत्यादीच्या दुरुस्ती करिता वार्षिक खर्च यंत्रसामग्रीच्या पुस्तकी किंमतीच्या 25% "
+                "मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी "
+                "करण्याबाबत अधिकार आहेत."
+            )
 
     return render(request, 'letter6.html', {
+        'letter': letter,
+        'main_item': main_item,  # Pass main_item to the template
         'product': product,
         'grouped_subproducts': grouped_subproducts,
         'global_total_basic_price': global_total_basic_price,
@@ -381,8 +430,8 @@ def letter_detail6(request, subproduct_id):
         'global_gst_value': global_gst_value,
         'global_total_price_inclusive': global_total_price_inclusive,
         'quotation_expense_criteria_text': quotation_expense_criteria_text,
+        'unique_amc_providers': amc_providers,  # Pass the set of unique AMC providers
     })
-
     
     
 def product_list6(request):
@@ -399,17 +448,23 @@ def product_list7(request):
     letters = Letter.objects.all()
     return render(request, 'table7.html', {'letters': letters})
 
+def letter_detail7(request, letter_id):
+    # Fetch the letter using letter_id
+    letter = get_object_or_404(Letter, pk=letter_id)
+    # Get the subproducts associated with the letter
+    subproducts = letter.subproducts.all()
 
-def letter_detail7(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
-    subproducts = product.subproducts.all()
-    
-    # Assuming a Product can be linked to multiple Letters via the LetterProduct model
-    letter_product_relations = product.letterproduct_set.all()
-    letter = letter_product_relations[0].letter if letter_product_relations.exists() else None
+    # Fetch the product(s) associated with these subproducts
+    product_ids = subproducts.values_list('product', flat=True).distinct()
+    products = Product.objects.filter(id__in=product_ids)
 
-    quotations = Quotation.objects.filter(product=product)
+    # For simplicity, assume all subproducts belong to the same product
+    product = products.first() if products.exists() else None
 
+    # Fetch all quotations related to these products
+    quotations = Quotation.objects.filter(product__in=products).distinct()
+
+    # Group the subproducts by their AMC providers
     grouped_subproducts = {}
     for subproduct in subproducts:
         provider_name = subproduct.amc_provider.name
@@ -418,9 +473,9 @@ def letter_detail7(request, product_id):
         grouped_subproducts[provider_name].append(subproduct)
 
     return render(request, 'letter.html', {
+        'letter': letter,
         'product': product,
         'grouped_subproducts': grouped_subproducts,
-        'letter': letter,
         'quotations': quotations
     })
 @csrf_exempt
@@ -448,7 +503,7 @@ def submit_form(request):
                 letter_date=letter_date
             )
 
-            # Process products
+            # Process products and their subproducts
             product_index = 0
             while True:
                 sr_no = request.POST.get(f'products[{product_index}][sr_no]')
@@ -475,12 +530,6 @@ def submit_form(request):
                     product.service_report_date = service_report_date
                     product.save()
 
-                # Create a LetterProduct instance to link the Letter and Product
-                LetterProduct.objects.create(
-                    letter=letter,
-                    product=product
-                )
-
                 # Process subproducts
                 subproduct_index = 0
                 while True:
@@ -496,14 +545,18 @@ def submit_form(request):
                         raise ValueError(f"Part quantity is not a digit: {part_quantity}")
 
                     # Create a Subproduct instance
-                    Subproduct.objects.create(
+                    subproduct = Subproduct.objects.create(
                         product=product,
                         part_name=part_name,
                         type_of_part=part_type,
                         specification=part_specification,
-                        quantity=part_quantity,
+                        quantity=int(part_quantity),
                         amc_provider=amc_provider  # Use AMC provider from the Product model
                     )
+
+                    # Add subproduct to the letter
+                    letter.subproducts.add(subproduct)
+
                     subproduct_index += 1
 
                 product_index += 1
@@ -514,6 +567,7 @@ def submit_form(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
 
 @csrf_exempt
 def submit_quotation_info(request):

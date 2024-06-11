@@ -25,24 +25,25 @@
                 To. <br />
                 {{ amc_provider.name }} <br />
                 {{ amc_provider.address }}<br />
-              {{ amc_provider.state }}- {{ amc_provider.pincode }}.
+                {{ amc_provider.state }}- {{ amc_provider.pincode }}.
             </p>
             <div>
                 <div class="flex justify-center p-6">
                     <p>
                         <b>Sub:-</b> Quotation for supply of
-                        {% for subproduct in related_subproducts %}
+                        {% for subproduct in letter.subproducts.all %}
                             {{ subproduct.type_of_part }}
                         {% endfor %}
-                        for {{ product.name }} Instrument. <br />                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
+                        for {{ product.name }} Instrument. <br />
+                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
                     </p>
                 </div>
                 <div class="w-[600] text-justify">
-                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{product.name}}- instrument Sr.no{{product.sr_no}} located at  
-                      {% if letter.lab_name == "Mumbai" %}
-                    Directorate of forensic Science Laboratories, Mumbai
+                    It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{ product.name }}- instrument Sr.no{{ product.sr_no }} located at  
+                    {% if letter.lab_name.name == "Mumbai" %}
+                        Directorate of forensic Science Laboratories, Mumbai
                     {% else %}
-                    Regional Forensic Science Laboratory, {{ letter.lab_name }}
+                        Regional Forensic Science Laboratory, {{ letter.lab_name.name }}
                     {% endif %}. 
 
                 
@@ -59,7 +60,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for subproduct in related_subproducts %}
+                        {% for subproduct in letter.subproducts.all %}
                         <tr>
                             <td class="border px-4 py-2 text-left">{{ forloop.counter }}</td>
                             <td class="border px-4 py-2 text-left">

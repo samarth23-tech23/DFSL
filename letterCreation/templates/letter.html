@@ -63,7 +63,7 @@
                   <b>Ref:-  </b>      Service report dated for item
                       {% for subproduct in subproducts_group %}
                           {% with subproduct.quotationitem_set.first as quotationitem %}
-                         {{ subproduct.part_name }} -{{ subproduct.service_report_date }} ,
+                         {{ subproduct.part_name }} -{{ product.service_report_date }} ,
                           {% endwith %}
                       {% endfor %}
                   {% endfor %}

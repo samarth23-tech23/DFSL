@@ -38,7 +38,7 @@
         <div class="text-1xl text-left m-8">
             <p>&emsp;&emsp;सादर,</p><br>
 
-            <p>&emsp;&emsp;<b> विषय :-</b> {{ product.name }} करिता {{ product.subproducts.all|unique_amc_providers }} यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार
+            &emsp;&emsp;<b>विषय :-</b> {{ main_item.name }} करिता {{ product.subproducts.all|unique_amc_providers }} यांचेकडून मागविण्यात आलेल्या दरपत्रकानुसार
 
                 {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
                 {{ subproduct_type }},
@@ -50,7 +50,7 @@
                 {% with subproduct.amc_provider as amc_provider %}
                     <li class="m-4">
                         <div class="properlyalign">
-                            <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ product.letter.letter_no }} दि. {{ product.letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ subproduct.service_report_date }}.</p>
+                            <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ letter.letter_no }} दि. {{ letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ product.service_report_date }}.</p>
                         </div>
                         <ul>
                             <li class="m-4">
@@ -95,14 +95,16 @@
                         <tr>
                             <th class="border px-4 py-2">Sr.No</th>
                             <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Type of part</th>
                             <th class="border px-4 py-2">Req Qty</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for subproduct in product.subproducts.all %}
+                        {% for subproduct in letter.subproducts.all %}
                         <tr>
                             <td class="border px-4 py-2">{{ forloop.counter }}</td>
                             <td class="border px-4 py-2">{{ subproduct.part_name }}<br>Specification: {{ subproduct.specification }}</td>
+                            <td class="border px-4 py-2">{{ subproduct.type_of_part }}</td>
                             <td class="border px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>
                         {% endfor %}

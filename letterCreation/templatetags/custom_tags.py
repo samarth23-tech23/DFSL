@@ -4,16 +4,25 @@ from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
-
 @register.simple_tag
-def multiply(value1, value2):
+def multiply(value, arg):
     try:
-        value1_decimal = Decimal(value1)
-        value2_decimal = Decimal(value2)
-        result = value1_decimal * value2_decimal
-        return result if result.is_finite() else None
-    except (InvalidOperation, TypeError):
+        return value * arg
+    except (ValueError, TypeError):
         return None
+
+@register.filter
+def map(value, attr):
+    return [getattr(item, attr) for item in value]
+
+@register.filter
+def multiply_and_sum(subproducts, attr):
+    total = 0
+    for sub in subproducts:
+        unit_price = getattr(sub, attr)
+        if unit_price is not None:
+            total += unit_price * sub.quantity
+    return total
     
 # /*@register.simple_tag
 # def sum_of_products(subproducts, unit_price_attr, quantity_attr):
@@ -156,3 +165,21 @@ def check_amc_provider(amc_provider, processed_providers):
         processed_providers.append(amc_provider.id)
         return True
     return False
+
+
+@register.filter
+def remove_duplicates(subproducts):
+    unique_subproducts = []
+    seen_main_items = set()
+    seen_departments = set()
+
+    for subproduct in subproducts:
+        main_item_name = subproduct.product.main_item.name
+        department_name = subproduct.product.department.name
+
+        if main_item_name not in seen_main_items and department_name not in seen_departments:
+            seen_main_items.add(main_item_name)
+            seen_departments.add(department_name)
+            unique_subproducts.append(subproduct)
+
+    return unique_subproducts

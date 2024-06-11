@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack, LetterProduct
+from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
@@ -19,7 +19,11 @@ class ManufacturerAdmin(admin.ModelAdmin):
 
 @admin.register(Letter)
 class LetterAdmin(admin.ModelAdmin):
-    list_display = ['id', 'letter_no', 'lab_name', 'letter_date']
+    list_display = ['id', 'letter_no', 'lab_name', 'letter_date', 'get_subproducts']
+
+    def get_subproducts(self, obj):
+        return ", ".join([subproduct.part_name for subproduct in obj.subproducts.all()])
+    get_subproducts.short_description = 'Subproducts'
 
 @admin.register(MainItem)
 class MainItemAdmin(admin.ModelAdmin):
@@ -75,7 +79,3 @@ class PrintTrackAdmin(admin.ModelAdmin):
 class ServiceReportTrackAdmin(admin.ModelAdmin):
     list_display = ['id', 'product', 'service_date']
 
-@admin.register(LetterProduct)
-class LetterProductAdmin(admin.ModelAdmin):
-    list_display = ('letter', 'product')
-    search_fields = ('letter__letter_no', 'product__sr_no')
