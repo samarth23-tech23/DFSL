@@ -1,5 +1,5 @@
 from django import forms
-from .models import Manufacturer
+from .models import AMCProvider, Manufacturer
 from .models import MainItem
 from .models import Product
 
@@ -47,3 +47,9 @@ class AddItemForm(forms.ModelForm):
     class Meta:
         model = MainItem
         fields = ['name', 'manufacturer']
+
+
+class AMCProviderForm(forms.ModelForm):
+    class Meta:
+        model = AMCProvider
+        fields = ['name', 'ac_no', 'ifsc_code', 'ac_name', 'bank_name', 'pan_no', 'state', 'pincode', 'address', 'email_id', 'contact_no']

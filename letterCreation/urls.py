@@ -2,8 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('try1/', views.try1),
 
-    
+    path('tracking_table/', views.tracking_table, name='tracking_table'),
+
     path('',views.index),
 
 # #main items
@@ -61,6 +63,10 @@ urlpatterns = [
 
 #amcproviders 
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
+  
+    path('edit_amc_provider/<int:id>/', views.edit_amc_provider, name='edit_amc_provider'),
+    path('delete_amc_provider/<int:id>/', views.delete_amc_provider, name='delete_amc_provider'),
+    path('confirm_delete_amc_provider/<int:id>/', views.confirm_delete_amc_provider, name='confirm_delete_amc_provider'),
 
 #service-report-history
     path('service-report-history/', views.service_report_history, name='service_report_history'),

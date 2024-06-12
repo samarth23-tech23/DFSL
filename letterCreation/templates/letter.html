@@ -25,22 +25,62 @@
         display: none;
       }
     }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 50;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+    }
   </style>
   <title>Letter 7</title>
 </head>
 
-<body class="font-times text-lg">
+<body class="font-times text-xmlns">
+    <div id="inputModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2 class="text-xl mb-4">Enter Details</h2>
+            <form id="inputForm">
+                <div class="mb-4">
+                    <label for="javakNo" class="block text-sm font-medium text-gray-700">जावक क्र./No. :</label>
+                    <input type="text" id="javakNo" name="javakNo" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="date" class="block text-sm font-medium text-gray-700">दिनांक/Date:</label>
+                    <input type="date" id="date" name="date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div>
         <div class="img">
             <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-56 rounded-lg" />
         </div>
         <div class="float-left">
-            <p class="font-bold m-4">जावक क्र./No. :</p>
+            <p class="font-bold ml-8 mt-4">जावक क्र./No. :</p>
         </div>
         <div class="float-right">
             <p class="font-bold float-right mt-2 pr-20 mr-12">दिनांक/Date:</p>
         </div>
-        <br><br><br>
+        <br><br>
         <div class="text-1xl text-left m-2 p-2">
           <div class="text-1xl text-left m-2 p-2">
             {% for provider_name, subproducts_group in grouped_subproducts.items %}
@@ -78,7 +118,7 @@
                 </div>
                 <div class="w-[600] text-left">
                     {% for quotation in quotations %}
-                    <p>Sir,<br> With reference to your quotation No {{ quotation.ref_no }} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at </p>
+                    <p class="ml-4">Sir,<br> With reference to your quotation No {{ quotation.ref_no }} at Reference above, it is requested to supply & install the following items for the best performance of the equipment at 
                 {% endfor %}
                 
                         {% if letter.lab_name == "Mumbai" %}
@@ -99,85 +139,84 @@
                             <table class="border border-collapse w-auto" style="page-break-inside: avoid;">
                                 <thead>
                                     <tr>
-                                        <th class="border p-8 m-2">Part No & Description</th>
-                                        <th class="border p-8 m-2">Qty</th>
-                                        <th class="border p-8 m-2">Unit Price in INR</th>
-                                        <th class="border p-8 m-2">Total Price in INR</th>
+                                        <th class="border p-2">Part No & Description</th>
+                                        <th class="border p-2">Qty</th>
+                                        <th class="border p-2">Unit Price in INR</th>
+                                        <th class="border p-2">Total Price in INR</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for provider_name, subproducts_group in grouped_subproducts.items %}
-                                    {% for subproduct in subproducts_group %}
-                                    {% with subproduct.quotationitem_set.first as quotationitem %}
-                                    <tr>
-                                        <td class="border">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
-                                        <td class="border text-center">{{ subproduct.quantity }}</td>
-                                        {% if quotationitem %}
-                                        <td class="border p-10 m-2">{{ quotationitem.unit_price }} /-</td>
-                                        <td class="border p-10 m-2 text-center">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
-                                        {% else %}
-                                        <td class="border p-10 m-2">N/A</td>
-                                        <td class="border p-10 m-2">N/A</td>
-                                        {% endif %}
-                                    </tr>
-                                    {% endwith %}
-                                    {% endfor %}
-                                    <tr>
-                                        <td colspan="2" class="border"></td>
-                                        <th class="border text-left">Total Basic Price in INR</th>
-                                        <td class="border text-center">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" class="border"></td>
-                                        <th class="border text-left">+18% GST</th>
-                                        <td class="border text-center">
-                                            {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
-                                            {% with gst_value=total_basic_price|calc:0.18 %}
-                                            {{ gst_value }}/-
+                                        {% for subproduct in subproducts_group %}
+                                            {% with subproduct.quotationitem_set.first as quotationitem %}
+                                                <tr>
+                                                    <td class="border p-2">{{ subproduct.part_name }} <br> Specification-<br> {{ subproduct.specification }}</td>
+                                                    <td class="border text-center p-2">{{ subproduct.quantity }}</td>
+                                                    {% if quotationitem %}
+                                                        <td class="border p-2">{{ quotationitem.unit_price }} /-</td>
+                                                        <td class="border p-2 text-center">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>
+                                                    {% else %}
+                                                        <td class="border p-2">N/A</td>
+                                                        <td class="border p-2">N/A</td>
+                                                    {% endif %}
+                                                </tr>
                                             {% endwith %}
-                                            {% endwith %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" class="border"></td>
-                                        <th class="border text-left">Total Price inclusive of GST</th>
-                                        <td class="border p-10 m-2 text-center">
-                                            {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
-                                            {% with gst_value=total_basic_price|calc:0.18 %}
-                                            {% with total_price_inclusive=total_basic_price|add:gst_value %}
-                                            {{ total_price_inclusive}}/-
-                                            {% endwith %}
-                                            {% endwith %}
-                                            {% endwith %}
-
-                                        </td>
-
-                                    </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td colspan="2" class="border"></td>
+                                            <th class="border p-2 text-left">Total Basic Price in INR</th>
+                                            <td class="border text-center p-2">{{ subproducts_group|multiply_and_add_total_basic_price }}/-</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="border"></td>
+                                            <th class="border p-2 text-left">+18% GST</th>
+                                            <td class="border text-center p-2">
+                                                {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                                                    {% with gst_value=total_basic_price|calc:0.18 %}
+                                                        {{ gst_value }}/-
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="border"></td>
+                                            <th class="border p-2 text-left">Total Price inclusive of GST</th>
+                                            <td class="border p-2 text-center">
+                                                {% with total_basic_price=subproducts_group|multiply_and_add_total_basic_price %}
+                                                    {% with gst_value=total_basic_price|calc:0.18 %}
+                                                        {% with total_price_inclusive=total_basic_price|add:gst_value %}
+                                                            {{ total_price_inclusive}}/-
+                                                        {% endwith %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
+                            
                         </div>
                     
 
-            </div><br>
+            </div>
         </div>
         
         <div class="float-right">
-            <p class="px-32">Yours</p><br><br>
+            <p class="px-32 mt-16">Yours,</p><br><br>
             <p class="text-center">(Dr. S.V. Ghumatkar) Director</p>
             <p>Directorate of Forensic Science Laboratories,</p>
             <p>M.S.and Chemical Analyser to Government.</p>
         </div><br>
         <div>
-            <p class="px-8">Thanking You </p>
+            <p class="ml-10 mt-14">Thanking You </p>
             <br><br><br><br>
-            <p> Copy to:-</p>
+            <p class="mt-10 ml-8"><b> Copy to:-</b><br>
             {% if letter.lab_name == "Mumbai" %}
-            <p>The Deputy Director, Directorate of forensic Science Laboratories, Mumbai </p><br><br>
-            <p>For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
+            The Deputy Director, Directorate of forensic Science Laboratories, Mumbai<br>
+            For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
 
             {% else %}
-            The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }}
+            The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }}<br>
             For information w.r.t to your Letter no:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}
 
             {% endif %}
@@ -185,5 +224,40 @@
         </div>
     </div>
 </body>
+{% comment %} <script>
+    // Show modal on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('inputModal');
+        const closeModal = document.getElementById('closeModal');
+        const inputForm = document.getElementById('inputForm');
+        const javakNoDisplay = document.getElementById('javakNoDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
 
+        modal.style.display = 'block';
+
+        // Close modal on clicking the close button
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Close modal on clicking outside the modal content
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Handle form submission
+        inputForm.onsubmit = function(event) {
+            event.preventDefault();
+            const javakNo = document.getElementById('javakNo').value;
+            const date = document.getElementById('date').value;
+
+            javakNoDisplay.textContent = 'जावक क्र./No. : ' + javakNo;
+            dateDisplay.textContent = 'दिनांक/Date: ' + date;
+
+            modal.style.display = 'none';
+        }
+    });
+</script> {% endcomment %}
 </html>

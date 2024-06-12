@@ -10,8 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/kTc9mH2H7EFx9V1w5ysIFCnDf6A9o1w+Lj2wNF5ZpiB/C0ke5P2V3Y4FbDF5ZfVEX4FlhDgSN0Nxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        *{
-            font-family: 'Poppins',sans-serif;
+        * {
+            font-family: 'Poppins', sans-serif;
         }
         .content-wrapper {
             margin: 25px auto;
@@ -22,208 +22,200 @@
             background-color: #fff;
             animation: fadeIn 1s ease-in-out;
         }
-        
         .search-bar {
             position: relative;
             margin-top: 20px;
         }
-
         .search-input {
             float: right;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s ease;
         }
-
         .search-input:focus {
-            border-color: #3ab1df;
+            border-color: #2b6cb0;
         }
-
         .search-icon {
             position: absolute;
             top: 50%;
             right: 10px;
             transform: translateY(-50%);
-            color: #ccc;
-            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s ease;
         }
-
-        
-
-        .shadow-text {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); 
-            color: #3ab1df; 
+        .search-input:focus + .search-icon {
+            color: #2b6cb0;
         }
-
-        .content-table {
-            border-collapse: collapse;
-            font-size: 17px;    
+        .content-wrapper table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-
-        .content-table thead tr {
-            background-color: #3ab1df;
-            color: #ffffff;
+        .content-wrapper th,
+        .content-wrapper td {
+            padding: 12px 15px;
             text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+        .content-wrapper th {
+            background-color: #f4f4f4;
             font-weight: bold;
         }
-
-        .content-table th,
-        .content-table td {
-            padding: 15px 15px;
-            border: 1px solid #dddddd;
+        .content-wrapper tr:last-child td {
+            border-bottom: none;
         }
-
-        .content-table tbody tr {
-            border-bottom: 1px solid #dddddd;
+        .content-wrapper .btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-right: 5px;
         }
-
-        .content-table tbody tr:nth-of-type(even) {
-            background-color: #f3f3f3;
+        .content-wrapper .btn.edit {
+            background-color: #4caf50;
+            color: white;
         }
-
-        .content-table tbody tr:last-of-type {
-            border-bottom: 2px solid #009879;
+        .content-wrapper .btn.delete {
+            background-color: #f44336;
+            color: white;
         }
-
+        .content-wrapper .btn.view {
+            background-color: #2196f3;
+            color: white;
+        }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .action-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-icons a {
-            color: #3b82f6;
-            transition: color 0.3s;
-        }
-
-        .action-icons a:hover {
-            color: #1d4ed8;
-        }
-
-        .overflow-x-auto {
-            overflow-x: auto;
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-7xl mx-auto">
-        <div class="content-wrapper">
-            <div class="search-bar">
-                <input type="text" id="search" class="search-input" placeholder="Search...">
-                <h1 class="text-3xl font-bold mb-8 shadow-text">AMC Providers Information</h1>
-                <div class="search-icon">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table id="amcProviderTable" class="content-table">
-                    <thead>
-                        <tr>
-                            <th class="border border-gray-200 px-4 py-2">Name</th>
-                            <th class="border border-gray-200 px-4 py-2">Account No</th>
-                            <th class="border border-gray-200 px-4 py-2">IFSC Code</th>
-                            <th class="border border-gray-200 px-4 py-2">Account Name</th>
-                            <th class="border border-gray-200 px-4 py-2">Bank Name</th>
-                            <th class="border border-gray-200 px-4 py-2">PAN No</th>
-                            <th class="border border-gray-200 px-4 py-2">State</th>
-                            <th class="border border-gray-200 px-4 py-2">Pincode</th>
-                            <th class="border border-gray-200 px-4 py-2">Address</th>
-                            <th class="border border-gray-200 px-4 py-2">Email ID</th>
-                            <th class="border border-gray-200 px-4 py-2">Contact No</th>
-                            <th class="border border-gray-200 px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for provider in providers %}
-                            <tr>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.ac_no }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.ifsc_code }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.ac_name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.bank_name }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.pan_no }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.state }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.pincode }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.address }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.email_id }}</td>
-                                <td class="border border-gray-200 px-4 py-2">{{ provider.contact_no }}</td>
-                                <td class="border border-gray-200 px-4 py-2">
-                                    <div class="flex space-x-2">
-                                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 view-button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-green-500 dark:text-green-400">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
-                                            <span class="sr-only">View</span>
-                                        </button>
-                                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 edit-button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-blue-500 dark:text-blue-400">
-                                                <path d="M12 20h9"></path>
-                                                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
-                                            </svg>
-                                            <span class="sr-only">Edit</span>
-                                        </button>
-                                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 delete-button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-red-500 dark:text-red-400">
-                                                <path d="M3 6h18"></path>
-                                                <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path>
-                                                <path d="M10 11v6"></path>
-                                                <path d="M14 11v6"></path>
-                                                <path d="M10 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"></path>
-                                            </svg>
-                                            <span class="sr-only">Delete</span>
-                                        </button>
+<body class="bg-gray-100 dark:bg-gray-900">
+<div class="content-wrapper">
+    <h1 class="text-2xl font-bold mb-5 text-center text-gray-900 dark:text-gray-100">AMC Providers Information</h1>
 
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" onkeyup="search()" class="search-input" placeholder="Search by provider name">
+        <i class="fas fa-search search-icon"></i>
     </div>
-    <script>
-        const searchInput = document.getElementById('search');
-        searchInput.addEventListener('input', function (e) {
-            const searchText = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#amcProviderTable tbody tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const match = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(searchText));
-                row.style.display = match ? '' : 'none';
-            });
-        });
 
-     
+    <table id="data-table" class="table-auto">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Account No</th>
+                <th>IFSC Code</th>
+                <th>Account Name</th>
+                <th>Bank Name</th>
+                <th>PAN No</th>
+                <th>State</th>
+                <th>Pincode</th>
+                <th>Address</th>
+                <th>Email ID</th>
+                <th>Contact No</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for provider in providers %}
+            <tr>
+                <td>{{ provider.name }}</td>
+                <td>{{ provider.ac_no }}</td>
+                <td>{{ provider.ifsc_code }}</td>
+                <td>{{ provider.ac_name }}</td>
+                <td>{{ provider.bank_name }}</td>
+                <td>{{ provider.pan_no }}</td>
+                <td>{{ provider.state }}</td>
+                <td>{{ provider.pincode }}</td>
+                <td>{{ provider.address }}</td>
+                <td>{{ provider.email_id }}</td>
+                <td>{{ provider.contact_no }}</td>
+                <td>
+                    <a href="{% url 'edit_amc_provider' provider.id %}" class="btn edit">Edit</a>
+                    <a href="{% url 'confirm_delete_amc_provider' provider.id %}" class="btn delete">Delete</a>
+                    <button class="btn view view-button" data-provider-id="{{ provider.id }}">View</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-        document.querySelectorAll('.edit-button').forEach(button => {
-            button.addEventListener('click', function() {
-                alert('Edit action clicked!');
-            });
-        });
+<!-- Modal for Viewing Provider Details -->
+<div id="view-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Provider Details</h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500" id="provider-details"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', function() {
-                alert('Delete action clicked!');
-            });
+<script>
+    function search() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("data-table");
+        const trs = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < trs.length; i++) {
+            let tds = trs[i].getElementsByTagName("td");
+            let match = false;
+
+            for (let j = 0; j < tds.length - 1; j++) {
+                if (tds[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+
+            trs[i].style.display = match ? "" : "none";
+        }
+    }
+
+    function openModal(provider) {
+        const details = `
+            <strong>Name:</strong> ${provider.name}<br>
+            <strong>Account No:</strong> ${provider.ac_no}<br>
+            <strong>IFSC Code:</strong> ${provider.ifsc_code}<br>
+            <strong>Account Name:</strong> ${provider.ac_name}<br>
+            <strong>Bank Name:</strong> ${provider.bank_name}<br>
+            <strong>PAN No:</strong> ${provider.pan_no}<br>
+            <strong>State:</strong> ${provider.state}<br>
+            <strong>Pincode:</strong> ${provider.pincode}<br>
+            <strong>Address:</strong> ${provider.address}<br>
+            <strong>Email ID:</strong> ${provider.email_id}<br>
+            <strong>Contact No:</strong> ${provider.contact_no}<br>
+        `;
+        document.getElementById("provider-details").innerHTML = details;
+        document.getElementById("view-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("view-modal").classList.add("hidden");
+    }
+
+    document.querySelectorAll(".view-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const providerId = button.getAttribute("data-provider-id");
+            const providers = {{ serialized_providers|safe }};
+            const provider = providers.find(p => p.id == providerId);
+            openModal(provider);
         });
-    </script>
+    });
+</script>
 </body>
 </html>
 {% endblock %}

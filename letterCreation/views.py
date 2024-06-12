@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
+from django.http import HttpResponseRedirect
 
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
@@ -14,9 +15,18 @@ from django.shortcuts import render, redirect
 from .forms import MainItemForm
 from django.contrib import messages
 from .forms import ProductForm
-from .forms import AddItemForm
-from .forms import AddItemForm
+from django.core.serializers.json import DjangoJSONEncoder
+from .forms import AMCProviderForm
+from django.urls import reverse
 
+
+def try1(request):
+    return render(request,'try.html')  
+
+
+def tracking_table(request):
+    products = Product.objects.all()
+    return render(request, 'tracking_table.html', {'products': products})
 
 
 
@@ -163,6 +173,45 @@ def manufacturer_view(request):
     context = {'manufacturers': manufacturers}  
     return render(request, 'manufacturer.html', context)
     
+
+
+    #am-provider
+def add_amc_provider(request):
+    if request.method == 'POST':
+        form = AMCProviderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('success_url')  # Redirect to a success URL after saving the form
+    else:
+        form = AMCProviderForm()
+    return render(request, 'add_amc_provider.html', {'form': form})
+
+def amc_providers_list(request):
+    providers = AMCProvider.objects.all()
+    serialized_providers = json.dumps(list(providers.values()), cls=DjangoJSONEncoder)
+    return render(request, 'amc_providers_list.html', {'providers': providers, 'serialized_providers': serialized_providers})
+
+def edit_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, pk=id)
+    if request.method == 'POST':
+        form = AMCProviderForm(request.POST, instance=provider)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('amc_providers_list'))  # Redirect to the AMC Providers list
+    else:
+        form = AMCProviderForm(instance=provider)
+    
+    return render(request, 'edit_amc_provider.html', {'form': form, 'provider': provider})
+def confirm_delete_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, id=id)
+    return render(request, 'confirm_delete_amc.html', {'provider': provider})
+
+def delete_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, id=id)
+    provider.delete()
+    return redirect('amc_providers_list')
+
+
 def index(request):
     return render(request,'index.html')
 

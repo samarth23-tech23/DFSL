@@ -8,10 +8,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manufacturer List</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/product_style.css' %}">
- 
+<style>
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    .content-wrapper {
+        margin: 25px auto;
+        width: 100%;
+        max-height: calc(100vh - 200px); /* Adjust as needed */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    
+
+    .search-bar {
+        position: relative;
+        margin-top: 20px;
+    }
+    .search-input {
+        float: right;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+    .search-input:focus {
+        border-color: #3ab1df;
+    }
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #ccc;
+        cursor: pointer;
+    }
+    .print-button {
+        border: 1px solid #3ab1df;
+        background-color: #3ab1df;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        font-weight : bold;
+    }
+    .print-button:hover {
+        background-color: #1e88e5; /* Darker shade of blue on hover */
+    }
+    .shadow-text {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        color: #3ab1df;
+    }
+    .content-table {
+        border-collapse: collapse;
+        margin: auto;
+        font-size: 17px;
+        width: 100%;
+    }
+    .content-table thead tr {
+        background-color: #3ab1df;
+        color: #ffffff;
+        text-align: left;
+        font-weight: bold;
+    }
+    .content-table th,
+    .content-table td {
+        padding: 12px 15px;
+        border: 1px solid #dddddd;
+    }
+    .content-table tbody tr {
+        border-bottom: 1px solid #181616;
+    }
+    .content-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900">
+<body class="bg-gray-100 dark:bg-gray-900 p-6 md:p-8">
 
   <!-- Message Section -->
   {% if messages %}
@@ -26,7 +113,7 @@
   <a href="{% url 'add_manufacturer' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right">
     Add Manufacturer
   </a><br><br>
-  <div class="content-wrapper">
+  <div class="content-wrapper overflow-auto p-1">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold mb-8 shadow-text">Manufacturer List</h1>
       
