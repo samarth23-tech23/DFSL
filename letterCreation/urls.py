@@ -9,6 +9,7 @@ urlpatterns = [
 #main items
     path('items/', views.mitem, name="mitem"),
     path('items', views.item_list, name='item_list'),
+    path('add/', views.add_item, name='add_item'),
     path('edit/', views.edit_item, name='edit_item'),
 
 # delete

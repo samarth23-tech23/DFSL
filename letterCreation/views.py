@@ -13,6 +13,7 @@ from .forms import ManufacturerForm
 from django.shortcuts import render, redirect
 from .forms import MainItemForm
 from django.contrib import messages
+from django.utils.text import slugify
 
 
 #mainitems
@@ -21,7 +22,32 @@ def item_list(request):
     items = MainItem.objects.all()
     return render(request, 'items.html', {'mitem': items})
 
-# Handle editing of a main item
+def add_item(request):
+    if request.method == 'POST':
+        form = MainItemForm(request.POST)
+        if form.is_valid():
+            # Save the form data to create a new MainItem object
+            main_item = form.save(commit=False)
+
+            # Retrieve manufacturer name from the form data
+            manufacturer_name = form.cleaned_data.get('manufacturer')
+            # Query the manufacturer using the name
+            manufacturer, created = Manufacturer.objects.get_or_create(name=manufacturer_name)
+            # Set the manufacturer for the main item
+            main_item.manufacturer = manufacturer
+
+            # Save the main item
+            main_item.save()
+
+            messages.success(request, 'Item added successfully.')
+            return redirect('item_list')  # Assuming 'item_list' is the name of your URL pattern for displaying the items list
+        else:
+            messages.error(request, 'Failed to add item. Please check the form.')
+
+    # If the request method is not POST or form is invalid, render the add_item template with the form
+    form = MainItemForm()
+    return render(request, 'add_item.html', {'form': form})
+
 def edit_item(request):
     if request.method == 'POST':
         item_id = request.POST.get('id')
@@ -29,12 +55,24 @@ def edit_item(request):
         form = MainItemForm(request.POST, instance=item)
         
         if form.is_valid():
-            form.save()
+            updated_item = form.save(commit=False)
+            
+            # Fetch the Manufacturer instance based on the manufacturer name
+            manufacturer_name = form.cleaned_data['manufacturer']
+            manufacturer, created = Manufacturer.objects.get_or_create(
+                name=manufacturer_name,
+                defaults={'slug': slugify(manufacturer_name)}  # Generate a slug for the manufacturer
+            )
+            updated_item.manufacturer = manufacturer
+            
+            updated_item.save()
             messages.success(request, 'Changes saved successfully.')
+            print(f"Updated item: {updated_item.id}, {updated_item.name}, {updated_item.manufacturer}")  # Debug statement
         else:
             messages.error(request, 'Failed to save changes. Please check the form.')
+            print(form.errors)  # Debug statement for form errors
+            print(request.POST)  # Debug statement for POST data
     
-    # Redirect back to the item list page (items.html)
     return redirect('item_list')
 
 # Handle deletion of a main item
