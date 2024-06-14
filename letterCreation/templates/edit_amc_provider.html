@@ -1,0 +1,70 @@
+  {% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit AMC Provider</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="container bg-white rounded-lg shadow-md">
+    <div class="bg-light px-4 py-3 border-b border-gray-200">
+      <h2 class="text-xl font-semibold">Edit AMC Provider</h2>
+    </div>
+    <div class="p-4">
+      <form id="edit-form" method="post" action="{% url 'edit_amc_provider' provider.id %}">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-4">
+            <label for="{{ field.id_for_label }}" class="form-label block mb-1">{{ field.label }}</label>
+            {{ field|add_class:"form-input" }}
+            {% if field.errors %}
+              <div class="text-red-600 text-sm mt-1">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="text-right">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div id="success-popup" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 text-white text-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-4">
+      <h2 class="text-xl font-bold mb-3 text-black">Success</h2>
+      <p class="mb-0 text-black">Changes are done successfully.</p>
+    </div>
+  </div>
+
+  <script>
+    // Function to show success popup
+    function showSuccessPopup() {
+      const popup = document.getElementById('success-popup');
+      popup.classList.remove('hidden');
+      // Hide the popup after 1 minute
+      setTimeout(function() {
+        popup.classList.add('hidden');
+      }, 60000); // 1 minute
+    }
+  </script>
+</body>
+</html>

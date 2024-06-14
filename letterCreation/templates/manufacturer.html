@@ -9,8 +9,9 @@
   <title>Manufacturer List</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/product_style.css' %}">
+ 
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 p-6 md:p-8">
+<body class="bg-gray-100 dark:bg-gray-900">
 
   <!-- Message Section -->
   {% if messages %}
@@ -22,16 +23,23 @@
     {% endfor %}
   </div>
   {% endif %}
-
+  <a href="{% url 'add_manufacturer' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right">
+    Add Manufacturer
+  </a><br><br>
   <div class="content-wrapper">
-    <div class="search-bar">
-      <input type="text" id="manufacturerSearch" placeholder="Search by Manufacturer..." class="search-input">
+    <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold mb-8 shadow-text">Manufacturer List</h1>
-      <div class="search-icon">
-        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
-        </svg>
-      </div>
+      
+      <div class="search-bar">
+        <input type="text" id="manufacturerSearch" placeholder="Search by Manufacturer..." class="search-input">
+        <div class="search-icon">
+          <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+        </div>
+    </div>
+
+    
     </div>
 
     <div class="overflow-x-auto">

@@ -17,6 +17,7 @@ urlpatterns = [
 
 
     path('tracking/',views.tracking),
+    path('tracking_table/', views.tracking_table, name='tracking_table'),
 
     path('form/',views.load_form), 
    
@@ -35,21 +36,26 @@ urlpatterns = [
    
     path('edit/<int:id>/', views.edit_manufacturer, name='edit_manufacturer'),
 
-    
+    # add manufacturer
+    path('add_manufacturer/', views.add_manufacturer, name='add_manufacturer'),
 
 # delete manufacturer
     path('delete-manufacturer/', views.delete_manufacturer, name='delete_manufacturer'),
 
 #product_list
-    path('product_list/', views.product_list_view, name='product_list'),
-    path('edit/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('product_list/', views.product_list_view, name='product_list_view'),
+    path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('add_product/', views.add_product_view, name='add_product_view'),
     path('delete/<int:product_id>/', views.delete_product, name='delete_product'),
     path('product/<int:product_id>/json/', views.product_detail_json, name='product_detail_json'),
     path('get_departments/', views.get_departments, name='get_departments'),
 
 #amcproviders 
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
-
+  
+    path('edit_amc_provider/<int:id>/', views.edit_amc_provider, name='edit_amc_provider'),
+    path('delete_amc_provider/<int:id>/', views.delete_amc_provider, name='delete_amc_provider'),
+    path('confirm_delete_amc_provider/<int:id>/', views.confirm_delete_amc_provider, name='confirm_delete_amc_provider'),
 #service-report-history
     path('service-report-history/', views.service_report_history, name='service_report_history'),
 

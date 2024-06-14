@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
+from django.http import HttpResponseRedirect
 
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
@@ -13,6 +14,10 @@ from .forms import ManufacturerForm
 from django.shortcuts import render, redirect
 from .forms import MainItemForm
 from django.contrib import messages
+from .forms import ProductForm
+from django.core.serializers.json import DjangoJSONEncoder
+from .forms import AMCProviderForm
+from django.urls import reverse
 from django.utils.text import slugify
 
 
@@ -117,6 +122,26 @@ def delete_manufacturer(request):
         messages.success(request, 'Manufacturer deleted successfully!')
     return redirect('manufacturer_list')
 
+def add_manufacturer(request):
+    if request.method == 'POST':
+        form = ManufacturerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer_list')  # Assuming you have a URL named 'manufacturer_list'
+    else:
+        form = ManufacturerForm()
+    return render(request, 'add_manufacturer.html', {'form': form})
+
+def add_product_view(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list_view')
+    else:
+        form = ProductForm()
+    return render(request, 'add_product.html', {'form': form})
+
 
 def manufacturer_list(request):
     return render(request,'manufacturer_list.html')  
@@ -142,12 +167,50 @@ def manufacturer(request):
 
 def tracking(request):
     return render(request,'tracking.html')
+
+def tracking_table(request):
+    products = Product.objects.all()
+    return render(request, 'tracking_table.html', {'products': products})
  
 def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
     return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
 
+#am-provider
+def add_amc_provider(request):
+    if request.method == 'POST':
+        form = AMCProviderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('success_url')  # Redirect to a success URL after saving the form
+    else:
+        form = AMCProviderForm()
+    return render(request, 'add_amc_provider.html', {'form': form})
 
+def amc_providers_list(request):
+    providers = AMCProvider.objects.all()
+    serialized_providers = json.dumps(list(providers.values()), cls=DjangoJSONEncoder)
+    return render(request, 'amc_providers_list.html', {'providers': providers, 'serialized_providers': serialized_providers})
+
+def edit_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, pk=id)
+    if request.method == 'POST':
+        form = AMCProviderForm(request.POST, instance=provider)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('amc_providers_list'))  # Redirect to the AMC Providers list
+    else:
+        form = AMCProviderForm(instance=provider)
+    
+    return render(request, 'edit_amc_provider.html', {'form': form, 'provider': provider})
+def confirm_delete_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, id=id)
+    return render(request, 'confirm_delete_amc.html', {'provider': provider})
+
+def delete_amc_provider(request, id):
+    provider = get_object_or_404(AMCProvider, id=id)
+    provider.delete()
+    return redirect('amc_providers_list')
 
 
 def get_sr_numbers(request):
@@ -237,29 +300,16 @@ def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        # Update product attributes based on form data
-        product.main_item.name = request.POST.get('name')
-        product.price = request.POST.get('price')
-        product.buying_date = request.POST.get('buying_date')
-        product.department = request.POST.get('department')
-        product.lab_name = request.POST.get('lab_name')
-        product.amc_provider = request.POST.get('amc_provider')
-        product.amc_period = request.POST.get('amc_period')
-        product.expenditure_cost = request.POST.get('expenditure_cost')
-        product.manufacturer_warranty_period = request.POST.get('manufacturer_warranty_period')
-        product.service_report_date = request.POST.get('service_report_date')
-        product.main_item.manufacturer = request.POST.get('manufacturer')
-        
-        # Save the updated product and its associated MainItem
-        product.main_item.save()
-        product.save()
-        
-        # Add success message and redirect to product list
-        messages.success(request, 'Product updated successfully!')
-        return redirect('product_list')
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            # Add a success message if needed
+            messages.success(request, 'Product updated successfully!')
+            return redirect('product_list_view')  # Redirect to product_list URL name
+    else:
+        form = ProductForm(instance=product)
     
-    # Render the edit product template with the product data
-    return render(request, 'edit_product.html', {'product': product})
+    return render(request, 'edit_product.html', {'form': form})
 
 
 # Delete product view
@@ -268,7 +318,7 @@ def delete_product(request, product_id):
     if request.method == 'POST':
         product.delete()
         messages.success(request, 'Product deleted successfully!')
-        return redirect('product_list')
+        return redirect('product_list_view')
     return render(request, 'product_list.html')
 
 def product_detail_json(request, product_id):
