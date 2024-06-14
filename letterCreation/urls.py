@@ -16,14 +16,11 @@ urlpatterns = [
 #     path('item_list/', views.item_list, name='items_list'),  # Updated view function name
 #     path('add_item/', views.add_item, name='add_item'),
 
-#new path
-  #main items
+#main items
     path('items/', views.mitem, name="mitem"),
     path('items', views.item_list, name='item_list'),
+    path('add_items/', views.add_item, name='add_item'),
     path('edit/', views.edit_item, name='edit_item'),
-
-    # path('items/', views.item_list, name='item_list'),
-    # path('edit/', views.edit_item, name='edit_item'),
 
 # delete
       path('delete/', views.delete_item, name='delete_item'),

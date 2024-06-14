@@ -11,17 +11,22 @@ class ManufacturerForm(forms.ModelForm):
 
 
 class MainItemForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
+
     class Meta:
         model = MainItem
         fields = ['name', 'manufacturer']
-
-    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), empty_label="Select Manufacturer")
 
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = '__all__' 
+        fields = '__all__'
+        widgets = {
+            'field_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'another_field_name': forms.Select(attrs={'class': 'form-select'}),
+            # Add more fields and their respective widgets as needed
+        }
 
 
 class ManufacturerForm(forms.ModelForm):
@@ -53,3 +58,4 @@ class AMCProviderForm(forms.ModelForm):
     class Meta:
         model = AMCProvider
         fields = ['name', 'ac_no', 'ifsc_code', 'ac_name', 'bank_name', 'pan_no', 'state', 'pincode', 'address', 'email_id', 'contact_no']
+

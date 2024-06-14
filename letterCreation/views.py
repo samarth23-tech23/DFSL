@@ -18,6 +18,7 @@ from .forms import ProductForm
 from django.core.serializers.json import DjangoJSONEncoder
 from .forms import AMCProviderForm
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 def try1(request):
@@ -74,14 +75,38 @@ def tracking_table(request):
 
 
 
-#new
 #mainitems
 # Render the list of main items
 def item_list(request):
     items = MainItem.objects.all()
     return render(request, 'items.html', {'mitem': items})
 
-# Handle editing of a main item
+def add_item(request):
+    if request.method == 'POST':
+        form = MainItemForm(request.POST)
+        if form.is_valid():
+            # Save the form data to create a new MainItem object
+            main_item = form.save(commit=False)
+
+            # Retrieve manufacturer name from the form data
+            manufacturer_name = form.cleaned_data.get('manufacturer')
+            # Query the manufacturer using the name
+            manufacturer, created = Manufacturer.objects.get_or_create(name=manufacturer_name)
+            # Set the manufacturer for the main item
+            main_item.manufacturer = manufacturer
+
+            # Save the main item
+            main_item.save()
+
+            messages.success(request, 'Item added successfully.')
+            return redirect('item_list')  # Assuming 'item_list' is the name of your URL pattern for displaying the items list
+        else:
+            messages.error(request, 'Failed to add item. Please check the form.')
+
+    # If the request method is not POST or form is invalid, render the add_item template with the form
+    form = MainItemForm()
+    return render(request, 'items.html', {'form': form})
+
 def edit_item(request):
     if request.method == 'POST':
         item_id = request.POST.get('id')
@@ -89,16 +114,26 @@ def edit_item(request):
         form = MainItemForm(request.POST, instance=item)
         
         if form.is_valid():
-            form.save()
+            updated_item = form.save(commit=False)
+            
+            # Fetch the Manufacturer instance based on the manufacturer name
+            manufacturer_name = form.cleaned_data['manufacturer']
+            manufacturer, created = Manufacturer.objects.get_or_create(
+                name=manufacturer_name,
+                defaults={'slug': slugify(manufacturer_name)}  # Generate a slug for the manufacturer
+            )
+            updated_item.manufacturer = manufacturer
+            
+            updated_item.save()
             messages.success(request, 'Changes saved successfully.')
-            return redirect('item_list')
+            print(f"Updated item: {updated_item.id}, {updated_item.name}, {updated_item.manufacturer}")  # Debug statement
         else:
             messages.error(request, 'Failed to save changes. Please check the form.')
-            for field, errors in form.errors.items():
-                messages.error(request, f"{field}: {', '.join(errors)}")
-  
-    return redirect('item_list')
+            print(form.errors)  # Debug statement for form errors
+            print(request.POST)  # Debug statement for POST data
     
+    return redirect('item_list')
+
 # Handle deletion of a main item
 def delete_item(request):
     if request.method == 'POST':
@@ -158,6 +193,7 @@ def add_product_view(request):
     else:
         form = ProductForm()
     return render(request, 'add_product.html', {'form': form})
+
     
 
 def manufacturer_list(request):
