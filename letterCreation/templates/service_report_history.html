@@ -110,6 +110,50 @@
                 opacity: 1;
             }
         }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+        }
+
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -131,7 +175,7 @@
                         <th class="border border-gray-200 px-4 py-2">Product Serial No</th>
                         <th class="border border-gray-200 px-4 py-2">Product Name</th>
                         <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                        <th class="border border-gray-200 px-4 py-2">Service Date</th>
+                        <th class="border border-gray-200 px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,42 +186,76 @@
                                     <td rowspan="{{ product.service_reports.count }}" class="border border-gray-200 px-4 py-2">{{ product.sr_no }}</td>
                                     <td rowspan="{{ product.service_reports.count }}" class="border border-gray-200 px-4 py-2">{{ product.main_item.name }}</td>
                                     <td rowspan="{{ product.service_reports.count }}" class="border border-gray-200 px-4 py-2">{{ product.lab_name.name }}</td>
+                                    <td rowspan="{{ product.service_reports.count }}" class="border border-gray-200 px-4 py-2">
+                                        <button onclick="openModal('{{ product.id }}')">View Service Dates</button>
+                                    </td>
                                 {% endif %}
-                                <td class="border border-gray-200 px-4 py-2">{{ report.service_date }}</td>
+                               
                             </tr>
                         {% endfor %}
                     {% endfor %}
                 </tbody>
             </table>
+
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2>Service Report Dates</h2>
+                    <p id="currentServiceDate"></p>
+                    <p id="earlierServiceDate"></p>
+                </div>
+            </div>
         </div>
     </div>
     {% include 'footer.html' %}
-</body>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('search');
-        const rows = document.querySelectorAll('.content-table tbody tr');
+    <script>
+        // Function to open modal and fetch service report dates
+        function openModal(productId) {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'block';
 
-        searchInput.addEventListener('input', function () {
-            const searchText = this.value.toLowerCase().trim();
+            // Fetch data via AJAX or use existing data to populate modal content
+            fetch(`/letterGenerate/get_service_report_dates/${productId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('currentServiceDate').innerHTML = `Current Service Date: ${data.current_service_date}`;
+                    document.getElementById('earlierServiceDate').innerHTML = `Earlier Service Date: ${data.earlier_service_date}`;
+                })
+                .catch(error => console.error('Error fetching service report dates:', error));
+        }
 
-            rows.forEach(row => {
-                let isVisible = false;
-                row.querySelectorAll('td').forEach(cell => {
-                    if (cell.textContent.toLowerCase().includes(searchText)) {
-                        isVisible = true;
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search');
+            const rows = document.querySelectorAll('.content-table tbody tr');
+
+            searchInput.addEventListener('input', function () {
+                const searchText = this.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    let isVisible = false;
+                    row.querySelectorAll('td').forEach(cell => {
+                        if (cell.textContent.toLowerCase().includes(searchText)) {
+                            isVisible = true;
+                        }
+                    });
+
+                    if (isVisible) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
                     }
                 });
-
-                if (isVisible) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
             });
         });
-    });
-</script>
-
+    </script>
+</body>
 </html>
 {% endblock %}

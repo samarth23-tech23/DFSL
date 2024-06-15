@@ -73,7 +73,7 @@ class QuotationItemAdmin(admin.ModelAdmin):
 
 @admin.register(PrintTrack)
 class PrintTrackAdmin(admin.ModelAdmin):
-    list_display = ['id', 'printed_date1', 'printed_date2', 'printed_date3', 'printed_date4', 'letter_no']
+    list_display = ['id', 'printed_date1', 'printed_date2', 'printed_date3', 'printed_date4', 'letter_no','is_done']
 
 @admin.register(ServiceReportTrack)
 class ServiceReportTrackAdmin(admin.ModelAdmin):

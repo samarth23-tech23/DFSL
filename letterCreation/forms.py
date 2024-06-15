@@ -46,7 +46,12 @@ class ManufacturerForm(forms.ModelForm):
             'contact_no': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+class ItemForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), empty_label="Select Manufacturer")
 
+    class Meta:
+        model = MainItem
+        fields = ['name', 'manufacturer']
 
 class AddItemForm(forms.ModelForm):
     class Meta:

@@ -6,11 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
 from django.http import HttpResponseRedirect
-
+from django.db.models import Prefetch 
 import datetime
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,PrintTrack
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,PrintTrack,ServiceReportTrack
 from django.db.models import Count
-from .forms import ManufacturerForm
+from .forms import ItemForm, ManufacturerForm
 from django.shortcuts import render, redirect
 from .forms import MainItemForm
 from django.contrib import messages
@@ -22,75 +22,44 @@ from django.utils.text import slugify
 
 
 #mainitems
-# Render the list of main items
-def item_list(request):
+def items_list(request):
     items = MainItem.objects.all()
     return render(request, 'items.html', {'mitem': items})
 
 def add_item(request):
     if request.method == 'POST':
-        form = MainItemForm(request.POST)
+        form = ItemForm(request.POST)
         if form.is_valid():
-            # Save the form data to create a new MainItem object
-            main_item = form.save(commit=False)
-
-            # Retrieve manufacturer name from the form data
-            manufacturer_name = form.cleaned_data.get('manufacturer')
-            # Query the manufacturer using the name
-            manufacturer, created = Manufacturer.objects.get_or_create(name=manufacturer_name)
-            # Set the manufacturer for the main item
-            main_item.manufacturer = manufacturer
-
-            # Save the main item
-            main_item.save()
-
+            form.save()
             messages.success(request, 'Item added successfully.')
-            return redirect('item_list')  # Assuming 'item_list' is the name of your URL pattern for displaying the items list
-        else:
-            messages.error(request, 'Failed to add item. Please check the form.')
+            return redirect('items_list')
+    else:
+        form = ItemForm()
 
-    # If the request method is not POST or form is invalid, render the add_item template with the form
-    form = MainItemForm()
-    return render(request, 'add_item.html', {'form': form})
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'add_item.html', {'form': form, 'manufacturers': manufacturers})
 
-def edit_item(request):
+def edit_item(request, item_id):
+    item = get_object_or_404(MainItem, pk=item_id)
     if request.method == 'POST':
-        item_id = request.POST.get('id')
-        item = get_object_or_404(MainItem, id=item_id)
-        form = MainItemForm(request.POST, instance=item)
-        
+        form = ItemForm(request.POST, instance=item)
         if form.is_valid():
-            updated_item = form.save(commit=False)
-            
-            # Fetch the Manufacturer instance based on the manufacturer name
-            manufacturer_name = form.cleaned_data['manufacturer']
-            manufacturer, created = Manufacturer.objects.get_or_create(
-                name=manufacturer_name,
-                defaults={'slug': slugify(manufacturer_name)}  # Generate a slug for the manufacturer
-            )
-            updated_item.manufacturer = manufacturer
-            
-            updated_item.save()
-            messages.success(request, 'Changes saved successfully.')
-            print(f"Updated item: {updated_item.id}, {updated_item.name}, {updated_item.manufacturer}")  # Debug statement
-        else:
-            messages.error(request, 'Failed to save changes. Please check the form.')
-            print(form.errors)  # Debug statement for form errors
-            print(request.POST)  # Debug statement for POST data
-    
-    return redirect('item_list')
+            form.save()
+            messages.success(request, 'Item updated successfully.')
+            return redirect('items_list')
+    else:
+        form = ItemForm(instance=item)
 
-# Handle deletion of a main item
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'edit_item.html', {'form': form, 'item': item, 'manufacturers': manufacturers})
+
 def delete_item(request):
     if request.method == 'POST':
         item_id = request.POST.get('id')
-        item = MainItem.objects.get(id=item_id)
+        item = get_object_or_404(MainItem, pk=item_id)
         item.delete()
-        messages.success(request, 'Item deleted successfully!')
-    
-    # Redirect back to the item list page (items.html)
-    return redirect('item_list')
-
+        messages.success(request, 'Item deleted successfully.')
+    return redirect('items_list')
 # def product_list1(request):
 #     products = Product.objects.all()
 #     return render(request, 'items.html', {'products': products})
@@ -165,12 +134,23 @@ def items(request):
 def manufacturer(request):
     return render(request,'manufacturer.html')
 
-def tracking(request):
-    return render(request,'tracking.html')
+def track_letter(request, letter_id):
+    letter = get_object_or_404(Letter, id=letter_id)
+    print_track = get_object_or_404(PrintTrack, letter_no=letter.letter_no)
+    return render(request, 'tracking.html', {'letter': letter, 'print_track': print_track})
+
+
 
 def tracking_table(request):
-    products = Product.objects.all()
-    return render(request, 'tracking_table.html', {'products': products})
+    letters = Letter.objects.select_related('lab_name').prefetch_related(
+        Prefetch('subproducts', queryset=Subproduct.objects.select_related('product__main_item', 'product__department'))
+    ).all()
+
+    context = {
+        'letters': letters
+    }
+
+    return render(request, 'tracking_table.html', context)
  
 def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
@@ -591,18 +571,28 @@ def product_list7(request):
 def letter_detail7(request, letter_id):
     # Fetch the letter using letter_id
     letter = get_object_or_404(Letter, pk=letter_id)
-    # Get the subproducts associated with the letter
+
+    # Get all subproducts associated with the letter
     subproducts = letter.subproducts.all()
 
-    # Fetch the product(s) associated with these subproducts
-    product_ids = subproducts.values_list('product', flat=True).distinct()
-    products = Product.objects.filter(id__in=product_ids)
+    # Initialize containers for products and quotations
+    products = set()
+    quotations = set()
 
-    # For simplicity, assume all subproducts belong to the same product
-    product = products.first() if products.exists() else None
+    # Fetch all quotations related to the subproducts
+    for subproduct in subproducts:
+        # Fetch quotation items related to the current subproduct
+        quotation_items = QuotationItem.objects.filter(subproduct=subproduct)
 
-    # Fetch all quotations related to these products
-    quotations = Quotation.objects.filter(product__in=products).distinct()
+        # Fetch quotations related to these quotation items and add to set
+        for quotation_item in quotation_items:
+            quotations.add(quotation_item.quotation)
+
+        # Add product of current subproduct to products set
+        products.add(subproduct.product)
+
+    # Convert products set to list
+    products = list(products)
 
     # Group the subproducts by their AMC providers
     grouped_subproducts = {}
@@ -614,10 +604,32 @@ def letter_detail7(request, letter_id):
 
     return render(request, 'letter.html', {
         'letter': letter,
-        'product': product,
+        'products': products,
         'grouped_subproducts': grouped_subproducts,
         'quotations': quotations
     })
+
+
+def get_service_report_dates(request, product_id):
+    try:
+        product = Product.objects.get(pk=product_id)
+        current_service_date = product.service_report_date.strftime('%Y-%m-%d') if product.service_report_date else 'Not available'
+        
+        # Fetch earlier service date from ServiceReportTrack model
+        earlier_service_date_obj = ServiceReportTrack.objects.filter(product=product).order_by('-service_date').first()
+        earlier_service_date = earlier_service_date_obj.service_date.strftime('%Y-%m-%d') if earlier_service_date_obj else 'Not available'
+        
+        data = {
+            'current_service_date': current_service_date,
+            'earlier_service_date': earlier_service_date,
+        }
+        
+        return JsonResponse(data)
+    
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+
+
 @csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
@@ -717,15 +729,23 @@ def submit_quotation_info(request):
         ref_no = request.POST.get('ref_no')
         quotation_expense_criteria = request.POST.get('quotation_criteria')
 
-        # Create the quotation
-        product = Product.objects.get(pk=product_id)
-        total_price = 0  # Initialize total_price
+        # Get the product
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'Product not found'}, status=404)
+
+        total_price = Decimal(0)  # Initialize total_price
 
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
-            subproduct = Subproduct.objects.get(pk=subproduct_id)
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            try:
+                subproduct = Subproduct.objects.get(pk=subproduct_id)
+            except Subproduct.DoesNotExist:
+                return JsonResponse({'message': f'Subproduct with ID {subproduct_id} not found'}, status=404)
+
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
             gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
@@ -749,14 +769,14 @@ def submit_quotation_info(request):
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
             amc_provider = subproduct.amc_provider
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
             gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
             price_with_gst = price_without_gst + gst_value
 
             # Create the quotation item
-            quotation_item = QuotationItem.objects.create(
+            QuotationItem.objects.create(
                 quotation=quotation,
                 subproduct=subproduct,
                 unit_price=unit_price,
@@ -768,18 +788,17 @@ def submit_quotation_info(request):
                 amc_provider=amc_provider
             )
 
-            # Update the AMCProvider fields (if needed)
-            # Note: This part may need adjustment based on your actual requirements
+        # Update the product's expenditure cost and save it
+        product.expenditure_cost -= total_price
+        product.save()
 
-        # Update total_price and save quotation
+        # Update total_price and save the quotation
         quotation.total_price = total_price
         quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
-    
-
 
 
 @csrf_exempt

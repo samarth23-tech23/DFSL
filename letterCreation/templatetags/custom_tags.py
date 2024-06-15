@@ -136,6 +136,18 @@ def unique_values(queryset, field_name):
     return queryset.values_list(field_name, flat=True).distinct()
 
 
+# @register.filter
+# def unique_values(queryset, field_name):
+#     seen = set()
+#     unique_items = []
+#     for item in queryset:
+#         value = getattr(item, field_name)
+#         if value not in seen:
+#             seen.add(value)
+#             unique_items.append(value)
+#     return unique_items
+
+
 @register.filter(name='group_by_amc_provider')
 def group_by_amc_provider(subproducts):
     if subproducts is None:
