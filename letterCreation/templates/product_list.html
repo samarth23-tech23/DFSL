@@ -8,36 +8,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product List</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/product_style.css' %}">
-    
+    <style>
+        *{
+            font-family: 'Poppins',sans-serif;
+            font-size: 16px;
+        }
+        .content-wrapper {
+            margin: 25px auto;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .search-input {
+            float: right;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #3ab1df;
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .print-button {
+            border: 1px solid #3ab1df; 
+            background-color: transparent; 
+            color: #3ab1df; 
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s; 
+            font-weight: bold;
+        }
+
+        .print-button:hover {
+            background-color: #3ab1df; 
+            color: #fff; 
+        }
+
+        .shadow-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); 
+            color: #3ab1df; 
+        }
+
+        .content-table {
+            border-collapse: collapse;
+            margin: auto;
+            font-size: 17px;    
+            width: 100%;
+        }
+
+        .content-table thead tr {
+            background-color: #3ab1df;
+            color: #ffffff;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .content-table th,
+        .content-table td {
+            padding: 12px 8px;
+            border: 1px solid #dddddd;
+        }
+
+        .content-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .content-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .content-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+    </script>
 </head>
-<body class="">
+</head>
+{% comment %} <a href="{% url 'add_product_view' %}" class="bg-blue-500 text-white px-2 py-2 rounded float-right">Add Product</a><br><br> {% endcomment %}
 
-    <a href="{% url 'add_product_view' %}" class="bg-blue-500 text-white px-2 py-2 rounded float-right">Add Product</a><br><br>
+<body class="bg-gray-100 dark:bg-gray-900">
+    <div class="container mx-auto p-4">
+        <a href="{% url 'add_product_view' %}" class="bg-blue-500 text-white px-2 py-2 rounded float-right">Add Product</a>
+        <br><br>
 
-    {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <span class="block sm:inline">{{ message }}</span>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="content-wrapper">
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search by Name or Manufacturer..." class="search-input">
-            <h1 class="text-3xl font-bold mb-8 shadow-text">Product List</h1>
-            <div class="search-icon">
-                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
-                </svg>
+        <div class="content-wrapper">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by SR.NO..." class="search-input">
+                <h1 class="text-3xl font-bold mb-8 shadow-text">Product List</h1>
+                <div class="search-icon">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                </div>
             </div>
-        </div>
-
-        <div class="overflow-x-auto">
-            <div class="table-wrapper">
+            <div class="overflow-x-auto">
                 <table class="content-table">
                     <thead>
                         <tr>
@@ -50,25 +149,26 @@
                             <th class="px-6 py-3">AMC Provider</th>
                             <th class="px-6 py-3">AMC Period</th>
                             <th class="px-6 py-3">Expenditure Cost</th>
-                            <th class="px-6 py-3">Manufacturer Warranty Period</th>
+                            <th class="px-6 py-3">Warranty Period</th>
                             <th class="px-6 py-3">Service Report Date</th>
                             <th class="px-6 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for product in products %}
-                        <tr>
-                            <td class="px-6 py-4">{{ product.sr_no  }}</td>
-                            <td class="px-6 py-4">{{ product.main_item.name }} - {{ product.main_item.manufacturer.name }}</td>
-                            <td class="px-6 py-4">{{ product.price }}</td>
-                            <td class="px-6 py-4">{{ product.buying_date|date:"Y-m-d" }}</td>
-                            <td class="px-6 py-4">{{ product.department.name }}</td>
-                            <td class="px-6 py-4">{{ product.lab_name.name }}</td>
-                            <td class="px-6 py-4">{{ product.amc_provider.name }}</td>
-                            <td class="px-6 py-4">{{ product.amc_period }}</td>
-                            <td class="px-6 py-4">{{ product.expenditure_cost }}</td>
-                            <td class="px-6 py-4">{{ product.manufacturer_warranty_period }}</td>
-                            <td class="px-6 py-4">{{ product.service_report_date|date:"Y-m-d" }}</td>
+                        <tr id="product_{{ product.id }}">
+
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.sr_no }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.main_item.name }} - {{ product.main_item.manufacturer.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.price }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.buying_date|date:"Y-m-d" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.department.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.lab_name.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.amc_provider.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.amc_period }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.expenditure_cost }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.manufacturer_warranty_period }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xlsm text-gray-500 dark:text-gray-400">{{ product.service_report_date|date:"Y-m-d" }}</td>
                             <td class="px-4 py-2">
                                 <div class="flex space-x-4">
                                     <a href="{% url 'edit_product' product.id %}" class="icon-button">
@@ -77,9 +177,9 @@
                                             <path d="M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"></path>
                                         </svg>
                                     </a>
-                                    <form action="{% url 'delete_product' product.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                    <form action="{% url 'delete_product' product.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');" class="delete-form">
                                         {% csrf_token %}
-                                        <button type="submit" class="icon-button">
+                                        <button type="submit" class="icon-button delete-button">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-red-500 dark:text-red-400">
                                                 <path d="M3 6h18"></path>
                                                 <path d="M19 6l-2 14H7L5 6"></path>
@@ -97,7 +197,48 @@
                 </table>
             </div>
         </div>
-    </div><br><br><br><br><br>
+    </div>
+
+    <script>
+        {% if messages %}
+            // Display messages as alerts
+            {% for message in messages %}
+                showAlert("{{ message }}");
+            {% endfor %}
+        {% endif %}
+
+        function showAlert(message) {
+            alert(message);
+        }
+
+
+        // Function to handle filtering based on SR.NO
+function filterTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.querySelector(".content-table");
+    tr = table.getElementsByTagName("tr");
+
+    // Loop through all table rows, hide those that don't match the search query
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0]; // Index 0 is SR.NO column
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+// Event listener for keyup on search input
+document.getElementById("searchInput").addEventListener("keyup", function() {
+    filterTable();
+});
+    </script>
 </body>
 </html>
 {% endblock %}

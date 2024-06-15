@@ -1,3 +1,4 @@
+from audioop import reverse
 from decimal import Decimal
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
@@ -10,70 +11,34 @@ from django.http import HttpResponseRedirect
 import datetime
 from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
 from django.db.models import Count
-from .forms import ManufacturerForm
+from .forms import AMCProviderForm, ManufacturerForm, ProductForm
 from django.shortcuts import render, redirect
 from .forms import MainItemForm
 from django.contrib import messages
-from .forms import ProductForm
 from django.core.serializers.json import DjangoJSONEncoder
-from .forms import AMCProviderForm
-from django.urls import reverse
-from django.utils.text import slugify
+from django.db.models import Q
 
 
-def try1(request):
-    return render(request,'try.html')  
-
-
-def tracking_table(request):
-    products = Product.objects.all()
-    return render(request, 'tracking_table.html', {'products': products})
-
-
-
-#mainitems
-# Render the list of main items
-# def item_list(request):
-#     items = MainItem.objects.all()
-#     return render(request, 'items.html', {'mitem': items})
-
-# # Handle editing of a main item
-# def edit_item(request):
-#     if request.method == 'POST':
-#         item_id = request.POST.get('id')
-#         item = get_object_or_404(Item, id=item_id)
-#         form = ItemForm(request.POST, instance=item)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Item updated successfully!')
-#             return redirect('item_list')
-#     return redirect('item_list')
-
-# # Handle deletion of a main item
-# def delete_item(request):
-#     if request.method == 'POST':
-#         item_id = request.POST.get('id')
-#         item = MainItem.objects.get(id=item_id)
-#         item.delete()
-#         messages.success(request, 'Item deleted successfully!')
-    
-#     # Redirect back to the item list page (items.html)
-#     return redirect('item_list')
-
-# #add item
-# def add_item(request):
-#     if request.method == 'POST':
-#         form = AddItemForm(request.POST)
-#         if form.is_valid():
-#             # Save the form data to the database
-#             form.save()
-#             # Redirect to a success page or any other page
-#             return redirect('items_list')  # Assuming you have a URL pattern named 'items_list' for displaying the list of items
-#     else:
-#         form = AddItemForm()
-#     return render(request, 'add_item.html', {'form': form})
-
-
+def product_detail_json(request, product_id):
+    try:
+        product = Product.objects.get(pk=product_id)
+        data = {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'buying_date': product.buying_date,
+            'department': product.department.name,
+            'lab_name': product.lab_name.name,
+            'amc_provider': product.amc_provider.name,
+            'amc_period': product.amc_period,
+            'expenditure_cost': product.expenditure_cost,
+            'manufacturer_warranty_period': product.manufacturer_warranty_period,
+            'service_report_date': product.service_report_date,
+            'manufacturer': product.manufacturer
+        }
+        return JsonResponse(data)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
 
 #mainitems
 # Render the list of main items
@@ -105,7 +70,7 @@ def add_item(request):
 
     # If the request method is not POST or form is invalid, render the add_item template with the form
     form = MainItemForm()
-    return render(request, 'items.html', {'form': form})
+    return render(request, 'add_item.html', {'form': form})
 
 def edit_item(request):
     if request.method == 'POST':
@@ -153,15 +118,18 @@ def manufacturer_list(request):
 
 
 def edit_manufacturer(request, manufacturer_id):
-    manufacturer = Manufacturer.objects.get(id=manufacturer_id)
+    manufacturer = get_object_or_404(Manufacturer, id=manufacturer_id)
     if request.method == 'POST':
         form = ManufacturerForm(request.POST, instance=manufacturer)
         if form.is_valid():
             form.save()
-            return redirect('manufacturer_list')
+            messages.success(request, 'Manufacturer updated successfully.')
+            return redirect('manufacturer_list')  # Redirect to your manufacturer list view
+        else:
+            messages.error(request, 'Failed to update manufacturer. Please check the form.')
     else:
         form = ManufacturerForm(instance=manufacturer)
-    return render(request, 'edit_manufacturer.html', {'form': form})
+    return render(request, 'edit_manufacturer.html', {'form': form, 'manufacturer': manufacturer})
 
 
 def delete_manufacturer(request):
@@ -169,32 +137,24 @@ def delete_manufacturer(request):
         manufacturer_id = request.POST.get('id')
         manufacturer = get_object_or_404(Manufacturer, id=manufacturer_id)
         manufacturer.delete()
-        messages.success(request, 'Manufacturer deleted successfully!')
-    return redirect('manufacturer_list')
+        messages.success(request, 'Manufacturer deleted successfully.')
+    return redirect('manufacturer_list')  # Redirect to your manufacturer list view
 
-
-#add manufacturer
 def add_manufacturer(request):
     if request.method == 'POST':
         form = ManufacturerForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('manufacturer_list')  # Assuming you have a URL named 'manufacturer_list'
+            messages.success(request, 'Manufacturer added successfully.')
+            return redirect('manufacturer_list')  # Redirect to your manufacturer list view
+        else:
+            messages.error(request, 'Failed to add manufacturer. Please check the form.')
     else:
         form = ManufacturerForm()
     return render(request, 'add_manufacturer.html', {'form': form})
 
-def add_product_view(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('product_list_view')
-    else:
-        form = ProductForm()
-    return render(request, 'add_product.html', {'form': form})
 
-    
+
 
 def manufacturer_list(request):
     return render(request,'manufacturer_list.html')  
@@ -211,16 +171,64 @@ def manufacturer_view(request):
     
 
 
-    #am-provider
+
+
+def index(request):
+    return render(request,'index.html')
+
+def items(request):
+    return render(request,'items.html')
+
+def manufacturer(request):
+    return render(request,'manufacturer.html')
+
+def tracking(request):
+    return render(request,'tracking.html')
+
+def tracking_table(request):
+    products = Product.objects.all()
+    return render(request, 'tracking_table.html', {'products': products})
+ 
+def manufacturer_list(request):
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
+
+@csrf_exempt
 def add_amc_provider(request):
     if request.method == 'POST':
-        form = AMCProviderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('success_url')  # Redirect to a success URL after saving the form
-    else:
-        form = AMCProviderForm()
-    return render(request, 'add_amc_provider.html', {'form': form})
+        # Process form data
+        name = request.POST.get('name')
+        ac_no = request.POST.get('ac_no')
+        ifsc_code = request.POST.get('ifsc_code')
+        ac_name = request.POST.get('ac_name')
+        bank_name = request.POST.get('bank_name')
+        pan_no = request.POST.get('pan_no')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        address = request.POST.get('address')
+        email_id = request.POST.get('email_id')
+        contact_no = request.POST.get('contact_no')
+
+        # Validate and save data
+        try:
+            provider = AMCProvider.objects.create(
+                name=name,
+                ac_no=ac_no,
+                ifsc_code=ifsc_code,
+                ac_name=ac_name,
+                bank_name=bank_name,
+                pan_no=pan_no,
+                state=state,
+                pincode=pincode,
+                address=address,
+                email_id=email_id,
+                contact_no=contact_no
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def amc_providers_list(request):
     providers = AMCProvider.objects.all()
@@ -248,24 +256,26 @@ def delete_amc_provider(request, id):
     return redirect('amc_providers_list')
 
 
-def index(request):
-    return render(request,'index.html')
-
-def items(request):
-    return render(request,'items.html')
-
-def manufacturer(request):
-    return render(request,'manufacturer.html')
-
-def tracking(request):
-    return render(request,'tracking.html')
- 
-def manufacturer_list(request):
-    manufacturers = Manufacturer.objects.all()
-    return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
-
-
-
+@csrf_exempt
+def add_amc_provider(request):
+    if request.method == 'POST':
+        provider = AMCProvider(
+            name=request.POST['name'],
+            ac_no=request.POST['ac_no'],
+            ifsc_code=request.POST['ifsc_code'],
+            ac_name=request.POST['ac_name'],
+            bank_name=request.POST['bank_name'],
+            pan_no=request.POST['pan_no'],
+            state=request.POST['state'],
+            pincode=request.POST['pincode'],
+            address=request.POST['address'],
+            email_id=request.POST['email_id'],
+            contact_no=request.POST['contact_no']
+        )
+        provider.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    
 
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
@@ -333,6 +343,21 @@ def get_product_serial_numbers(request):
 # Product list view
 def product_list_view(request):
     products = Product.objects.all()
+    query = request.GET.get('q')
+    category = request.GET.get('category', 'name')  # Default to searching by name
+    
+    if query:
+        if category == 'serial_no':
+            products = Product.objects.filter(sr_no__icontains=query)
+        elif category == 'name':
+            products = Product.objects.filter(main_item__name__icontains=query)
+        elif category == 'department':
+            products = Product.objects.filter(department__name__icontains=query)
+        else:
+            products = Product.objects.all()
+    else:
+        products = Product.objects.all()
+
     return render(request, 'product_list.html', {'products': products})
 
 def get_product_serial_numbers(request):
@@ -365,6 +390,17 @@ def edit_product(request, product_id):
         form = ProductForm(instance=product)
     
     return render(request, 'edit_product.html', {'form': form})
+
+
+def add_product_view(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list_view')
+    else:
+        form = ProductForm()
+    return render(request, 'add_product.html', {'form': form})
 
 # Delete product view
 def delete_product(request, product_id):

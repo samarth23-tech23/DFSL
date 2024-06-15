@@ -19,6 +19,7 @@ class MainItemForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
+    price = forms.DecimalField(label='Price')
     class Meta:
         model = Product
         fields = '__all__'
@@ -27,6 +28,18 @@ class ProductForm(forms.ModelForm):
             'another_field_name': forms.Select(attrs={'class': 'form-select'}),
             # Add more fields and their respective widgets as needed
         }
+
+def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price < 0:
+            raise forms.ValidationError('Negative numbers are not allowed.')
+        return price
+
+def clean_expenditure_cost(self):
+        expenditure_cost = self.cleaned_data.get('expenditure_cost')
+        if expenditure_cost < 0:
+            raise forms.ValidationError('Negative numbers are not allowed for expenditure cost.')
+        return expenditure_cost
 
 
 class ManufacturerForm(forms.ModelForm):

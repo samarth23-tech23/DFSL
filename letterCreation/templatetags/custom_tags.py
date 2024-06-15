@@ -87,6 +87,10 @@ def group_by_amc_provider(subproducts):
         result[provider_name].append(subproduct)
     return result.items()
 
+@register.filter(name='add_class')
+def add_class(field, css_class):
+    return field.as_widget(attrs={"class":css_class})
+
 
 @register.filter
 def unique_amc_providers(subproducts):
