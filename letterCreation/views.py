@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 
 import datetime
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,PrintTrack
 from django.db.models import Count
 from .forms import ManufacturerForm
 from django.shortcuts import render, redirect
@@ -176,16 +176,42 @@ def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
     return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
 
-#am-provider
+@csrf_exempt
 def add_amc_provider(request):
     if request.method == 'POST':
-        form = AMCProviderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('success_url')  # Redirect to a success URL after saving the form
-    else:
-        form = AMCProviderForm()
-    return render(request, 'add_amc_provider.html', {'form': form})
+        # Process form data
+        name = request.POST.get('name')
+        ac_no = request.POST.get('ac_no')
+        ifsc_code = request.POST.get('ifsc_code')
+        ac_name = request.POST.get('ac_name')
+        bank_name = request.POST.get('bank_name')
+        pan_no = request.POST.get('pan_no')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        address = request.POST.get('address')
+        email_id = request.POST.get('email_id')
+        contact_no = request.POST.get('contact_no')
+
+        # Validate and save data
+        try:
+            provider = AMCProvider.objects.create(
+                name=name,
+                ac_no=ac_no,
+                ifsc_code=ifsc_code,
+                ac_name=ac_name,
+                bank_name=bank_name,
+                pan_no=pan_no,
+                state=state,
+                pincode=pincode,
+                address=address,
+                email_id=email_id,
+                contact_no=contact_no
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def amc_providers_list(request):
     providers = AMCProvider.objects.all()
@@ -211,7 +237,6 @@ def delete_amc_provider(request, id):
     provider = get_object_or_404(AMCProvider, id=id)
     provider.delete()
     return redirect('amc_providers_list')
-
 
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
@@ -248,6 +273,33 @@ def load_form(request):
     }
 
     return render(request, 'form1.html', context)
+
+
+def update_print_date(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        letter_no = data.get('letter_no')
+        letter_field = data.get('letter_field')  # New field to indicate which letter's print date to update
+        
+        try:
+            print_track, created = PrintTrack.objects.get_or_create(letter_no=letter_no)
+            
+            # Update the specific letter's print date based on the field sent from the frontend
+            if letter_field == 'letter1' and not print_track.printed_date1:
+                print_track.printed_date1 = timezone.now()
+            elif letter_field == 'letter2' and not print_track.printed_date2:
+                print_track.printed_date2 = timezone.now()
+            elif letter_field == 'letter3' and not print_track.printed_date3:
+                print_track.printed_date3 = timezone.now()
+            elif letter_field == 'letter4' and not print_track.printed_date4:
+                print_track.printed_date4 = timezone.now()
+
+            print_track.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
 def get_manufacturers(request):
@@ -726,3 +778,26 @@ def submit_quotation_info(request):
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
+    
+
+
+
+@csrf_exempt
+def add_amc_provider(request):
+    if request.method == 'POST':
+        provider = AMCProvider(
+            name=request.POST['name'],
+            ac_no=request.POST['ac_no'],
+            ifsc_code=request.POST['ifsc_code'],
+            ac_name=request.POST['ac_name'],
+            bank_name=request.POST['bank_name'],
+            pan_no=request.POST['pan_no'],
+            state=request.POST['state'],
+            pincode=request.POST['pincode'],
+            address=request.POST['address'],
+            email_id=request.POST['email_id'],
+            contact_no=request.POST['contact_no']
+        )
+        provider.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

@@ -5,6 +5,8 @@ urlpatterns = [
 
     
     path('',views.index),
+    path('update-print-date/', views.update_print_date, name='update_print_date'),
+
 
 #main items
     path('items/', views.mitem, name="mitem"),
@@ -16,8 +18,8 @@ urlpatterns = [
       path('delete/', views.delete_item, name='delete_item'),
 
 
-    path('tracking/',views.tracking),
-    path('tracking_table/', views.tracking_table, name='tracking_table'),
+    path('tracking/',views.tracking_table,  name='tracking_table'),
+    # path('tracking_table/', views.tracking_table, name='tracking_table'),
 
     path('form/',views.load_form), 
    
@@ -50,12 +52,13 @@ urlpatterns = [
     path('product/<int:product_id>/json/', views.product_detail_json, name='product_detail_json'),
     path('get_departments/', views.get_departments, name='get_departments'),
 
-#amcproviders 
+#amcproviders     
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
-  
     path('edit_amc_provider/<int:id>/', views.edit_amc_provider, name='edit_amc_provider'),
     path('delete_amc_provider/<int:id>/', views.delete_amc_provider, name='delete_amc_provider'),
     path('confirm_delete_amc_provider/<int:id>/', views.confirm_delete_amc_provider, name='confirm_delete_amc_provider'),
+    path('add_amc_provider/', views.add_amc_provider, name='add_amc_provider'),
+
 #service-report-history
     path('service-report-history/', views.service_report_history, name='service_report_history'),
 
