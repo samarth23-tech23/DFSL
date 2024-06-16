@@ -61,7 +61,9 @@ class ManufacturerForm(forms.ModelForm):
 
 
 
-class AddItemForm(forms.ModelForm):
+class ItemForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), empty_label="Select Manufacturer")
+
     class Meta:
         model = MainItem
         fields = ['name', 'manufacturer']

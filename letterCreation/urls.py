@@ -7,27 +7,19 @@ urlpatterns = [
     path('tracking_table/', views.tracking_table, name='tracking_table'),
 
     path('',views.index),
+    path('update-print-date/', views.update_print_date, name='update_print_date'),
 
-# #main items
-#     path('items/', views.mitem, name="mitem"),
-#     path('items', views.item_list, name='item_list'),
-#     path('edit/', views.edit_item, name='edit_item'),
-# #add item
-#     path('item_list/', views.item_list, name='items_list'),  # Updated view function name
-#     path('add_item/', views.add_item, name='add_item'),
+    path('printerror/',views.error),
 
-#main items
-    path('items/', views.mitem, name="mitem"),
-    path('items', views.item_list, name='item_list'),
+  #main items
+   path('items/', views.items_list, name='items_list'),
     path('add/', views.add_item, name='add_item'),
-    path('edit/', views.edit_item, name='edit_item'),
-
-# delete
-      path('delete/', views.delete_item, name='delete_item'),
+    path('edit/<int:item_id>/', views.edit_item, name='edit_item'),    
+    path('delete/', views.delete_item, name='delete_item'),
 
 
-    path('tracking/',views.tracking),
-    path('tracking_table/', views.tracking_table, name='tracking_table'),
+    path('tracking/',views.tracking_table,  name='tracking_table'),
+    # path('tracking_table/', views.tracking_table, name='tracking_table'),
 
     path('form/',views.load_form), 
    
@@ -60,8 +52,7 @@ urlpatterns = [
     path('product/<int:product_id>/json/', views.product_detail_json, name='product_detail_json'),
     path('get_departments/', views.get_departments, name='get_departments'),
 
-#amcproviders 
-  #amcproviders 
+#amcproviders     
     path('amc-providers/', views.amc_providers_list, name='amc_providers_list'),
     path('edit_amc_provider/<int:id>/', views.edit_amc_provider, name='edit_amc_provider'),
     path('delete_amc_provider/<int:id>/', views.delete_amc_provider, name='delete_amc_provider'),

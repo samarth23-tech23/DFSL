@@ -1,6 +1,7 @@
 {% extends 'sidebar.html' %}
-{% load static %}
 {% block content %}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,14 +58,14 @@
     </style>
 </head>
 <body class="bg-gray-100 p-3">
-    <div class="container bg-white rounded-lg shadow-md">
-        <div class="bg-light px-4 py-3 border-bottom">
-            <h2 class="text-lg font-semibold">Add Product</h2>
-        </div>
-        <div class="p-4">
-            <form method="post" class="space-y-3" id="productForm">
-                {% csrf_token %}
-                {% for field in form %}
+<div class="container bg-white rounded-lg shadow-md">
+    <div class="bg-light px-4 py-3 border-bottom">
+        <h2 class="text-lg font-semibold">Add Product</h2>
+    </div>
+    <div class="p-4">
+        <form method="post" class="space-y-3" id="productForm">
+            {% csrf_token %}
+            {% for field in form %}
                 <div class="mb-3">
                     {{ field.label_tag }}
                     {% if field.field.widget.input_type != 'checkbox' %}
@@ -84,66 +85,71 @@
                         </div>
                     {% endif %}
                 </div>
-                {% endfor %}
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Add Product</button>
-                </div>
-            </form>
-        </div>
+            {% endfor %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- JavaScript for client-side validation -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('productForm');
-            form.addEventListener('submit', function(event) {
-                // Replace 'id_price' and 'id_expenditure_cost' with the actual IDs of your form fields
-                const priceField = form.querySelector('#id_price'); 
-                const expenditureCostField = form.querySelector('#id_expenditure_cost'); 
+<!-- JavaScript for client-side validation and alert display -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('productForm');
+        form.addEventListener('submit', function(event) {
+            // Replace 'id_price' and 'id_expenditure_cost' with the actual IDs of your form fields
+            const priceField = form.querySelector('#id_price'); 
+            const expenditureCostField = form.querySelector('#id_expenditure_cost'); 
 
-                let isValid = true;
+            let isValid = true;
 
-                if (priceField && priceField.value < 0) {
-                    isValid = false;
-                    priceField.classList.add('is-invalid');
-                    if (!priceField.parentNode.querySelector('.invalid-feedback')) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.classList.add('invalid-feedback');
-                        errorDiv.textContent = 'Negative numbers are not allowed for price.';
-                        priceField.parentNode.appendChild(errorDiv);
-                    }
-                } else {
-                    priceField.classList.remove('is-invalid');
-                    const errorDiv = priceField.parentNode.querySelector('.invalid-feedback');
-                    if (errorDiv) {
-                        errorDiv.remove();
-                    }
+            if (priceField && priceField.value < 0) {
+                isValid = false;
+                priceField.classList.add('is-invalid');
+                if (!priceField.parentNode.querySelector('.invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.classList.add('invalid-feedback');
+                    errorDiv.textContent = 'Negative numbers are not allowed for price.';
+                    priceField.parentNode.appendChild(errorDiv);
                 }
-
-                if (expenditureCostField && expenditureCostField.value < 0) {
-                    isValid = false;
-                    expenditureCostField.classList.add('is-invalid');
-                    if (!expenditureCostField.parentNode.querySelector('.invalid-feedback')) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.classList.add('invalid-feedback');
-                        errorDiv.textContent = 'Negative numbers are not allowed for expenditure cost.';
-                        expenditureCostField.parentNode.appendChild(errorDiv);
-                    }
-                } else {
-                    expenditureCostField.classList.remove('is-invalid');
-                    const errorDiv = expenditureCostField.parentNode.querySelector('.invalid-feedback');
-                    if (errorDiv) {
-                        errorDiv.remove();
-                    }
+            } else {
+                priceField.classList.remove('is-invalid');
+                const errorDiv = priceField.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
                 }
+            }
 
-                if (!isValid) {
-                    event.preventDefault();
-                    alert('Negative numbers are not allowed.');
+            if (expenditureCostField && expenditureCostField.value < 0) {
+                isValid = false;
+                expenditureCostField.classList.add('is-invalid');
+                if (!expenditureCostField.parentNode.querySelector('.invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.classList.add('invalid-feedback');
+                    errorDiv.textContent = 'Negative numbers are not allowed for expenditure cost.';
+                    expenditureCostField.parentNode.appendChild(errorDiv);
                 }
-            });
+            } else {
+                expenditureCostField.classList.remove('is-invalid');
+                const errorDiv = expenditureCostField.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+
+            if (isValid) {
+                // Show alert on successful form submission
+                alert('Product added successfully.');
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                alert('Negative numbers are not allowed.');
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
 {% endblock %}

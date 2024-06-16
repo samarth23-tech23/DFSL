@@ -147,8 +147,9 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-2">
-                            <form action="{% url 'letter_detail6' letter.id %}" method="get" target="_blank">
-                                <button type="submit" class="print-button">Print</button>
+                            <form action="{% url 'letter_detail6' letter.id %}" method="get" target="_blank" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter3')">
+                                {% csrf_token %}
+                                <button type="submit" class="text-blue-500 hover:text-blue-700" data-letter-id="{{ letter.id }}">Print</button>
                             </form>
                         </td>
                     </tr>
@@ -182,6 +183,29 @@
             });
         });
     });
+
+    function handlePrint(event, letterNo, letterField) {
+        event.preventDefault();
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'update_print_date' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                letter_no: letterNo,
+                letter_field: letterField  // Pass the specific letter field to update
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Always proceed to print the letter after updating the date
+            window.open(event.target.action, '_blank');
+        })
+        .catch(error => console.error('Error:', error));
+    }
 </script>
 </html>
 {% endblock %}

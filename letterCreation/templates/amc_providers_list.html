@@ -30,13 +30,17 @@
         }
         .search-bar {
             position: relative;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
         .search-input {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s ease;
+            width: 100%;
+            max-width: 300px;
         }
         .search-input:focus {
             border-color: #3ab1df;
@@ -81,7 +85,36 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             color: #3ab1df;
         }
-        .content-table {
+        .add-btn {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .can-btn {
+            background-color: #d6493e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .can-btn:hover {
+            background-color: #d6493e;
+            transform: scale(1.05);
+        }
+        .content-wrapper table {
+            width: 100%;
             border-collapse: collapse;
             margin: auto;
             font-size: 17px;
@@ -97,14 +130,30 @@
             padding: 12px 15px;
             border: 1px solid #dddddd;
         }
-        .content-table tbody tr {
-            border-bottom: 1px solid #dddddd;
+        .icon-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
         }
-        .content-table tbody tr:nth-of-type(even) {
-            background-color: #f3f3f3;
+        .icon-btn.edit svg {
+            fill: #4caf50;
+            width: 24px;
+            height: 24px;
         }
-        .content-table tbody tr:last-of-type {
-            border-bottom: 2px solid #009879;
+        .icon-btn.delete svg {
+            fill: #f44336;
+            width: 24px;
+            height: 24px;
+        }
+        .icon-btn.view svg {
+            fill: #2196f3;
+            width: 24px;
+            height: 24px;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
         }
         @keyframes fadeIn {
             from {
@@ -116,73 +165,73 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-7xl mx-auto">
-        <div class="content-wrapper">
-            <h1 class="text-3xl font-bold mb-8 shadow-text">AMC Providers Information</h1>
-            <div class="search-bar-container">
-                <button class="add-btn" onclick="openAddModal()">Add AMC Provider</button>
-                <div class="search-bar">
-                    <input type="text" id="searchInput" onkeyup="search()" class="search-input" placeholder="Search by provider name">
-                    <div class="search-icon">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div style="max-height: 70vh; overflow-y: auto;">
-                <table id="data-table" class="content-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Account No</th>
-                            <th>IFSC Code</th>
-                            <th>Account Name</th>
-                            <th>Bank Name</th>
-                            <th>PAN No</th>
-                            <th>State</th>
-                            <th>Pincode</th>
-                            <th>Address</th>
-                            <th>Email ID</th>
-                            <th>Contact No</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for provider in providers %}
-                            <tr>
-                                <td>{{ provider.name }}</td>
-                                <td>{{ provider.ac_no }}</td>
-                                <td>{{ provider.ifsc_code }}</td>
-                                <td>{{ provider.ac_name }}</td>
-                                <td>{{ provider.bank_name }}</td>
-                                <td>{{ provider.pan_no }}</td>
-                                <td>{{ provider.state }}</td>
-                                <td>{{ provider.pincode }}</td>
-                                <td>{{ provider.address }}</td>
-                                <td>{{ provider.email_id }}</td>
-                                <td>{{ provider.contact_no }}</td>
-                                <td>
-                                    <a href="{% url 'edit_amc_provider' provider.id %}" class="icon-btn edit" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
-                                        </svg>
-                                    </a>
-                                    <a href="{% url 'confirm_delete_amc_provider' provider.id %}" class="icon-btn delete" title="Delete">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z" fill="#f44336"/>
-                                        </svg>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<body class="bg-gray-100 dark:bg-gray-900">
+<div class="content-wrapper">
+    <h1 class="text-2xl font-bold mb-5 text-center text-gray-900 dark:text-gray-100">AMC Providers Information</h1>
+
+    <button class="add-btn" onclick="openAddModal()">Add AMC Provider</button>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" onkeyup="search()" class="search-input" placeholder="Search by provider name">
+        <i class="fas fa-search search-icon"></i>
     </div>
+
+    <div class="table-container">
+        <table id="data-table" class="table-auto">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Account No</th>
+                    <th>IFSC Code</th>
+                    <th>Account Name</th>
+                    <th>Bank Name</th>
+                    <th>PAN No</th>
+                    <th>State</th>
+                    <th>Pincode</th>
+                    <th>Address</th>
+                    <th>Email ID</th>
+                    <th>Contact No</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for provider in providers %}
+                <tr>
+                    <td>{{ provider.name }}</td>
+                    <td>{{ provider.ac_no }}</td>
+                    <td>{{ provider.ifsc_code }}</td>
+                    <td>{{ provider.ac_name }}</td>
+                    <td>{{ provider.bank_name }}</td>
+                    <td>{{ provider.pan_no }}</td>
+                    <td>{{ provider.state }}</td>
+                    <td>{{ provider.pincode }}</td>
+                    <td>{{ provider.address }}</td>
+                    <td>{{ provider.email_id }}</td>
+                    <td>{{ provider.contact_no }}</td>
+                    <td>
+                        <a href="{% url 'edit_amc_provider' provider.id %}" class="icon-btn edit" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+                            </svg>
+                        </a>
+                        <a href="{% url 'confirm_delete_amc_provider' provider.id %}" class="icon-btn delete" title="Delete">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z" fill="#f44336"/>
+                            </svg>
+                        </a>
+                        <button class="icon-btn view view-button" data-provider-id="{{ provider.id }}" title="View">
+                            <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.92,11.6C19.9,6.91,16.1,4,12,4S4.1,6.91,2.08,11.6a1,1,0,0,0,0,.8C4.1,17.09,7.9,20,12,20s7.9-2.91,9.92-7.6A1,1,0,0,0,21.92,11.6ZM12,18c-3.17,0-6.17-2.29-7.9-6C5.83,8.29,8.83,6,12,6s6.17,2.29,7.9,6C18.17,15.71,15.17,18,12,18ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Zm0,6a2,2,0,1,1,2-2A2,2,0,0,1,12,14Z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
     <!-- Modal for Adding Provider Details -->
     <div id="add-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -251,36 +300,132 @@
           </div>
         </div>
       </div>
-    <script>
-        function search() {
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("data-table");
-            tr = table.getElementsByTagName("tr");
-            for (i = 1; i < tr.length; i++) {
-                tr[i].style.display = "none";
-                td = tr[i].getElementsByTagName("td");
-                for (var j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                            break;
-                        }
-                    }
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Adding Provider Details -->
+<div id="add-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New AMC Provider</h3>
+            <div class="mt-2">
+              <form id="add-provider-form">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                  <input type="text" name="name" id="name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="ac_no" class="block text-sm font-medium text-gray-700">Account No</label>
+                  <input type="number" name="ac_no" id="ac_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="ifsc_code" class="block text-sm font-medium text-gray-700">IFSC Code</label>
+                  <input type="text" name="ifsc_code" id="ifsc_code" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="ac_name" class="block text-sm font-medium text-gray-700">Account Name</label>
+                  <input type="text" name="ac_name" id="ac_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank Name</label>
+                  <input type="text" name="bank_name" id="bank_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="pan_no" class="block text-sm font-medium text-gray-700">PAN No</label>
+                  <input type="text" name="pan_no" id="pan_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                  <input type="text" name="state" id="state" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
+                  <input type="number" name="pincode" id="pincode" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                  <textarea name="address" id="address" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required></textarea>
+                </div>
+                <div>
+                  <label for="email_id" class="block text-sm font-medium text-gray-700">Email ID</label>
+                  <input type="email" name="email_id" id="email_id" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label for="contact_no" class="block text-sm font-medium text-gray-700">Contact No</label>
+                  <input type="number" name="contact_no" id="contact_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                </div>
+                <div class="mt-4">
+                  <button type="submit" class="add-btn">Add Provider</button>
+                  <button type="button" class="can-btn" onclick="closeAddModal()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function search() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("data-table");
+        const trs = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < trs.length; i++) {
+            let tds = trs[i].getElementsByTagName("td");
+            let match = false;
+
+            for (let j = 0; j < tds.length - 1; j++) {
+                if (tds[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
                 }
             }
         }
-        
-        function openAddModal() {
-            document.getElementById("add-modal").classList.remove("hidden");
-        }
-        
-        function closeAddModal() {
-            document.getElementById("add-modal").classList.add("hidden");
-        }
-    </script>
+    }
+
+    function openModal(provider) {
+        const details = `
+            <strong>Name:</strong> ${provider.name}<br>
+            <strong>Account No:</strong> ${provider.ac_no}<br>
+            <strong>IFSC Code:</strong> ${provider.ifsc_code}<br>
+            <strong>Account Name:</strong> ${provider.ac_name}<br>
+            <strong>Bank Name:</strong> ${provider.bank_name}<br>
+            <strong>PAN No:</strong> ${provider.pan_no}<br>
+            <strong>State:</strong> ${provider.state}<br>
+            <strong>Pincode:</strong> ${provider.pincode}<br>
+            <strong>Address:</strong> ${provider.address}<br>
+            <strong>Email ID:</strong> ${provider.email_id}<br>
+            <strong>Contact No:</strong> ${provider.contact_no}<br>
+        `;
+        document.getElementById("provider-details").innerHTML = details;
+        document.getElementById("view-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("view-modal").classList.add("hidden");
+    }
+
+    document.querySelectorAll(".view-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const providerId = button.getAttribute("data-provider-id");
+            const providers = {{ serialized_providers|safe }};
+            const provider = providers.find(p => p.id == providerId);
+            openModal(provider);
+        });
+    });
+</script>
 </body>
 </html>
 {% endblock %}

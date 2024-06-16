@@ -9,14 +9,15 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 
 import datetime
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab
+from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem,MainItem,Manufacturer,Department,Lab,PrintTrack
 from django.db.models import Count
 from .forms import AMCProviderForm, ManufacturerForm, ProductForm
 from django.shortcuts import render, redirect
-from .forms import MainItemForm
+from .forms import ItemForm
 from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
+from django.db.models import Prefetch
 
 
 def product_detail_json(request, product_id):
@@ -42,73 +43,116 @@ def product_detail_json(request, product_id):
 
 #mainitems
 # Render the list of main items
-def item_list(request):
+# def item_list(request):
+#     items = MainItem.objects.all()
+#     return render(request, 'items.html', {'mitem': items})
+
+# def add_item(request):
+#     if request.method == 'POST':
+#         form = MainItemForm(request.POST)
+#         if form.is_valid():
+#             # Save the form data to create a new MainItem object
+#             main_item = form.save(commit=False)
+
+#             # Retrieve manufacturer name from the form data
+#             manufacturer_name = form.cleaned_data.get('manufacturer')
+#             # Query the manufacturer using the name
+#             manufacturer, created = Manufacturer.objects.get_or_create(name=manufacturer_name)
+#             # Set the manufacturer for the main item
+#             main_item.manufacturer = manufacturer
+
+#             # Save the main item
+#             main_item.save()
+
+#             messages.success(request, 'Item added successfully.')
+#             return redirect('item_list')  # Assuming 'item_list' is the name of your URL pattern for displaying the items list
+#         else:
+#             messages.error(request, 'Failed to add item. Please check the form.')
+
+#     # If the request method is not POST or form is invalid, render the add_item template with the form
+#     form = MainItemForm()
+#     return render(request, 'add_item.html', {'form': form})
+
+# def edit_item(request):
+#     if request.method == 'POST':
+#         item_id = request.POST.get('id')
+#         item = get_object_or_404(MainItem, id=item_id)
+#         form = MainItemForm(request.POST, instance=item)
+        
+#         if form.is_valid():
+#             updated_item = form.save(commit=False)
+            
+#             # Fetch the Manufacturer instance based on the manufacturer name
+#             manufacturer_name = form.cleaned_data['manufacturer']
+#             manufacturer, created = Manufacturer.objects.get_or_create(
+#                 name=manufacturer_name,
+#                 defaults={'slug': slugify(manufacturer_name)}  # Generate a slug for the manufacturer
+#             )
+#             updated_item.manufacturer = manufacturer
+            
+#             updated_item.save()
+#             messages.success(request, 'Changes saved successfully.')
+#             print(f"Updated item: {updated_item.id}, {updated_item.name}, {updated_item.manufacturer}")  # Debug statement
+#         else:
+#             messages.error(request, 'Failed to save changes. Please check the form.')
+#             print(form.errors)  # Debug statement for form errors
+#             print(request.POST)  # Debug statement for POST data
+    
+#     return redirect('item_list')
+
+# # Handle deletion of a main item
+# def delete_item(request):
+#     if request.method == 'POST':
+#         item_id = request.POST.get('id')
+#         item = MainItem.objects.get(id=item_id)
+#         item.delete()
+#         messages.success(request, 'Item deleted successfully!')
+    
+#     # Redirect back to the item list page (items.html)
+#     return redirect('item_list')
+
+
+
+#mainitems
+def items_list(request):
     items = MainItem.objects.all()
     return render(request, 'items.html', {'mitem': items})
 
 def add_item(request):
     if request.method == 'POST':
-        form = MainItemForm(request.POST)
+        form = ItemForm(request.POST)
         if form.is_valid():
-            # Save the form data to create a new MainItem object
-            main_item = form.save(commit=False)
-
-            # Retrieve manufacturer name from the form data
-            manufacturer_name = form.cleaned_data.get('manufacturer')
-            # Query the manufacturer using the name
-            manufacturer, created = Manufacturer.objects.get_or_create(name=manufacturer_name)
-            # Set the manufacturer for the main item
-            main_item.manufacturer = manufacturer
-
-            # Save the main item
-            main_item.save()
-
+            form.save()
             messages.success(request, 'Item added successfully.')
-            return redirect('item_list')  # Assuming 'item_list' is the name of your URL pattern for displaying the items list
-        else:
-            messages.error(request, 'Failed to add item. Please check the form.')
+            return redirect('items_list')
+    else:
+        form = ItemForm()
 
-    # If the request method is not POST or form is invalid, render the add_item template with the form
-    form = MainItemForm()
-    return render(request, 'add_item.html', {'form': form})
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'add_item.html', {'form': form, 'manufacturers': manufacturers})
 
-def edit_item(request):
+def edit_item(request, item_id):
+    item = get_object_or_404(MainItem, pk=item_id)
     if request.method == 'POST':
-        item_id = request.POST.get('id')
-        item = get_object_or_404(MainItem, id=item_id)
-        form = MainItemForm(request.POST, instance=item)
-        
+        form = ItemForm(request.POST, instance=item)
         if form.is_valid():
-            updated_item = form.save(commit=False)
-            
-            # Fetch the Manufacturer instance based on the manufacturer name
-            manufacturer_name = form.cleaned_data['manufacturer']
-            manufacturer, created = Manufacturer.objects.get_or_create(
-                name=manufacturer_name,
-                defaults={'slug': slugify(manufacturer_name)}  # Generate a slug for the manufacturer
-            )
-            updated_item.manufacturer = manufacturer
-            
-            updated_item.save()
-            messages.success(request, 'Changes saved successfully.')
-            print(f"Updated item: {updated_item.id}, {updated_item.name}, {updated_item.manufacturer}")  # Debug statement
-        else:
-            messages.error(request, 'Failed to save changes. Please check the form.')
-            print(form.errors)  # Debug statement for form errors
-            print(request.POST)  # Debug statement for POST data
-    
-    return redirect('item_list')
+            form.save()
+            messages.success(request, 'Item updated successfully.')
+            return redirect('items_list')
+    else:
+        form = ItemForm(instance=item)
 
-# Handle deletion of a main item
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'edit_item.html', {'form': form, 'item': item, 'manufacturers': manufacturers})
+
 def delete_item(request):
     if request.method == 'POST':
         item_id = request.POST.get('id')
-        item = MainItem.objects.get(id=item_id)
+        item = get_object_or_404(MainItem, pk=item_id)
         item.delete()
-        messages.success(request, 'Item deleted successfully!')
-    
-    # Redirect back to the item list page (items.html)
-    return redirect('item_list')
+        messages.success(request, 'Item deleted successfully.')
+    return redirect('items_list')
+
 
 
 #manufacturer
@@ -171,7 +215,8 @@ def manufacturer_view(request):
     
 
 
-
+def error(request):
+    return render(request,'printerror.html')
 
 def index(request):
     return render(request,'index.html')
@@ -186,8 +231,15 @@ def tracking(request):
     return render(request,'tracking.html')
 
 def tracking_table(request):
-    products = Product.objects.all()
-    return render(request, 'tracking_table.html', {'products': products})
+    letters = Letter.objects.select_related('lab_name').prefetch_related(
+        Prefetch('subproducts', queryset=Subproduct.objects.select_related('product_main_item', 'product_department'))
+    ).all()
+
+    context = {
+        'letters': letters
+    }
+
+    return render(request, 'tracking_table.html', context)
  
 def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
@@ -255,28 +307,6 @@ def delete_amc_provider(request, id):
     provider.delete()
     return redirect('amc_providers_list')
 
-
-@csrf_exempt
-def add_amc_provider(request):
-    if request.method == 'POST':
-        provider = AMCProvider(
-            name=request.POST['name'],
-            ac_no=request.POST['ac_no'],
-            ifsc_code=request.POST['ifsc_code'],
-            ac_name=request.POST['ac_name'],
-            bank_name=request.POST['bank_name'],
-            pan_no=request.POST['pan_no'],
-            state=request.POST['state'],
-            pincode=request.POST['pincode'],
-            address=request.POST['address'],
-            email_id=request.POST['email_id'],
-            contact_no=request.POST['contact_no']
-        )
-        provider.save()
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-    
-
 def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
     main_item = request.GET.get('main_item')
@@ -312,6 +342,33 @@ def load_form(request):
     }
 
     return render(request, 'form1.html', context)
+
+
+def update_print_date(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        letter_no = data.get('letter_no')
+        letter_field = data.get('letter_field')  # New field to indicate which letter's print date to update
+        
+        try:
+            print_track, created = PrintTrack.objects.get_or_create(letter_no=letter_no)
+            
+            # Update the specific letter's print date based on the field sent from the frontend
+            if letter_field == 'letter1' and not print_track.printed_date1:
+                print_track.printed_date1 = timezone.now()
+            elif letter_field == 'letter2' and not print_track.printed_date2:
+                print_track.printed_date2 = timezone.now()
+            elif letter_field == 'letter3' and not print_track.printed_date3:
+                print_track.printed_date3 = timezone.now()
+            elif letter_field == 'letter4' and not print_track.printed_date4:
+                print_track.printed_date4 = timezone.now()
+
+            print_track.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
 def get_manufacturers(request):
@@ -726,6 +783,7 @@ def submit_form(request):
 
 
 @csrf_exempt
+@csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -733,15 +791,23 @@ def submit_quotation_info(request):
         ref_no = request.POST.get('ref_no')
         quotation_expense_criteria = request.POST.get('quotation_criteria')
 
-        # Create the quotation
-        product = Product.objects.get(pk=product_id)
-        total_price = 0  # Initialize total_price
+        # Get the product
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'Product not found'}, status=404)
+
+        total_price = Decimal(0)  # Initialize total_price
 
         # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
-            subproduct = Subproduct.objects.get(pk=subproduct_id)
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            try:
+                subproduct = Subproduct.objects.get(pk=subproduct_id)
+            except Subproduct.DoesNotExist:
+                return JsonResponse({'message': f'Subproduct with ID {subproduct_id} not found'}, status=404)
+
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
             gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
@@ -765,14 +831,14 @@ def submit_quotation_info(request):
         for subproduct_id in subproduct_ids:
             subproduct = Subproduct.objects.get(pk=subproduct_id)
             amc_provider = subproduct.amc_provider
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}'))  # Convert to Decimal
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
             gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
             price_with_gst = price_without_gst + gst_value
 
             # Create the quotation item
-            quotation_item = QuotationItem.objects.create(
+            QuotationItem.objects.create(
                 quotation=quotation,
                 subproduct=subproduct,
                 unit_price=unit_price,
@@ -784,13 +850,36 @@ def submit_quotation_info(request):
                 amc_provider=amc_provider
             )
 
-            # Update the AMCProvider fields (if needed)
-            # Note: This part may need adjustment based on your actual requirements
+        # Update the product's expenditure cost and save it
+        product.expenditure_cost -= total_price
+        product.save()
 
-        # Update total_price and save quotation
+        # Update total_price and save the quotation
         quotation.total_price = total_price
         quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+
+
+@csrf_exempt
+def add_amc_provider(request):
+    if request.method == 'POST':
+        provider = AMCProvider(
+            name=request.POST['name'],
+            ac_no=request.POST['ac_no'],
+            ifsc_code=request.POST['ifsc_code'],
+            ac_name=request.POST['ac_name'],
+            bank_name=request.POST['bank_name'],
+            pan_no=request.POST['pan_no'],
+            state=request.POST['state'],
+            pincode=request.POST['pincode'],
+            address=request.POST['address'],
+            email_id=request.POST['email_id'],
+            contact_no=request.POST['contact_no']
+        )
+        provider.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
