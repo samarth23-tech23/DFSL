@@ -54,11 +54,12 @@
                         </div>
                         <ul>
                             <li class="m-4">
-                                <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.          .</p>
+                                <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.{{ print_track.printed_date1 }}.</p>
                             </li>
                             <li class="m-4">
-                                <p>{{ amc_provider.name     }} यांना देण्यात आलेले पत्र क्र.             दि.           .</p>
+                                <p>{{ amc_provider.name }} यांना देण्यात आलेले पत्र क्र. {{ print_track.printed_date2 }} दि. .</p>
                             </li>
+                            
                             <li class="m-4">
                                 {% for quotation in subproduct.quotationitem_set.all %}
                                     <p>{{ amc_provider.name }} यांचे पत्र क्र. {{ quotation.quotation.ref_no }} दि.{{ quotation.quotation.quotation_date }}.</p>

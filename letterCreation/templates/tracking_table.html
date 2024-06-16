@@ -145,9 +145,9 @@
                             {% endfor %}
                         </td>
                         <td class="px-4 py-2">
-                            <form action="{% url 'track_letter' letter.id %}" method="get" target="_blank">
+                            <form action="{% url 'track_letter' letter.id %}" method="get" >
                                 {% csrf_token %}
-                                <button type="submit" class="text-blue-500 hover:text-blue-700">Print</button>
+                                <button type="submit" class="text-blue-500 hover:text-blue-700">View status</button>
                             </form>
                         </td>
                     </tr>

@@ -222,16 +222,22 @@ def get_sr_numbers(request):
     lab_id = request.GET.get('lab_id')
     main_item = request.GET.get('main_item')
     manufacturer = request.GET.get('manufacturer')
+    department_id = request.GET.get('department_id')
 
-    if lab_id and main_item and manufacturer:
+    # Ensure all parameters are provided
+    if lab_id and main_item and manufacturer and department_id:
         sr_numbers = Product.objects.filter(
             lab_name__id=lab_id,
             main_item__name=main_item,
-            main_item__manufacturer__name=manufacturer
+            main_item__manufacturer__name=manufacturer,
+            department__id=department_id  # Assuming the correct field name in the model
         ).values_list('sr_no', flat=True).distinct()
+        
         sr_numbers_list = list(sr_numbers)
         return JsonResponse({'sr_numbers': sr_numbers_list})
-    return JsonResponse({'sr_numbers': []})
+    
+    # If any parameter is missing, return an empty list with an appropriate message
+    return JsonResponse({'sr_numbers': [], 'message': 'Missing parameters'}, status=400)
 
 
 def load_form(request):
@@ -540,6 +546,9 @@ def letter_detail6(request, letter_id):
                 "करण्याबाबत अधिकार आहेत."
             )
 
+    # Fetch PrintTrack instance related to the letter
+    print_track = get_object_or_404(PrintTrack, letter_no=letter.letter_no)
+
     return render(request, 'letter6.html', {
         'letter': letter,
         'main_item': main_item,  # Pass main_item to the template
@@ -551,8 +560,8 @@ def letter_detail6(request, letter_id):
         'global_total_price_inclusive': global_total_price_inclusive,
         'quotation_expense_criteria_text': quotation_expense_criteria_text,
         'unique_amc_providers': amc_providers,  # Pass the set of unique AMC providers
-    })
-    
+        'print_track': print_track,  # Pass PrintTrack instance to the template
+    })      
     
 def product_list6(request):
     letters = Letter.objects.all()
