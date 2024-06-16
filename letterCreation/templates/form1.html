@@ -325,76 +325,32 @@ let productId = 1;
 function addProduct() {
     const productDetails = document.getElementById('productDetails');
 
-    // Create Product Section
     const productSection = document.createElement('div');
     productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
     productSection.setAttribute('data-product-id', productId);  // Add data-product-id attribute
-
+    
     // Product Title
     const productTitle = document.createElement('h2');
     productTitle.style.color = '#3593aa';
     productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
     productTitle.textContent = `Product ${productId}`;
     productSection.appendChild(productTitle);
-
-    // Container for Main Item, Manufacturer, Department, and Service Report
-    const containerDiv = document.createElement('div');
-    containerDiv.classList.add('flex', 'space-x-4');
-    productSection.appendChild(containerDiv);
-
-    // Main Item Input
-    const mainItemDiv = document.createElement('div');
-    mainItemDiv.classList.add('flex-1');
-    containerDiv.appendChild(mainItemDiv);
-
-    const mainItemLabel = document.createElement('label');
-    mainItemLabel.textContent = 'Main Item';
-    mainItemLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    mainItemDiv.appendChild(mainItemLabel);
-
-    const mainItemInput = document.createElement('input');
-    mainItemInput.setAttribute('placeholder', 'Enter Main Item');
-    mainItemInput.setAttribute('id', `main_item_${productId}`);
-    mainItemInput.setAttribute('name', `main_item_${productId}`);
-    mainItemInput.setAttribute('list', `main_item_list_${productId}`);
-    mainItemInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    mainItemDiv.appendChild(mainItemInput);
-
-    const mainItemDatalist = document.createElement('datalist');
-    mainItemDatalist.setAttribute('id', `main_item_list_${productId}`);
-    {% for main_item in main_items %}
-    const mainItemOption_{{main_item.id}} = document.createElement('option');
-    mainItemOption_{{main_item.id}}.setAttribute('value', '{{ main_item.name }}');
-    mainItemOption_{{main_item.id}}.setAttribute('data-id', '{{ main_item.id }}');
-    mainItemDatalist.appendChild(mainItemOption_{{main_item.id}});
-    {% endfor %}
-    mainItemDiv.appendChild(mainItemDatalist);
-
-    // Manufacturer Select
-    const manufacturerDiv = document.createElement('div');
-    manufacturerDiv.classList.add('flex-1');
-    containerDiv.appendChild(manufacturerDiv);
-
-    const manufacturerLabel = document.createElement('label');
-    manufacturerLabel.textContent = 'Manufacturer';
-    manufacturerLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    manufacturerDiv.appendChild(manufacturerLabel);
-
-    const manufacturerSelect = document.createElement('select');
-    manufacturerSelect.setAttribute('id', `manufacturer_${productId}`);
-    manufacturerSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    manufacturerDiv.appendChild(manufacturerSelect);
-
+    
+    // Container for Department, Main Item, and Manufacturer
+    const containerDiv1 = document.createElement('div');
+    containerDiv1.classList.add('flex', 'space-x-4', 'mb-4');
+    productSection.appendChild(containerDiv1);
+    
     // Department Select
     const departmentDiv = document.createElement('div');
     departmentDiv.classList.add('flex-1');
-    containerDiv.appendChild(departmentDiv);
-
+    containerDiv1.appendChild(departmentDiv);
+    
     const departmentLabel = document.createElement('label');
     departmentLabel.textContent = 'Department';
     departmentLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
     departmentDiv.appendChild(departmentLabel);
-
+    
     const departmentSelect = document.createElement('select');
     departmentSelect.setAttribute('id', `department_${productId}`);
     departmentSelect.setAttribute('name', 'department');
@@ -406,33 +362,65 @@ function addProduct() {
     departmentSelect.appendChild(departmentOption_{{department.id}});
     {% endfor %}
     departmentDiv.appendChild(departmentSelect);
-
-    // Service Report Input
-    const serviceReportDiv = document.createElement('div');
-    serviceReportDiv.classList.add('flex-1');
-    containerDiv.appendChild(serviceReportDiv);
-
-    const serviceReportLabel = document.createElement('label');
-    serviceReportLabel.textContent = 'Service Report';
-    serviceReportLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    serviceReportDiv.appendChild(serviceReportLabel);
-
-    const serviceReportInput = document.createElement('input');
-    serviceReportInput.setAttribute('type', 'date');
-    serviceReportInput.setAttribute('id', `service_report_${productId}`);
-    serviceReportInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    serviceReportDiv.appendChild(serviceReportInput);
-
+    
+    // Main Item Input
+    const mainItemDiv = document.createElement('div');
+    mainItemDiv.classList.add('flex-1');
+    containerDiv1.appendChild(mainItemDiv);
+    
+    const mainItemLabel = document.createElement('label');
+    mainItemLabel.textContent = 'Main Item';
+    mainItemLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+    mainItemDiv.appendChild(mainItemLabel);
+    
+    const mainItemInput = document.createElement('input');
+    mainItemInput.setAttribute('placeholder', 'Enter Main Item');
+    mainItemInput.setAttribute('id', `main_item_${productId}`);
+    mainItemInput.setAttribute('name', `main_item_${productId}`);
+    mainItemInput.setAttribute('list', `main_item_list_${productId}`);
+    mainItemInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    mainItemDiv.appendChild(mainItemInput);
+    
+    const mainItemDatalist = document.createElement('datalist');
+    mainItemDatalist.setAttribute('id', `main_item_list_${productId}`);
+    {% for main_item in main_items %}
+    const mainItemOption_{{main_item.id}} = document.createElement('option');
+    mainItemOption_{{main_item.id}}.setAttribute('value', '{{ main_item.name }}');
+    mainItemOption_{{main_item.id}}.setAttribute('data-id', '{{ main_item.id }}');
+    mainItemDatalist.appendChild(mainItemOption_{{main_item.id}});
+    {% endfor %}
+    mainItemDiv.appendChild(mainItemDatalist);
+    
+    // Manufacturer Select
+    const manufacturerDiv = document.createElement('div');
+    manufacturerDiv.classList.add('flex-1');
+    containerDiv1.appendChild(manufacturerDiv);
+    
+    const manufacturerLabel = document.createElement('label');
+    manufacturerLabel.textContent = 'Manufacturer';
+    manufacturerLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+    manufacturerDiv.appendChild(manufacturerLabel);
+    
+    const manufacturerSelect = document.createElement('select');
+    manufacturerSelect.setAttribute('id', `manufacturer_${productId}`);
+    manufacturerSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    manufacturerDiv.appendChild(manufacturerSelect);
+    
+    // Container for SR Number and Service Report
+    const containerDiv2 = document.createElement('div');
+    containerDiv2.classList.add('flex', 'space-x-4');
+    productSection.appendChild(containerDiv2);
+    
     // SR Number Select
     const srNoDiv = document.createElement('div');
     srNoDiv.classList.add('flex-1');
-    containerDiv.appendChild(srNoDiv);
-
+    containerDiv2.appendChild(srNoDiv);
+    
     const srNoLabel = document.createElement('label');
     srNoLabel.textContent = 'SR Number';
     srNoLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
     srNoDiv.appendChild(srNoLabel);
-
+    
     const srNoSelect = document.createElement('select');
     srNoSelect.setAttribute('id', `sr_no_${productId}`);
     srNoSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
@@ -441,8 +429,26 @@ function addProduct() {
     srNoOption.textContent = 'Select SR Number';
     srNoSelect.appendChild(srNoOption);
     srNoDiv.appendChild(srNoSelect);
-
+    
+    // Service Report Input
+    const serviceReportDiv = document.createElement('div');
+    serviceReportDiv.classList.add('flex-1');
+    containerDiv2.appendChild(serviceReportDiv);
+    
+    const serviceReportLabel = document.createElement('label');
+    serviceReportLabel.textContent = 'Service Report';
+    serviceReportLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+    serviceReportDiv.appendChild(serviceReportLabel);
+    
+    const serviceReportInput = document.createElement('input');
+    serviceReportInput.setAttribute('type', 'date');
+    serviceReportInput.setAttribute('id', `service_report_${productId}`);
+    serviceReportInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+    serviceReportDiv.appendChild(serviceReportInput);
+    
     productDetails.appendChild(productSection);
+    
+
 
     // Adding Event Listeners for the new product section
     addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect, departmentSelect, serviceReportInput);

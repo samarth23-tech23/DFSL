@@ -61,7 +61,7 @@ class SubproductAdmin(admin.ModelAdmin):
 
 @admin.register(Quotation)
 class QuotationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'product', 'quotation_date', 'ref_no', 'quotation_expense_criteria', 'total_price']
+    list_display = ['id', 'letter', 'quotation_date', 'ref_no', 'quotation_expense_criteria', 'total_price']
 
 @admin.register(AMCProvider)
 class AMCProviderAdmin(admin.ModelAdmin):

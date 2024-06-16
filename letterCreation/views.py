@@ -1,4 +1,6 @@
 from decimal import Decimal
+from django.db.models import Exists, OuterRef,Q
+from django.http import Http404
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -135,8 +137,11 @@ def manufacturer(request):
     return render(request,'manufacturer.html')
 
 def track_letter(request, letter_id):
-    letter = get_object_or_404(Letter, id=letter_id)
-    print_track = get_object_or_404(PrintTrack, letter_no=letter.letter_no)
+    try:
+        letter = get_object_or_404(Letter, id=letter_id)
+        print_track = get_object_or_404(PrintTrack, letter_no=letter.letter_no)
+    except Http404:
+        return render(request, 'print_error.html')
     return render(request, 'tracking.html', {'letter': letter, 'print_track': print_track})
 
 
@@ -395,6 +400,12 @@ def product_list(request):
     # Retrieve all Letter objects with required fields
     letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
 
+    # Get letter numbers where is_done is True
+    done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
+
+    # Exclude letters with letter_no in done_letters
+    letters = letters.exclude(letter_no__in=done_letters)
+
     # Pass the data to the template
     context = {
         'letters': letters
@@ -402,7 +413,6 @@ def product_list(request):
 
     # Render the template with the provided context
     return render(request, 'table.html', context)
-
 
 def letter_detail(request, letter_id):
     # Fetch the letter
@@ -426,8 +436,28 @@ def letter_detail(request, letter_id):
 
 
 def quotation_form(request):
-    letters = Letter.objects.all()
-    return render(request, 'letter_intermidiate.html', {'letters': letters})
+    # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+
+    # Get letter numbers where is_done is True
+    done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
+
+    # Exclude letters with letter_no in done_letters
+    letters = letters.exclude(letter_no__in=done_letters)
+
+    # Filter letters where Quotation does not exist
+    letters_without_quotation = []
+    for letter in letters:
+        if not Quotation.objects.filter(letter=letter).exists():
+            letters_without_quotation.append(letter)
+
+    # Pass the data to the template
+    context = {
+        'letters': letters_without_quotation
+    }
+
+    # Render the template with the provided context
+    return render(request, 'letter_intermidiate.html', context)
 
 
 
@@ -448,8 +478,23 @@ def quotation_page(request, letter_id):
 
 
 def product_list4(request):
-    letters = Letter.objects.all()
-    return render(request, 'table2.html', {'letters': letters})
+    # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+
+    # Get letter numbers where is_done is True
+    done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
+
+    # Exclude letters with letter_no in done_letters
+    letters = letters.exclude(letter_no__in=done_letters)
+
+    # Pass the data to the template
+    context = {
+        'letters': letters
+    }
+
+    # Render the template with the provided context
+    return render(request, 'table2.html', context)
+    
 
 
 def letter_detail4(request, letter_id):
@@ -564,8 +609,30 @@ def letter_detail6(request, letter_id):
     })      
     
 def product_list6(request):
-    letters = Letter.objects.all()
-    return render(request, 'table6.html', {'letters': letters})
+  
+    # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+
+    # Get letter numbers where is_done is True
+    done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
+
+    # Exclude letters with letter_no in done_letters
+    letters = letters.exclude(letter_no__in=done_letters)
+
+    # Filter letters where Quotation does not exist
+    letters_without_quotation = []
+    for letter in letters:
+        if not Quotation.objects.filter(letter=letter).exists():
+            letters_without_quotation.append(letter)
+
+    # Pass the data to the template
+    context = {
+        'letters': letters_without_quotation
+    }
+
+    # Render the template with the provided context
+    return render(request, 'table6.html', context)
+    
 
 
 
@@ -574,8 +641,30 @@ def product_list6(request):
 
 
 def product_list7(request):
-    letters = Letter.objects.all()
-    return render(request, 'table7.html', {'letters': letters})
+    # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+
+    # Get letter numbers where is_done is True
+    done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
+
+    # Exclude letters with letter_no in done_letters
+    letters = letters.exclude(letter_no__in=done_letters)
+
+    # Filter letters where Quotation does not exist
+    letters_without_quotation = []
+    for letter in letters:
+        if not Quotation.objects.filter(letter=letter).exists():
+            letters_without_quotation.append(letter)
+
+    # Pass the data to the template
+    context = {
+        'letters': letters_without_quotation
+    }
+
+    # Render the template with the provided context
+    return render(request, 'table7.html', context)
+   
+
 
 def letter_detail7(request, letter_id):
     # Fetch the letter using letter_id
@@ -584,8 +673,7 @@ def letter_detail7(request, letter_id):
     # Get all subproducts associated with the letter
     subproducts = letter.subproducts.all()
 
-    # Initialize containers for products and quotations
-    products = set()
+    # Initialize containers for quotations
     quotations = set()
 
     # Fetch all quotations related to the subproducts
@@ -597,25 +685,40 @@ def letter_detail7(request, letter_id):
         for quotation_item in quotation_items:
             quotations.add(quotation_item.quotation)
 
-        # Add product of current subproduct to products set
-        products.add(subproduct.product)
+    # Convert the set of quotations to a list (if needed)
+    quotations = list(quotations)  # Assuming there's only one unique quotation
 
-    # Convert products set to list
-    products = list(products)
-
-    # Group the subproducts by their AMC providers
+    # Group the subproducts by their AMC providers and collect necessary information
     grouped_subproducts = {}
     for subproduct in subproducts:
         provider_name = subproduct.amc_provider.name
         if provider_name not in grouped_subproducts:
-            grouped_subproducts[provider_name] = []
-        grouped_subproducts[provider_name].append(subproduct)
+            grouped_subproducts[provider_name] = {
+                'address': subproduct.amc_provider.address,
+                'state': subproduct.amc_provider.state,
+                'pincode': subproduct.amc_provider.pincode,
+                'types_of_part': set(),
+                'products': set(),
+                'parts_and_dates': [],
+                'subproducts': []
+            }
+        grouped_subproducts[provider_name]['types_of_part'].add(subproduct.type_of_part)
+        grouped_subproducts[provider_name]['products'].add((subproduct.product.main_item.name, subproduct.product.sr_no))
+        grouped_subproducts[provider_name]['parts_and_dates'].append(
+            (subproduct.part_name, subproduct.product.service_report_date)
+        )
+        grouped_subproducts[provider_name]['subproducts'].append(subproduct)
+
+    # Convert sets to lists for easier template rendering
+    for provider in grouped_subproducts.values():
+        provider['types_of_part'] = ', '.join(provider['types_of_part'])
+        provider['products'] = ', '.join([f"{name} (Sr. No. {sr_no})" for name, sr_no in provider['products']])
+        provider['parts_and_dates'] = ', '.join([f"{part} - {date}" for part, date in provider['parts_and_dates']])
 
     return render(request, 'letter.html', {
         'letter': letter,
-        'products': products,
         'grouped_subproducts': grouped_subproducts,
-        'quotations': quotations
+        'quotation': quotations[0] if quotations else None  # Pass the first (and only) quotation if available
     })
 
 
@@ -733,20 +836,18 @@ def submit_form(request):
 @csrf_exempt
 def submit_quotation_info(request):
     if request.method == 'POST':
-        product_id = request.POST.get('product_id')
+        letter_id = request.POST.get('letter_id')
         date = request.POST.get('date')
         ref_no = request.POST.get('ref_no')
         quotation_expense_criteria = request.POST.get('quotation_criteria')
 
-        # Get the product
         try:
-            product = Product.objects.get(pk=product_id)
-        except Product.DoesNotExist:
-            return JsonResponse({'message': 'Product not found'}, status=404)
+            letter = Letter.objects.get(pk=letter_id)
+        except Letter.DoesNotExist:
+            return JsonResponse({'message': 'Letter not found'}, status=404)
 
-        total_price = Decimal(0)  # Initialize total_price
+        total_price = Decimal(0)
 
-        # Process each subproduct
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
             try:
@@ -754,54 +855,41 @@ def submit_quotation_info(request):
             except Subproduct.DoesNotExist:
                 return JsonResponse({'message': f'Subproduct with ID {subproduct_id} not found'}, status=404)
 
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
+            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))
             quantity = subproduct.quantity
             price_without_gst = unit_price * quantity
-            gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
+            gst_value = price_without_gst * Decimal('0.18')
             price_with_gst = price_without_gst + gst_value
 
-            total_price += price_with_gst  # Add price_with_gst to total_price
+            total_price += price_with_gst
 
-        # Check if total price exceeds expenditure cost limit
-        if product.expenditure_cost - total_price < 0:
-            return JsonResponse({'message': 'Expenditure cost limit exceeded. Quotation cannot be submitted.'}, status=400)
+            # Check if a Quotation already exists for this Letter
+            try:
+                quotation = Quotation.objects.get(letter=letter)
+            except Quotation.DoesNotExist:
+                # If Quotation does not exist, create a new one
+                quotation = Quotation.objects.create(
+                    letter=letter,
+                    quotation_date=date,
+                    ref_no=ref_no,
+                    quotation_expense_criteria=quotation_expense_criteria,
+                    total_price=0  # Initialize with 0, will be updated later
+                )
 
-        # Create the quotation
-        quotation = Quotation.objects.create(
-            product=product,
-            quotation_date=date,
-            ref_no=ref_no,
-            quotation_expense_criteria=quotation_expense_criteria
-        )
-
-        # Process each subproduct and create quotation items
-        for subproduct_id in subproduct_ids:
-            subproduct = Subproduct.objects.get(pk=subproduct_id)
-            amc_provider = subproduct.amc_provider
-            unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))  # Convert to Decimal
-            quantity = subproduct.quantity
-            price_without_gst = unit_price * quantity
-            gst_value = price_without_gst * Decimal('0.18')  # Calculate GST value
-            price_with_gst = price_without_gst + gst_value
-
-            # Create the quotation item
+            # Create the QuotationItem associated with the Quotation
             QuotationItem.objects.create(
                 quotation=quotation,
                 subproduct=subproduct,
                 unit_price=unit_price,
                 price_without_gst=price_without_gst,
                 price_with_gst=price_with_gst,
-                gst_percentage=18,  # Hardcoded GST percentage for now
+                gst_percentage=18,
                 gst_value=gst_value,
                 expected_delivery=request.POST.get(f'expected_delivery_{subproduct_id}'),
-                amc_provider=amc_provider
+                amc_provider=subproduct.amc_provider
             )
 
-        # Update the product's expenditure cost and save it
-        product.expenditure_cost -= total_price
-        product.save()
-
-        # Update total_price and save the quotation
+        # Update the total price of the quotation
         quotation.total_price = total_price
         quotation.save()
 

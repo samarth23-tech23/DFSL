@@ -103,7 +103,7 @@ class Letter(models.Model):
         return self.letter_no
 
 class Quotation(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    letter = models.ForeignKey(Letter, on_delete=models.CASCADE, default=0)
     quotation_date = models.DateField()
     ref_no = models.CharField(max_length=255)
     QUOTATION_EXPENSE_CHOICES = [
