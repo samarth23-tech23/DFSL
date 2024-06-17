@@ -8,18 +8,22 @@ urlpatterns = [
 
     path('',views.index),
     path('update-print-date/', views.update_print_date, name='update_print_date'),
+    path('track-letter/<int:letter_id>/', views.track_letter, name='track_letter'),
 
-    path('printerror/',views.error),
-
-  #main items
+#main items
    path('items/', views.items_list, name='items_list'),
     path('add/', views.add_item, name='add_item'),
     path('edit/<int:item_id>/', views.edit_item, name='edit_item'),    
     path('delete/', views.delete_item, name='delete_item'),
 
+# delete
+      path('delete/', views.delete_item, name='delete_item'),
+
 
     path('tracking/',views.tracking_table,  name='tracking_table'),
-    # path('tracking_table/', views.tracking_table, name='tracking_table'),
+    path('get_service_report_dates/<int:product_id>/', views.get_service_report_dates, name='get_service_report_dates'),
+
+    # path('tracking_table/', views.tracking, name='tracking_table'),
 
     path('form/',views.load_form), 
    

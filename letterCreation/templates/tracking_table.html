@@ -130,7 +130,7 @@
                         <td class="px-4 py-2">{{ letter.lab_name.name }}</td>
                         <td class="px-4 py-2">{{ letter.letter_date }}</td>
                         <td class="px-4 py-2">
-                            {% for product_name in letter.subproducts.all|unique_values:"product_main_item_name" %}
+                            {% for product_name in letter.subproducts.all|unique_values:"product__main_item__name" %}
                                 {{ product_name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
@@ -140,14 +140,14 @@
                             {% endfor %}
                         </td>
                         <td class="px-4 py-2">
-                            {% for department_name in letter.subproducts.all|unique_values:"product_department_name" %}
+                            {% for department_name in letter.subproducts.all|unique_values:"product__department__name" %}
                                 {{ department_name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
                         <td class="px-4 py-2">
                             <form action="{% url 'track_letter' letter.id %}" method="get" >
                                 {% csrf_token %}
-                                <button type="submit" class="print-button">View status</button>
+                                <button type="submit" class="text-blue-500 hover:text-blue-700">View status</button>
                             </form>
                         </td>
                     </tr>

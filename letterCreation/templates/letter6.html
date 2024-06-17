@@ -45,27 +45,27 @@
                 {% for subproduct_type in product.subproducts.all|unique_values:"type_of_part" %}
                 {{ subproduct_type }},
             {% endfor %} ची खरेदी करणे बाबत.</p><br>
-            <b>संदर्भ :-
-                <ol class="list-decimal m-4 reduced-line-spacing" start="1">
-                </b> {% for subproduct in product.subproducts.all %}
-                    {% if forloop.first or subproduct.amc_provider != product.subproducts.first.amc_provider %}
-                        {% with subproduct.amc_provider as amc_provider %}
+        
+        <ol class="list-decimal">
+            {% for subproduct in product.subproducts.all %}
+            {% if forloop.first or subproduct.amc_provider != product.subproducts.first.amc_provider %}
+                {% with subproduct.amc_provider as amc_provider %}
+                    <li class="m-4">
+                        <div class="properlyalign">
+                            <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ letter.letter_no }} दि. {{ letter.letter_date }} व सर्विस रिपोर्ट दि. {{ product.service_report_date }}.</p>
+                        </div>
+                        <ul>
                             <li class="m-4">
-                                <div class="properlyalign">
-                                    <p>{{ letter.lab_name }} प्रयोगशाळेतील  {{ product.department_name }} प्रमुखांनी त्यांचे पत्र क्र. {{ letter.letter_no }} दि. {{ letter.letter_date }} व सव्र्व्हिस रिपोर्ट दि. {{ product.service_report_date }}.</p>
-                                </div>
-                                    <li class="m-4">
-                                        <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि. _______.</p>
-                                    </li>
-                                    <li class="m-4">
-                                        <p>{{ amc_provider.name }} यांना देण्यात आलेले पत्र क्र. _______ दि. _______.</p>
-                                    </li>
-                                    {% for quotation in subproduct.quotationitem_set.all %}
-                                        <li class="m-4">
-                                            <p>{{ amc_provider.name }} यांचे पत्र क्र. {{ quotation.quotation.ref_no }} दि.{{ quotation.quotation.quotation_date }}.</p>
-                                        </li>
-                                    {% endfor %}
-                                </ol>
+                                <p>मा. संचालक यांना सादर करण्यात आलेला प्रस्ताव दि.{{ print_track.printed_date1 }}.</p>
+                            </li>
+                            <li class="m-4">
+                                <p>{{ amc_provider.name }} यांना देण्यात आलेले पत्र क्र. {{ print_track.printed_date2 }} दि. .</p>
+                            </li>
+                            
+                            <li class="m-4">
+                                {% for quotation in subproduct.quotationitem_set.all %}
+                                    <p>{{ amc_provider.name }} यांचे पत्र क्र. {{ quotation.quotation.ref_no }} दि.{{ quotation.quotation.quotation_date }}.</p>
+                                {% endfor %}
                             </li>
                         {% endwith %}
                     {% endif %}

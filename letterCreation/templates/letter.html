@@ -98,17 +98,30 @@
       
             <div class="flex justify-center p-4">
               <p>
-                  <b>Sub:-</b> Supply of {{ subproduct.type_of_part }} for {{ product.name }} Instrument. ( Sr. No. {{ product.sr_no }})<br>
-                  {% for provider_name, subproducts_group in grouped_subproducts.items %}
-                  <b>Ref:-  </b>      Service report dated for item
-                      {% for subproduct in subproducts_group %}
-                          {% with subproduct.quotationitem_set.first as quotationitem %}
-                         {{ subproduct.part_name }} -{{ product.service_report_date }} ,
-                          {% endwith %}
-                      {% endfor %}
-                  {% endfor %}
-              </p>
-          </div>
+                {% for subproduct_provider, subproducts_list in grouped_subproducts.items %}
+                <ul>
+                    {% for subproduct in subproducts_list %}
+                        <li>
+                            <b>Sub:-</b> Supply of {{ subproduct.type_of_part }} for {{ subproduct.product.main_item.name }} Instrument. (Sr. No. {{ subproduct.product.sr_no }})
+                        </li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endfor %}
+         <br>
+            {% for provider_name, subproducts_group in grouped_subproducts.items %}
+                <ul>
+                    <br>
+                    {% for subproduct in subproducts_group %}
+                        <li>
+                            <b>Ref:-</b> Service report dated for {{ subproduct.part_name }} - {{ subproduct.product.service_report_date }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        
+          
           
           
 

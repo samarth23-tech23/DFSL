@@ -139,6 +139,16 @@ class PrintTrack(models.Model):
     printed_date3 = models.DateField(null=True, blank=True)
     printed_date4 = models.DateField(null=True, blank=True)
     letter_no = models.CharField(max_length=255)  # Reference to letter_no from Letter model
+    is_done = models.BooleanField(default=False)  # Track if the print is done
 
+    def save(self, *args, **kwargs):
+        # Check if all printed_date fields are filled
+        if self.printed_date1 and self.printed_date2 and self.printed_date3 and self.printed_date4:
+            self.is_done = True
+        else:
+            self.is_done = False
+        super().save(*args, **kwargs)
+
+        
     def __str__(self):
         return self.letter_no
