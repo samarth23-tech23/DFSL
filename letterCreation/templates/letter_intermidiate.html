@@ -1,4 +1,5 @@
 {% extends 'sidebar.html' %}
+{% load custom_tags %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +9,9 @@
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Apply the same styles as in the provided styled code */
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
         .content-wrapper {
             margin: 25px auto;
             width: 100%;
@@ -19,12 +22,10 @@
             background-color: #fff;
             animation: fadeIn 1s ease-in-out;
         }
-
         .search-bar {
             position: relative;
             margin-top: 20px;
         }
-
         .search-input {
             float: right;
             padding: 10px;
@@ -33,11 +34,9 @@
             outline: none;
             transition: border-color 0.3s;
         }
-
         .search-input:focus {
             border-color: #3ab1df;
         }
-
         .search-icon {
             position: absolute;
             top: 50%;
@@ -46,7 +45,6 @@
             color: #ccc;
             cursor: pointer;
         }
-
         .print-button {
             border: 1px solid #3ab1df;
             background-color: transparent;
@@ -56,56 +54,40 @@
             transition: background-color 0.3s, color 0.3s;
             font-weight: bold;
         }
-
         .print-button:hover {
             background-color: #3ab1df;
             color: #fff;
         }
-
         .shadow-text {
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             color: #3ab1df;
         }
-
-        /* Additional styles */
         .content-table {
             border-collapse: collapse;
             margin: auto;
             font-size: 17px;
             width: 100%;
         }
-
         .content-table thead tr {
             background-color: #3ab1df;
             color: #ffffff;
             text-align: left;
             font-weight: bold;
         }
-
         .content-table th,
         .content-table td {
             padding: 12px 15px;
             border: 1px solid #dddddd;
         }
-
         .content-table tbody tr {
             border-bottom: 1px solid #dddddd;
         }
-
         .content-table tbody tr:nth-of-type(even) {
             background-color: #f3f3f3;
         }
-
         .content-table tbody tr:last-of-type {
-            border-bottom: 2px solid #3ab1df;
+            border-bottom: 2px solid #009879;
         }
-
-        .content-table tbody tr.active-row {
-            font-weight: bold;
-            color: #3ab1df;
-        }
-
-        /* Animation keyframes */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -116,53 +98,62 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 p-8">
-<div class="max-w-7xl mx-auto">
-    <div class="content-wrapper">
-        <div class="search-bar">
-            <input type="text" id="search" class="search-input" placeholder="Search...">
-            <h1 class="text-3xl font-bold mb-8 shadow-text">Product Information</h1>
-
-            <div class="search-icon">
-                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z"/>
-                </svg>
+<body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto">
+        <div class="content-wrapper">
+            <div class="search-bar">
+                <input type="text" id="search" class="search-input" placeholder="Search...">
+                <h1 class="text-3xl font-bold mb-8 shadow-text">Product Information</h1>
+                <div class="search-icon">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                </div>
             </div>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Letter No</th>
+                        <th class="px-4 py-2">Lab Name</th>
+                        <th class="px-4 py-2">Letter Date</th>
+                        <th class="px-4 py-2">Product Name</th>
+                        <th class="px-4 py-2">Department</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for letter in letters %}
+                    <tr>
+                        <td class="px-4 py-2">{{ letter.letter_no }}</td>
+                        <td class="px-4 py-2">{{ letter.lab_name.name }}</td>
+                        <td class="px-4 py-2">{{ letter.letter_date }}</td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.main_item.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            {% if letter.subproducts.exists %}
+                                {% for subproduct in letter.subproducts.all|remove_duplicates %}
+                                    {{ subproduct.product.department.name }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            <form action="{% url 'quotation_page' letter.id %}" method="get" target="_blank">
+                                <button type="submit" class="print-button">Add info</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <table class="content-table">
-            <thead>
-            <tr>
-                <th class="border border-gray-200 px-4 py-2">Letter No</th>
-                <th class="border border-gray-200 px-4 py-2">Lab Name</th>
-                <th class="border border-gray-200 px-4 py-2">Letter Date</th>
-                <th class="border border-gray-200 px-4 py-2">Product Name</th>
-                <th class="border border-gray-200 px-4 py-2">Department</th>
-                <th class="border border-gray-200 px-4 py-2">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for letter in letters %}
-            {% for product in letter.products.all %}
-            {% if not product.quotation_set.all %}
-            <tr>
-                <td class="border border-gray-200 px-4 py-2">{{ letter.letter_no }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ letter.lab_name }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ letter.letter_date }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ product.name }}</td>
-                <td class="border border-gray-200 px-4 py-2">{{ product.department_name }}</td>
-                <td class="border border-gray-200 px-4 py-2">
-                    <a href="{% url 'quotation_page' product.id %}"
-                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add info</a>
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            {% endfor %}
-            </tbody>
-        </table>
     </div>
-</div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -190,4 +181,4 @@
     });
 </script>
 </html>
-{%endblock%}
+{% endblock %}

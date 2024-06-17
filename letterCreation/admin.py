@@ -1,50 +1,81 @@
 from django.contrib import admin
-from .models import Letter, Product, Subproduct, Quotation, AMCProvider, QuotationItem
+from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack
+
+@admin.register(Lab)
+class LabAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'address']
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'get_lab_name']
+    
+    def get_lab_name(self, obj):
+        return obj.lab.name if obj.lab else ''
+    get_lab_name.short_description = 'Lab Name'
+
+@admin.register(Manufacturer)
+class ManufacturerAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'ac_no', 'bank_name', 'pan_no', 'gst_no', 'state', 'pincode', 'address', 'email_id', 'contact_no']
 
 @admin.register(Letter)
 class LetterAdmin(admin.ModelAdmin):
-    list_display = ['id','letter_no', 'lab_name', 'letter_date']
+    list_display = ['id', 'letter_no', 'lab_name', 'letter_date', 'get_subproducts']
+
+    def get_subproducts(self, obj):
+        return ", ".join([subproduct.part_name for subproduct in obj.subproducts.all()])
+    get_subproducts.short_description = 'Subproducts'
+
+@admin.register(MainItem)
+class MainItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'get_manufacturer']
+
+    def get_manufacturer(self, obj):
+        return obj.manufacturer.name if obj.manufacturer else ''
+    get_manufacturer.short_description = 'Manufacturer'
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'sr_no', 'price', 'buying_date', 'department_name']
+    list_display = ['id', 'get_mainitem_name', 'sr_no', 'price', 'buying_date', 'get_department_name', 'get_lab_name', 'get_amc_provider_name', 'service_report_date', 'amc_period', 'expenditure_cost', 'manufacturer_warranty_period']
+
+    def get_department_name(self, obj):
+        return obj.department.name if obj.department else ''
+    get_department_name.short_description = 'Department'
+
+    def get_mainitem_name(self, obj):
+        if obj.main_item:
+            return f"{obj.main_item.name}-{obj.main_item.manufacturer}"
+        return ''
+    get_mainitem_name.short_description = 'Product Name' 
+
+    def get_lab_name(self, obj):
+        return obj.lab_name.name if obj.lab_name else ''
+    get_lab_name.short_description = 'Lab Name'
+
+    def get_amc_provider_name(self, obj):
+        return obj.amc_provider.name if obj.amc_provider else ''
+    get_amc_provider_name.short_description = 'AMC Provider'
 
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):
-    list_display = ['part_name','type_of_part', 'specification', 'quantity', 'period_of_amc_contract', 'service_report_date', 'amc_provider_name']
-
-    def amc_provider_name(self, obj):
-        return obj.amc_provider.name
-
-    amc_provider_name.short_description = 'AMC Provider Name'
-
+    list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity', 'amc_provider']
 
 @admin.register(Quotation)
 class QuotationAdmin(admin.ModelAdmin):
-    list_display = ['quotation_id','product_name', 'quotation_date', 'ref_no', 'quotation_expense_criteria','total_price' ]
-
-    def product_name(self, obj):
-        return obj.product.name
-
-    def quotation_id(self, obj):
-        return obj.id
-
-    product_name.short_description = 'Product Name'
-    quotation_id.short_description = 'Quotation ID'
+    list_display = ['id', 'letter', 'quotation_date', 'ref_no', 'quotation_expense_criteria', 'total_price']
 
 @admin.register(AMCProvider)
 class AMCProviderAdmin(admin.ModelAdmin):
-    list_display = ['id','name', 'ac_no', 'ifsc_code', 'ac_name', 'bank_name', 'pan_no', 'state', 'pincode', 'address']
+    list_display = ['id', 'name', 'ac_no', 'ifsc_code', 'ac_name', 'bank_name', 'pan_no', 'state', 'pincode', 'address']
 
 @admin.register(QuotationItem)
 class QuotationItemAdmin(admin.ModelAdmin):
-    list_display = ['quotation_id', 'subproduct_name', 'unit_price', 'price_without_gst', 'price_with_gst', 'gst_percentage', 'gst_value', 'expected_delivery']
+    list_display = ['id', 'quotation', 'subproduct', 'unit_price', 'price_without_gst', 'price_with_gst', 'gst_percentage', 'gst_value', 'expected_delivery', 'amc_provider']
 
-    def quotation_id(self, obj):
-        return obj.quotation.id
+@admin.register(PrintTrack)
+class PrintTrackAdmin(admin.ModelAdmin):
+    list_display = ['id', 'printed_date1', 'printed_date2', 'printed_date3', 'printed_date4', 'letter_no','is_done']
 
-    def subproduct_name(self, obj):
-        return obj.subproduct.part_name
+@admin.register(ServiceReportTrack)
+class ServiceReportTrackAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'service_date']
 
-    quotation_id.short_description = 'Quotation ID'
-    subproduct_name.short_description = 'Subproduct Name'

@@ -1,0 +1,185 @@
+{% extends 'sidebar.html' %}
+{% block content %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Item</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  {% comment %} <link rel="stylesheet" href="{% static 'css/product_style.css' %}"> {% endcomment %}
+  <style>
+    *{
+        font-family: 'Poppins',sans-serif;
+    }
+    .content-wrapper {
+        margin: 25px auto;
+        width: 60%;
+        max-width: 900px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        animation: fadeIn 1s ease-in-out;
+    }
+    
+    .search-bar {
+        position: relative;
+        margin-top: 20px;
+    }
+
+    .search-input {
+        float: right;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .search-input:focus {
+        border-color: #3ab1df;
+    }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #ccc;
+        cursor: pointer;
+    }
+
+    .print-button {
+        border: 1px solid #3ab1df; 
+        background-color: transparent; 
+        color: #3ab1df; 
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s; 
+        font-weight: bold;
+    }
+
+    .print-button:hover {
+        background-color: #3ab1df; 
+        color: #fff; 
+    }
+
+    .shadow-text {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); 
+        color: #3ab1df; 
+    }
+
+    .content-table {
+        border-collapse: collapse;
+        margin: auto;
+        font-size: 17px;    
+        width: 100%;
+    }
+
+    .content-table thead tr {
+        background-color: #3ab1df;
+        color: #ffffff;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .content-table th,
+    .content-table td {
+        padding: 12px 15px;
+        border: 1px solid #dddddd;
+    }
+
+    .content-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .content-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .content-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+
+    /* Custom styles specific to this page */
+    .form-container {
+      max-width: 600px;
+      margin: auto;
+    }
+    .form-input {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db; /* Tailwind gray-300 */
+      width: calc(100% - 16px); /* Adjusting for padding */
+    }
+    .form-label {
+      font-size: 14px;
+      color: #4b5563; /* Tailwind gray-600 */
+      margin-bottom: 4px;
+      display: block;
+    }
+    .form-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2563eb; /* Tailwind blue-600 */
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .form-button:hover {
+      background-color: #1e40af; /* Tailwind blue-700 */
+    }
+  </style>
+</head>
+<div class="mb-4">
+    <a href="{% url 'items_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-gray-700 float-right">Back to List</a><br>
+  </div>
+<body class="bg-gray-100 dark:bg-gray-900 p-6 md:p-8">
+  <div class="content-wrapper">
+   
+
+    <h1 class="text-3xl font-bold mb-8 shadow-text">Add Item</h1>
+
+    <div class="form-container">
+      <form action="{% url 'add_item' %}" method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="name" class="form-label">Name</label>
+          <input type="text" name="name" id="name" class="form-input" required>
+        </div>
+        <div>
+          <label for="manufacturer" class="form-label">Manufacturer</label>
+          <select name="manufacturer" id="manufacturer" class="form-input" required>
+            <option value="">Select Manufacturer</option>
+            {% for manufacturer in manufacturers %}
+              <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="form-button">
+            Add Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+{% endblock %}

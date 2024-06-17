@@ -1,0 +1,111 @@
+{% extends 'sidebar.html' %}
+{% block content %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Items List</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/product_style.css' %}">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+
+  <a href="{% url 'add_item' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 float-right">Add Item</a><br>
+
+  <div class="content-wrapper">
+    <div class="search-bar">
+      <input type="text" id="manufacturerSearch" placeholder="Search by Manufacturer..." class="search-input">
+      <h1 class="text-3xl font-bold mb-8 shadow-text">Items List</h1>
+      <div class="search-icon">
+        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="mb-4">
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th class="px-6 py-3">Name</th>
+            <th class="px-6 py-3">Manufacturer</th>
+            <th class="px-6 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for data in mitem %}
+          <tr>
+            <td class="px-4 py-2">{{ data.name }}</td>
+            <td class="px-4 py-2">{{ data.manufacturer.name }}</td>
+            <td class="px-4 py-2">
+              <div class="flex space-x-4">
+                <a href="{% url 'edit_item' data.id %}" class="icon-button">
+                  <!-- Edit Icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-green-500 dark:text-green-400">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"></path>
+                  </svg>
+                </a>
+                <form id="deleteForm_{{ data.id }}" action="{% url 'delete_item' %}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="id" value="{{ data.id }}">
+                  <button type="submit" class="icon-button">
+                    <!-- Delete Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-red-500 dark:text-red-400">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6l-2 14H7L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M5 6l1-3h12l1 3"></path>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table><br><br>
+    </div>
+  </div><br>
+
+  <script>
+    function filterProducts() {
+      var input, filter, table, tbody, tr, td, i, txtValue;
+      input = document.getElementById("manufacturerSearch");
+      filter = input.value.toUpperCase();
+      table = document.querySelector(".content-table");
+      tbody = document.querySelector("tbody");
+      tr = tbody.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[1];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    document.getElementById("manufacturerSearch").addEventListener("input", filterProducts);
+
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          alert("{{ message }}");
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </script>
+</body>
+</html>
+{% endblock %}
