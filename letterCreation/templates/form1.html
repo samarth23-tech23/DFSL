@@ -327,8 +327,11 @@ function addProduct() {
 
     const productSection = document.createElement('div');
     productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
-    productSection.setAttribute('data-product-id', productId);  // Add data-product-id attribute
+    productSection.setAttribute('data-product-id', productId);  
     
+
+    
+
     // Product Title
     const productTitle = document.createElement('h2');
     productTitle.style.color = '#3593aa';
@@ -510,6 +513,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     const departmentSelect = document.getElementById('department_1');
     fetchDepartments(labId, departmentSelect);
 });
+
+
 
              // Function to add subproduct sections
         function addSubproduct(event) {
