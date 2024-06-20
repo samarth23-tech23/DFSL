@@ -125,9 +125,10 @@
   <body class="bg-gray-100">
     <div class="container mx-auto py-6">
       <div class="max-w-3xl mx-auto bg-white p-6 rounded-md shadow-md">
-        <h2 class="text-2xl font-bold mb-4 title-custom-color ">
+        <h2 class="text-2xl font-bold mb-4 title-custom-color">
           Product Details
-        </h2><br>
+        </h2>
+        <br />
         <div class="flex flex-wrap">
           <div class="relative flex-1 mr-4">
             <input
@@ -198,504 +199,535 @@
             <i class="fas fa-check"></i> Submit
           </button>
         </div>
-      </div>
-    </div>
+      </div><br>
+    </div><br><br><br>
 
     <script>
-          
 
-// Function to fetch and populate SR numbers
-function fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect) {
-    console.log(`Fetching SR Numbers with labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-    fetch(`/letterGenerate/get_sr_numbers/?lab_id=${labId}&main_item=${mainItemName}&manufacturer=${manufacturer}&department_id=${departmentId}&service_report=${serviceReport}`)
-        .then(response => response.json())
-        .then(data => {
-            srNoSelect.innerHTML = '';
-            if (data.sr_numbers.length > 0) {
-                data.sr_numbers.forEach(srNo => {
-                    const option = document.createElement('option');
-                    option.value = srNo;
-                    option.textContent = srNo;
-                    srNoSelect.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'No SR Numbers found';
-                srNoSelect.appendChild(option);
+
+            // Function to fetch and populate SR numbers
+            function fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect) {
+                console.log(`Fetching SR Numbers with labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                fetch(`/letterGenerate/get_sr_numbers/?lab_id=${labId}&main_item=${mainItemName}&manufacturer=${manufacturer}&department_id=${departmentId}&service_report=${serviceReport}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        srNoSelect.innerHTML = '';
+                        if (data.sr_numbers.length > 0) {
+                            data.sr_numbers.forEach(srNo => {
+                                const option = document.createElement('option');
+                                option.value = srNo;
+                                option.textContent = srNo;
+                                srNoSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.textContent = 'No SR Numbers found';
+                            srNoSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching SR Numbers:', error));
             }
-        })
-        .catch(error => console.error('Error fetching SR Numbers:', error));
-}
 
-// Event listener for main item change
-function addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect, departmentSelect, serviceReportInput) {
-    mainItemInput.addEventListener('change', function() {
-        var mainItem = this.value;
-        console.log(`Selected main item: ${mainItem}`);  // Debugging statement
+            // Event listener for main item change
+            function addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect, departmentSelect, serviceReportInput) {
+                mainItemInput.addEventListener('change', function() {
+                    var mainItem = this.value;
+                    console.log(`Selected main item: ${mainItem}`);  // Debugging statement
 
-        fetch(`/letterGenerate/get_manufacturers/?main_item=${mainItem}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Fetched manufacturer names:', data.manufacturer_names);  // Debugging statement
+                    fetch(`/letterGenerate/get_manufacturers/?main_item=${mainItem}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Fetched manufacturer names:', data.manufacturer_names);  // Debugging statement
 
-                manufacturerSelect.innerHTML = '';
+                            manufacturerSelect.innerHTML = '';
 
-                if (data.manufacturer_names.length > 0) {
-                    data.manufacturer_names.forEach(function(manufacturer) {
-                        var option = document.createElement('option');
-                        option.value = manufacturer;
-                        option.textContent = manufacturer;
-                        manufacturerSelect.appendChild(option);
-                    });
+                            if (data.manufacturer_names.length > 0) {
+                                data.manufacturer_names.forEach(function(manufacturer) {
+                                    var option = document.createElement('option');
+                                    option.value = manufacturer;
+                                    option.textContent = manufacturer;
+                                    manufacturerSelect.appendChild(option);
+                                });
 
-                    // Automatically select the first manufacturer and fetch SR numbers
-                    const firstManufacturer = data.manufacturer_names[0];
-                    manufacturerSelect.value = firstManufacturer;
+                                // Automatically select the first manufacturer and fetch SR numbers
+                                const firstManufacturer = data.manufacturer_names[0];
+                                manufacturerSelect.value = firstManufacturer;
 
-                    const labId = document.getElementById('lab_select').value;
-                    const departmentId = departmentSelect.value;  // Ensure correct department select ID
+                                const labId = document.getElementById('lab_select').value;
+                                const departmentId = departmentSelect.value;  // Ensure correct department select ID
+                                const serviceReport = serviceReportInput.value;
+                                fetchSrNumbers(labId, mainItem, firstManufacturer, departmentId, serviceReport, srNoSelect);
+                            } else {
+                                var option = document.createElement('option');
+                                option.textContent = 'No manufacturers found';
+                                manufacturerSelect.appendChild(option);
+                            }
+                        })
+                        .catch(error => console.error('Error fetching manufacturers:', error));
+                });
+            }
+
+            // Event listener for lab, main item, manufacturer, department, and service report changes to fetch SR numbers
+            function addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect, serviceReportInput) {
+                document.getElementById('lab_select').addEventListener('change', function() {
+                    const labId = this.value;
+                    const mainItemName = mainItemInput.value;
+                    const manufacturer = manufacturerSelect.value;
+                    const departmentId = departmentSelect.value;
                     const serviceReport = serviceReportInput.value;
-                    fetchSrNumbers(labId, mainItem, firstManufacturer, departmentId, serviceReport, srNoSelect);
-                } else {
-                    var option = document.createElement('option');
-                    option.textContent = 'No manufacturers found';
-                    manufacturerSelect.appendChild(option);
-                }
-            })
-            .catch(error => console.error('Error fetching manufacturers:', error));
-    });
-}
-
-// Event listener for lab, main item, manufacturer, department, and service report changes to fetch SR numbers
-function addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect, serviceReportInput) {
-    document.getElementById('lab_select').addEventListener('change', function() {
-        const labId = this.value;
-        const mainItemName = mainItemInput.value;
-        const manufacturer = manufacturerSelect.value;
-        const departmentId = departmentSelect.value;
-        const serviceReport = serviceReportInput.value;
-        console.log(`Lab changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
-    });
-
-    mainItemInput.addEventListener('change', function() {
-        const labId = document.getElementById('lab_select').value;
-        const mainItemName = this.value;
-        const manufacturer = manufacturerSelect.value;
-        const departmentId = departmentSelect.value;
-        const serviceReport = serviceReportInput.value;
-        console.log(`Main item changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
-    });
-
-    manufacturerSelect.addEventListener('change', function() {
-        const labId = document.getElementById('lab_select').value;
-        const mainItemName = mainItemInput.value;
-        const manufacturer = this.value;
-        const departmentId = departmentSelect.value;
-        const serviceReport = serviceReportInput.value;
-        console.log(`Manufacturer changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
-    });
-
-    departmentSelect.addEventListener('change', function() {
-        const labId = document.getElementById('lab_select').value;
-        const mainItemName = mainItemInput.value;
-        const manufacturer = manufacturerSelect.value;
-        const departmentId = this.value;
-        const serviceReport = serviceReportInput.value;
-        console.log(`Department changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
-    });
-
-    serviceReportInput.addEventListener('change', function() {
-        const labId = document.getElementById('lab_select').value;
-        const mainItemName = mainItemInput.value;
-        const manufacturer = manufacturerSelect.value;
-        const departmentId = departmentSelect.value;
-        const serviceReport = this.value;
-        console.log(`Service Report changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
-        fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
-    });
-}
-
-// Dynamic addition of product sections
-let productId = 1;
-
-function addProduct() {
-    const productDetails = document.getElementById('productDetails');
-
-    const productSection = document.createElement('div');
-    productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
-    productSection.setAttribute('data-product-id', productId);  
-    
-
-    
-
-    // Product Title
-    const productTitle = document.createElement('h2');
-    productTitle.style.color = '#3593aa';
-    productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
-    productTitle.textContent = `Product ${productId}`;
-    productSection.appendChild(productTitle);
-    
-    // Container for Department, Main Item, and Manufacturer
-    const containerDiv1 = document.createElement('div');
-    containerDiv1.classList.add('flex', 'space-x-4', 'mb-4');
-    productSection.appendChild(containerDiv1);
-    
-    // Department Select
-    const departmentDiv = document.createElement('div');
-    departmentDiv.classList.add('flex-1');
-    containerDiv1.appendChild(departmentDiv);
-    
-    const departmentLabel = document.createElement('label');
-    departmentLabel.textContent = 'Department';
-    departmentLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    departmentDiv.appendChild(departmentLabel);
-    
-    const departmentSelect = document.createElement('select');
-    departmentSelect.setAttribute('id', `department_${productId}`);
-    departmentSelect.setAttribute('name', 'department');
-    departmentSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    {% for department in departments %}
-    const departmentOption_{{department.id}} = document.createElement('option');
-    departmentOption_{{department.id}}.setAttribute('value', '{{ department.id }}');
-    departmentOption_{{department.id}}.textContent = '{{ department.name }}';
-    departmentSelect.appendChild(departmentOption_{{department.id}});
-    {% endfor %}
-    departmentDiv.appendChild(departmentSelect);
-    
-    // Main Item Input
-    const mainItemDiv = document.createElement('div');
-    mainItemDiv.classList.add('flex-1');
-    containerDiv1.appendChild(mainItemDiv);
-    
-    const mainItemLabel = document.createElement('label');
-    mainItemLabel.textContent = 'Main Item';
-    mainItemLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    mainItemDiv.appendChild(mainItemLabel);
-    
-    const mainItemInput = document.createElement('input');
-    mainItemInput.setAttribute('placeholder', 'Enter Main Item');
-    mainItemInput.setAttribute('id', `main_item_${productId}`);
-    mainItemInput.setAttribute('name', `main_item_${productId}`);
-    mainItemInput.setAttribute('list', `main_item_list_${productId}`);
-    mainItemInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    mainItemDiv.appendChild(mainItemInput);
-    
-    const mainItemDatalist = document.createElement('datalist');
-    mainItemDatalist.setAttribute('id', `main_item_list_${productId}`);
-    {% for main_item in main_items %}
-    const mainItemOption_{{main_item.id}} = document.createElement('option');
-    mainItemOption_{{main_item.id}}.setAttribute('value', '{{ main_item.name }}');
-    mainItemOption_{{main_item.id}}.setAttribute('data-id', '{{ main_item.id }}');
-    mainItemDatalist.appendChild(mainItemOption_{{main_item.id}});
-    {% endfor %}
-    mainItemDiv.appendChild(mainItemDatalist);
-    
-    // Manufacturer Select
-    const manufacturerDiv = document.createElement('div');
-    manufacturerDiv.classList.add('flex-1');
-    containerDiv1.appendChild(manufacturerDiv);
-    
-    const manufacturerLabel = document.createElement('label');
-    manufacturerLabel.textContent = 'Manufacturer';
-    manufacturerLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    manufacturerDiv.appendChild(manufacturerLabel);
-    
-    const manufacturerSelect = document.createElement('select');
-    manufacturerSelect.setAttribute('id', `manufacturer_${productId}`);
-    manufacturerSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    manufacturerDiv.appendChild(manufacturerSelect);
-    
-    // Container for SR Number and Service Report
-    const containerDiv2 = document.createElement('div');
-    containerDiv2.classList.add('flex', 'space-x-4');
-    productSection.appendChild(containerDiv2);
-    
-    // SR Number Select
-    const srNoDiv = document.createElement('div');
-    srNoDiv.classList.add('flex-1');
-    containerDiv2.appendChild(srNoDiv);
-    
-    const srNoLabel = document.createElement('label');
-    srNoLabel.textContent = 'SR Number';
-    srNoLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    srNoDiv.appendChild(srNoLabel);
-    
-    const srNoSelect = document.createElement('select');
-    srNoSelect.setAttribute('id', `sr_no_${productId}`);
-    srNoSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    const srNoOption = document.createElement('option');
-    srNoOption.setAttribute('value', '');
-    srNoOption.textContent = 'Select SR Number';
-    srNoSelect.appendChild(srNoOption);
-    srNoDiv.appendChild(srNoSelect);
-    
-    // Service Report Input
-    const serviceReportDiv = document.createElement('div');
-    serviceReportDiv.classList.add('flex-1');
-    containerDiv2.appendChild(serviceReportDiv);
-    
-    const serviceReportLabel = document.createElement('label');
-    serviceReportLabel.textContent = 'Service Report';
-    serviceReportLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
-    serviceReportDiv.appendChild(serviceReportLabel);
-    
-    const serviceReportInput = document.createElement('input');
-    serviceReportInput.setAttribute('type', 'date');
-    serviceReportInput.setAttribute('id', `service_report_${productId}`);
-    serviceReportInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-    serviceReportDiv.appendChild(serviceReportInput);
-    
-    productDetails.appendChild(productSection);
-    
-
-
-    // Adding Event Listeners for the new product section
-    addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect, departmentSelect, serviceReportInput);
-    addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect, serviceReportInput);
- // Add Subproduct Button
- const addSubproductBtn = document.createElement('button');
-    addSubproductBtn.innerHTML = '<i class="fas fa-plus"></i> Add Part information';
-    addSubproductBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-4');
-    addSubproductBtn.addEventListener('click', addSubproduct);
-    productSection.appendChild(addSubproductBtn);
-
-    // Delete Product Button
-    const deleteProductBtn = document.createElement('button');
-    deleteProductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Product';
-    deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
-    deleteProductBtn.addEventListener('click', () => {
-        productSection.remove();
-    });
-    productSection.appendChild(deleteProductBtn);
-
-    // Append Product Section to the Product Details Container
-    productDetails.appendChild(productSection);
-
-    productId++;
-}
-
-function fetchDepartments(labId, departmentSelect) {
-    fetch(`/letterGenerate/get_departments/?lab_id=${labId}`)
-        .then(response => response.json())
-        .then(data => {
-            departmentSelect.innerHTML = ''; // Clear existing options
-            if (data.departments.length > 0) {
-                data.departments.forEach(department => {
-                    const option = document.createElement('option');
-                    option.value = department.id;
-                    option.textContent = department.name;
-                    departmentSelect.appendChild(option);
+                    console.log(`Lab changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                    fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
                 });
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'No Departments found';
-                departmentSelect.appendChild(option);
+
+                mainItemInput.addEventListener('change', function() {
+                    const labId = document.getElementById('lab_select').value;
+                    const mainItemName = this.value;
+                    const manufacturer = manufacturerSelect.value;
+                    const departmentId = departmentSelect.value;
+                    const serviceReport = serviceReportInput.value;
+                    console.log(`Main item changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                    fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
+                });
+
+                manufacturerSelect.addEventListener('change', function() {
+                    const labId = document.getElementById('lab_select').value;
+                    const mainItemName = mainItemInput.value;
+                    const manufacturer = this.value;
+                    const departmentId = departmentSelect.value;
+                    const serviceReport = serviceReportInput.value;
+                    console.log(`Manufacturer changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                    fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
+                });
+
+                departmentSelect.addEventListener('change', function() {
+                    const labId = document.getElementById('lab_select').value;
+                    const mainItemName = mainItemInput.value;
+                    const manufacturer = manufacturerSelect.value;
+                    const departmentId = this.value;
+                    const serviceReport = serviceReportInput.value;
+                    console.log(`Department changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                    fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
+                });
+
+                serviceReportInput.addEventListener('change', function() {
+                    const labId = document.getElementById('lab_select').value;
+                    const mainItemName = mainItemInput.value;
+                    const manufacturer = manufacturerSelect.value;
+                    const departmentId = departmentSelect.value;
+                    const serviceReport = this.value;
+                    console.log(`Service Report changed: labId: ${labId}, mainItemName: ${mainItemName}, manufacturer: ${manufacturer}, departmentId: ${departmentId}, serviceReport: ${serviceReport}`);  // Debugging statement
+                    fetchSrNumbers(labId, mainItemName, manufacturer, departmentId, serviceReport, srNoSelect);
+                });
             }
-        })
-        .catch(error => console.error('Error fetching Departments:', error));
-}
 
-// Event listener for lab selection change to fetch departments
-document.getElementById('lab_select').addEventListener('change', function() {
-    const labId = this.value;
-    const departmentSelect = document.getElementById('department_1');
-    fetchDepartments(labId, departmentSelect);
-});
+            // Dynamic addition of product sections
+            let productId = 1;
 
-// Initialize the first fetch of departments for the selected lab
-window.addEventListener('DOMContentLoaded', (event) => {
-    const labSelect = document.getElementById('lab_select');
-    const labId = labSelect.value;
-    const departmentSelect = document.getElementById('department_1');
-    fetchDepartments(labId, departmentSelect);
-});
+            function addProduct() {
+                const productDetails = document.getElementById('productDetails');
+
+                const productSection = document.createElement('div');
+                productSection.classList.add('mb-6', 'border-b', 'pb-4', 'product-section');
+                productSection.setAttribute('data-product-id', productId);
 
 
 
-             // Function to add subproduct sections
-        function addSubproduct(event) {
-            event.preventDefault();
 
-            const parentProductSection = event.target.closest('.product-section');
-            const productId = parentProductSection.dataset.productId;
+                // Product Title
+                const productTitle = document.createElement('h2');
+                productTitle.style.color = '#3593aa';
+                productTitle.classList.add('text-lg', 'font-semibold', 'mb-2');
+                productTitle.textContent = `Product ${productId}`;
+                productSection.appendChild(productTitle);
 
-            const subproductSection = document.createElement('div');
-            subproductSection.classList.add('mb-4', 'subproduct-section');
+                // Container for Department, Main Item, and Manufacturer
+                const containerDiv1 = document.createElement('div');
+                containerDiv1.classList.add('flex', 'space-x-4', 'mb-4');
+                productSection.appendChild(containerDiv1);
 
-            // Incrementing part number based on existing subproduct sections
-            const partNumber = parentProductSection.querySelectorAll('.subproduct-section').length + 1;
+                // Department Select
+                const departmentDiv = document.createElement('div');
+                departmentDiv.classList.add('flex-1');
+                containerDiv1.appendChild(departmentDiv);
 
-            // Title for the subproduct section
-            const subproductTitle = document.createElement('h4');
-            subproductTitle.textContent = `Part ${partNumber}`;
-            subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2', 'title-custom-color');
-            subproductSection.appendChild(subproductTitle);
+                const departmentLabel = document.createElement('label');
+                departmentLabel.textContent = 'Department';
+                departmentLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+                departmentDiv.appendChild(departmentLabel);
 
-            const partNameLabel = document.createElement('label');
-            partNameLabel.textContent = 'Part Name';
-            partNameLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-            subproductSection.appendChild(partNameLabel);
+                const departmentSelect = document.createElement('select');
+                departmentSelect.setAttribute('id', `department_${productId}`);
+                departmentSelect.setAttribute('name', 'department');
+                departmentSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                {% for department in departments %}
+                const departmentOption_{{department.id}} = document.createElement('option');
+                departmentOption_{{department.id}}.setAttribute('value', '{{ department.id }}');
+                departmentOption_{{department.id}}.textContent = '{{ department.name }}';
+                departmentSelect.appendChild(departmentOption_{{department.id}});
+                {% endfor %}
+                departmentDiv.appendChild(departmentSelect);
 
-            const partNameInput = document.createElement('input');
-            partNameInput.type = 'text';
-            partNameInput.placeholder = 'Enter part name';
-            partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-            subproductSection.appendChild(partNameInput);
+                // Main Item Input
+                const mainItemDiv = document.createElement('div');
+                mainItemDiv.classList.add('flex-1');
+                containerDiv1.appendChild(mainItemDiv);
 
-            const partTypeLabel = document.createElement('label');
-            partTypeLabel.textContent = 'Part Type';
-            partTypeLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-            subproductSection.appendChild(partTypeLabel);
+                const mainItemLabel = document.createElement('label');
+                mainItemLabel.textContent = 'Main Item';
+                mainItemLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+                mainItemDiv.appendChild(mainItemLabel);
 
-            const partTypeSelect = document.createElement('select');
-            partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                const mainItemInput = document.createElement('input');
+                mainItemInput.setAttribute('placeholder', 'Enter Main Item');
+                mainItemInput.setAttribute('id', `main_item_${productId}`);
+                mainItemInput.setAttribute('name', `main_item_${productId}`);
+                mainItemInput.setAttribute('list', `main_item_list_${productId}`);
+                mainItemInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                mainItemDiv.appendChild(mainItemInput);
 
-            const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
-            partTypes.forEach(type => {
-                const option = document.createElement('option');
-                option.value = type;
-                option.textContent = type;
-                partTypeSelect.appendChild(option);
-            });
+                const mainItemDatalist = document.createElement('datalist');
+                mainItemDatalist.setAttribute('id', `main_item_list_${productId}`);
+                {% for main_item in main_items %}
+                const mainItemOption_{{main_item.id}} = document.createElement('option');
+                mainItemOption_{{main_item.id}}.setAttribute('value', '{{ main_item.name }}');
+                mainItemOption_{{main_item.id}}.setAttribute('data-id', '{{ main_item.id }}');
+                mainItemDatalist.appendChild(mainItemOption_{{main_item.id}});
+                {% endfor %}
+                mainItemDiv.appendChild(mainItemDatalist);
 
-            subproductSection.appendChild(partTypeSelect);
+                // Manufacturer Select
+                const manufacturerDiv = document.createElement('div');
+                manufacturerDiv.classList.add('flex-1');
+                containerDiv1.appendChild(manufacturerDiv);
 
-            const partSpecLabel = document.createElement('label');
-            partSpecLabel.textContent = 'Part Specification';
-            partSpecLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-            subproductSection.appendChild(partSpecLabel);
+                const manufacturerLabel = document.createElement('label');
+                manufacturerLabel.textContent = 'Manufacturer';
+                manufacturerLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+                manufacturerDiv.appendChild(manufacturerLabel);
 
-            const partSpecInput = document.createElement('input');
-            partSpecInput.type = 'text';
-            partSpecInput.placeholder = 'Enter Part Specification';
-            partSpecInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-            subproductSection.appendChild(partSpecInput);
+                const manufacturerSelect = document.createElement('select');
+                manufacturerSelect.setAttribute('id', `manufacturer_${productId}`);
+                manufacturerSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                manufacturerDiv.appendChild(manufacturerSelect);
 
-            const partQtyLabel = document.createElement('label');
-            partQtyLabel.textContent = 'Part Quantity';
-            partQtyLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-            subproductSection.appendChild(partQtyLabel);
+                // Container for SR Number and Service Report
+                const containerDiv2 = document.createElement('div');
+                containerDiv2.classList.add('flex', 'space-x-4');
+                productSection.appendChild(containerDiv2);
 
-            const partQtyInput = document.createElement('input');
-            partQtyInput.type = 'number';
-            partQtyInput.placeholder = 'Enter Quantity Part';
-            partQtyInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-            subproductSection.appendChild(partQtyInput);
+                // SR Number Select
+                const srNoDiv = document.createElement('div');
+                srNoDiv.classList.add('flex-1');
+                containerDiv2.appendChild(srNoDiv);
 
-            // Delete Subproduct Button
-            const deleteSubproductBtn = document.createElement('button');
-            deleteSubproductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Subproduct';
-            deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
-            deleteSubproductBtn.addEventListener('click', () => {
-                subproductSection.remove();
-            });
-            subproductSection.appendChild(deleteSubproductBtn);
+                const srNoLabel = document.createElement('label');
+                srNoLabel.textContent = 'SR Number';
+                srNoLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+                srNoDiv.appendChild(srNoLabel);
 
-            parentProductSection.appendChild(subproductSection);
-        }
+                const srNoSelect = document.createElement('select');
+                srNoSelect.setAttribute('id', `sr_no_${productId}`);
+                srNoSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                const srNoOption = document.createElement('option');
+                srNoOption.setAttribute('value', '');
+                srNoOption.textContent = 'Select SR Number';
+                srNoSelect.appendChild(srNoOption);
+                srNoDiv.appendChild(srNoSelect);
 
-            
-                
-      
+                // Service Report Input
+                const serviceReportDiv = document.createElement('div');
+                serviceReportDiv.classList.add('flex-1');
+                containerDiv2.appendChild(serviceReportDiv);
+
+                const serviceReportLabel = document.createElement('label');
+                serviceReportLabel.textContent = 'Service Report';
+                serviceReportLabel.classList.add('block', 'text-gray-400', 'text-base', 'font-bold', 'mb-2');
+                serviceReportDiv.appendChild(serviceReportLabel);
+
+                const serviceReportInput = document.createElement('input');
+                serviceReportInput.setAttribute('type', 'date');
+                serviceReportInput.setAttribute('id', `service_report_${productId}`);
+                serviceReportInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                serviceReportDiv.appendChild(serviceReportInput);
+
+                productDetails.appendChild(productSection);
 
 
-              // Initial call to add first product section
-              document.addEventListener('DOMContentLoaded', function() {
-                  addProduct();
 
-                  const addProductBtn = document.getElementById('addProductBtn');
-                  addProductBtn.addEventListener('click', function() {
-                      addProduct();
-                  });
+                // Adding Event Listeners for the new product section
+                addMainItemChangeEventListener(mainItemInput, manufacturerSelect, srNoSelect, departmentSelect, serviceReportInput);
+                addSrNumberEventListeners(srNoSelect, mainItemInput, manufacturerSelect, departmentSelect, serviceReportInput);
+             // Add Subproduct Button
+             const addSubproductBtn = document.createElement('button');
+                addSubproductBtn.innerHTML = '<i class="fas fa-plus"></i> Add Part information';
+                addSubproductBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4', 'mr-4');
+                addSubproductBtn.addEventListener('click', addSubproduct);
+                productSection.appendChild(addSubproductBtn);
+
+                // Delete Product Button
+                const deleteProductBtn = document.createElement('button');
+                deleteProductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Product';
+                deleteProductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+                deleteProductBtn.addEventListener('click', () => {
+                    productSection.remove();
+                    updateProductNumbers();
+                });
+                productSection.appendChild(deleteProductBtn);
+
+                // Append Product Section to the Product Details Container
+                productDetails.appendChild(productSection);
+                updateProductNumbers();
+                productId++;
+            }
+
+            function updateProductNumbers() {
+              const productSections = productDetails.querySelectorAll('.product-section');
+          
+              productSections.forEach((section, index) => {
+                  const newProductId = index + 1;
+                  section.setAttribute('data-product-id', newProductId);
+                  section.querySelector('h2').textContent = `Product ${newProductId}`;
               });
+          }
 
-
-              function submitForm() {
-    const formData = new FormData();
-
-    // Add letter number, lab name, and date
-    const letterNo = document.getElementById('letter_no').value;
-    const labName = document.getElementById('lab_select').value;
-    const date = document.getElementById('letter_date').value;
-
-    if (!letterNo || !labName || !date) {
-        alert('Please fill in all the required fields.');
-        return; // Stop form submission if any required field is empty
-    }
-
-    formData.append('letter_no', letterNo);
-    formData.append('lab_name', labName);
-    formData.append('date', date);
-
-    // Get all product sections
-    const productSections = document.querySelectorAll('.product-section');
-
-    for (let index = 0; index < productSections.length; index++) {
-        const productSection = productSections[index];
-        const mainItemInput = productSection.querySelector(`[id^=main_item]`);
-        const manufacturerSelect = productSection.querySelector(`[id^=manufacturer]`);
-        const departmentSelect = productSection.querySelector(`[id^=department]`);
-        const serviceReportDateInput = productSection.querySelector(`[id^=service_report]`);
-        const srNoSelect = productSection.querySelector(`[id^=sr_no]`);
-
-        if (!mainItemInput.value || !manufacturerSelect.value || !departmentSelect.value || !serviceReportDateInput.value || !srNoSelect.value) {
-            alert('Please fill in all the required fields for each product.');
-            return; // Stop form submission if any required field within a product section is empty
-        }
-
-        formData.append(`products[${index}][main_item]`, mainItemInput.value);
-        formData.append(`products[${index}][manufacturer]`, manufacturerSelect.value);
-        formData.append(`products[${index}][department]`, departmentSelect.value);
-        formData.append(`products[${index}][service_report_date]`, serviceReportDateInput.value);
-        formData.append(`products[${index}][sr_no]`, srNoSelect.value);
-
-        // Get all subproduct sections within the current product section
-        const subproductSections = productSection.querySelectorAll('.subproduct-section');
-
-        if (subproductSections.length === 0) {
-            alert('Please open the part section to fill in the required details.');
-            return; // Stop form submission if the part section is not opened
-        }
-
-        for (let subIndex = 0; subIndex < subproductSections.length; subIndex++) {
-            const subproductSection = subproductSections[subIndex];
-            const partNameInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(1)`);
-            const partTypeSelect = subproductSection.querySelector(`select`);
-            const partSpecInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(2)`);
-            const partQtyInput = subproductSection.querySelector(`input[type="number"]`);
-
-            if (!partNameInput.value || !partTypeSelect.value || !partSpecInput.value || !partQtyInput.value) {
-                alert('Please fill in all the required fields for each part.');
-                return; // Stop form submission if any required field within a subproduct section is empty
+            function fetchDepartments(labId, departmentSelect) {
+                fetch(`/letterGenerate/get_departments/?lab_id=${labId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        departmentSelect.innerHTML = ''; // Clear existing options
+                        if (data.departments.length > 0) {
+                            data.departments.forEach(department => {
+                                const option = document.createElement('option');
+                                option.value = department.id;
+                                option.textContent = department.name;
+                                departmentSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.textContent = 'No Departments found';
+                            departmentSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching Departments:', error));
             }
 
-            formData.append(`products[${index}][subproducts][${subIndex}][part_name]`, partNameInput.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_type]`, partTypeSelect.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_specification]`, partSpecInput.value);
-            formData.append(`products[${index}][subproducts][${subIndex}][part_quantity]`, partQtyInput.value);
-        }
-    }
+            // Event listener for lab selection change to fetch departments
+            document.getElementById('lab_select').addEventListener('change', function() {
+                const labId = this.value;
+                const departmentSelect = document.getElementById('department_1');
+                fetchDepartments(labId, departmentSelect);
+            });
 
-    // Send the form data to the server
-    fetch('/letterGenerate/submit_form/', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        alert('Form submitted successfully!');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('There was an error submitting the form.');
-    });
-}
+            // Initialize the first fetch of departments for the selected lab
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const labSelect = document.getElementById('lab_select');
+                const labId = labSelect.value;
+                const departmentSelect = document.getElementById('department_1');
+                fetchDepartments(labId, departmentSelect);
+            });
 
+            // Function to update the part numbers in the subproduct section titles
+            function updatePartNumbers() {
+              const subproductSections = document.querySelectorAll('.subproduct-section');
+
+              subproductSections.forEach((subproductSection, index) => {
+                  // Update the part number
+                  const partNumber = index + 1;
+                  const titleElement = subproductSection.querySelector('h4');
+
+                  if (titleElement) {
+                      titleElement.textContent = `Part ${partNumber}`;
+                  }
+              });
+            }
+                         // Function to add subproduct sections
+                   function addSubproduct(event) {
+          event.preventDefault();
+
+          const parentProductSection = event.target.closest('.product-section');
+          const productId = parentProductSection.dataset.productId;
+
+          const subproductSection = document.createElement('div');
+          subproductSection.classList.add('mb-4', 'subproduct-section');
+
+          // Count the existing subproduct sections
+          const existingSubproductSections = parentProductSection.querySelectorAll('.subproduct-section').length;
+
+          // Title for the subproduct section
+          const subproductTitle = document.createElement('h4');
+          subproductTitle.textContent = `Part ${existingSubproductSections + 1}`;
+          subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2', 'title-custom-color');
+          subproductSection.appendChild(subproductTitle);
+
+          const partNameLabel = document.createElement('label');
+          partNameLabel.textContent = 'Part Name';
+          partNameLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+          subproductSection.appendChild(partNameLabel);
+
+          const partNameInput = document.createElement('input');
+          partNameInput.type = 'text';
+          partNameInput.placeholder = 'Enter part name';
+          partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+          subproductSection.appendChild(partNameInput);
+
+          const partTypeLabel = document.createElement('label');
+          partTypeLabel.textContent = 'Part Type';
+          partTypeLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+          subproductSection.appendChild(partTypeLabel);
+
+          const partTypeSelect = document.createElement('select');
+          partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+
+          const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
+          partTypes.forEach(type => {
+              const option = document.createElement('option');
+              option.value = type;
+              option.textContent = type;
+              partTypeSelect.appendChild(option);
+          });
+
+          subproductSection.appendChild(partTypeSelect);
+
+          const partSpecLabel = document.createElement('label');
+          partSpecLabel.textContent = 'Part Specification';
+          partSpecLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+          subproductSection.appendChild(partSpecLabel);
+
+          const partSpecInput = document.createElement('input');
+          partSpecInput.type = 'text';
+          partSpecInput.placeholder = 'Enter Part Specification';
+          partSpecInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+          subproductSection.appendChild(partSpecInput);
+
+          const partQtyLabel = document.createElement('label');
+          partQtyLabel.textContent = 'Part Quantity';
+          partQtyLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+          subproductSection.appendChild(partQtyLabel);
+
+          const partQtyInput = document.createElement('input');
+          partQtyInput.type = 'number';
+          partQtyInput.placeholder = 'Enter Quantity Part';
+          partQtyInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+          subproductSection.appendChild(partQtyInput);
+
+          // Delete Subproduct Button
+          const deleteSubproductBtn = document.createElement('button');
+          deleteSubproductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Subproduct';
+          deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+          deleteSubproductBtn.addEventListener('click', () => {
+              subproductSection.remove();
+              // After deleting, update part numbers
+              updatePartNumbers();
+          });
+          subproductSection.appendChild(deleteSubproductBtn);
+
+          parentProductSection.appendChild(subproductSection);
+
+          // Function to update part numbers after adding or deleting
+          function updatePartNumbers() {
+              const subproductSections = parentProductSection.querySelectorAll('.subproduct-section');
+              subproductSections.forEach((section, index) => {
+                  const partNumber = index + 1;
+                  section.querySelector('h4').textContent = `Part ${partNumber}`;
+              });
+          }
+
+          // Update part numbers immediately after adding
+          updatePartNumbers();
+      }
+
+                          // Initial call to add first product section
+                          document.addEventListener('DOMContentLoaded', function() {
+                            addProduct(); // Adds the first product section
+                        
+                            const addProductBtn = document.getElementById('addProductBtn');
+                            addProductBtn.addEventListener('click', function() {
+                                addProduct(); // Adds subsequent product sections
+                            });
+                        });
+
+
+                          function submitForm() {
+                const formData = new FormData();
+
+                // Add letter number, lab name, and date
+                const letterNo = document.getElementById('letter_no').value;
+                const labName = document.getElementById('lab_select').value;
+                const date = document.getElementById('letter_date').value;
+
+                if (!letterNo || !labName || !date) {
+                    alert('Please fill in all the required fields.');
+                    return; // Stop form submission if any required field is empty
+                }
+
+                formData.append('letter_no', letterNo);
+                formData.append('lab_name', labName);
+                formData.append('date', date);
+
+                // Get all product sections
+                const productSections = document.querySelectorAll('.product-section');
+
+                for (let index = 0; index < productSections.length; index++) {
+                    const productSection = productSections[index];
+                    const mainItemInput = productSection.querySelector(`[id^=main_item]`);
+                    const manufacturerSelect = productSection.querySelector(`[id^=manufacturer]`);
+                    const departmentSelect = productSection.querySelector(`[id^=department]`);
+                    const serviceReportDateInput = productSection.querySelector(`[id^=service_report]`);
+                    const srNoSelect = productSection.querySelector(`[id^=sr_no]`);
+
+                    if (!mainItemInput.value || !manufacturerSelect.value || !departmentSelect.value || !serviceReportDateInput.value || !srNoSelect.value) {
+                        alert('Please fill in all the required fields for each product.');
+                        return; // Stop form submission if any required field within a product section is empty
+                    }
+
+                    formData.append(`products[${index}][main_item]`, mainItemInput.value);
+                    formData.append(`products[${index}][manufacturer]`, manufacturerSelect.value);
+                    formData.append(`products[${index}][department]`, departmentSelect.value);
+                    formData.append(`products[${index}][service_report_date]`, serviceReportDateInput.value);
+                    formData.append(`products[${index}][sr_no]`, srNoSelect.value);
+
+                    // Get all subproduct sections within the current product section
+                    const subproductSections = productSection.querySelectorAll('.subproduct-section');
+
+                    if (subproductSections.length === 0) {
+                        alert('Please open the part section to fill in the required details.');
+                        return; // Stop form submission if the part section is not opened
+                    }
+
+                    for (let subIndex = 0; subIndex < subproductSections.length; subIndex++) {
+                        const subproductSection = subproductSections[subIndex];
+                        const partNameInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(1)`);
+                        const partTypeSelect = subproductSection.querySelector(`select`);
+                        const partSpecInput = subproductSection.querySelector(`input[type="text"]:nth-of-type(2)`);
+                        const partQtyInput = subproductSection.querySelector(`input[type="number"]`);
+
+                        if (!partNameInput.value || !partTypeSelect.value || !partSpecInput.value || !partQtyInput.value) {
+                            alert('Please fill in all the required fields for each part.');
+                            return; // Stop form submission if any required field within a subproduct section is empty
+                        }
+
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_name]`, partNameInput.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_type]`, partTypeSelect.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_specification]`, partSpecInput.value);
+                        formData.append(`products[${index}][subproducts][${subIndex}][part_quantity]`, partQtyInput.value);
+                    }
+                }
+
+                // Send the form data to the server
+                fetch('/letterGenerate/submit_form/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Form submitted successfully!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error submitting the form.');
+                });
+            }
     </script>
   </body>
 </html>

@@ -148,7 +148,7 @@ def track_letter(request, letter_id):
 
 def tracking_table(request):
     letters = Letter.objects.select_related('lab_name').prefetch_related(
-        Prefetch('subproducts', queryset=Subproduct.objects.select_related('product_main_item', 'product_department'))
+        Prefetch('subproducts', queryset=Subproduct.objects.select_related('product__main_item', 'product__department'))
     ).all()
 
     context = {
@@ -234,7 +234,7 @@ def get_sr_numbers(request):
         sr_numbers = Product.objects.filter(
             lab_name__id=lab_id,
             main_item__name=main_item,
-            main_item_manufacturer_name=manufacturer,
+            main_item__manufacturer__name=manufacturer,
             department__id=department_id  # Assuming the correct field name in the model
         ).values_list('sr_no', flat=True).distinct()
         
@@ -398,7 +398,7 @@ def service_report_history(request):
 
 def product_list(request):
     # Retrieve all Letter objects with required fields
-    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts_productmain_item', 'subproductsproduct_department').all()
+    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
 
     # Get letter numbers where is_done is True
     done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
@@ -537,8 +537,7 @@ def letter_detail6(request, letter_id):
     product = subproducts.first().product if subproducts else None
     main_item = product.main_item if product else None
     quotations = Quotation.objects.filter(
-        product=product,
-        quotationitem_subproduct_in=subproducts
+        quotationitem__subproduct__in=subproducts
     ).distinct() if product else []
 
     # Calculate global variables
@@ -606,12 +605,13 @@ def letter_detail6(request, letter_id):
         'quotation_expense_criteria_text': quotation_expense_criteria_text,
         'unique_amc_providers': amc_providers,  # Pass the set of unique AMC providers
         'print_track': print_track,  # Pass PrintTrack instance to the template
-    })      
+    })
     
 def product_list6(request):
-  
     # Retrieve all Letter objects with required fields
-    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+    letters = Letter.objects.select_related('lab_name').prefetch_related(
+        'subproducts__product__main_item', 'subproducts__product__department'
+    ).all()
 
     # Get letter numbers where is_done is True
     done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
@@ -619,20 +619,16 @@ def product_list6(request):
     # Exclude letters with letter_no in done_letters
     letters = letters.exclude(letter_no__in=done_letters)
 
-    # Filter letters where Quotation does not exist
-    letters_without_quotation = []
-    for letter in letters:
-        if not Quotation.objects.filter(letter=letter).exists():
-            letters_without_quotation.append(letter)
+    # Filter letters where Quotation exists
+    letters_with_quotation = letters.filter(quotation__isnull=False).distinct()
 
     # Pass the data to the template
     context = {
-        'letters': letters_without_quotation
+        'letters': letters_with_quotation
     }
 
     # Render the template with the provided context
-    return render(request, 'table6.html', context)
-    
+    return render(request, 'table6.html', context)    
 
 
 
@@ -641,8 +637,10 @@ def product_list6(request):
 
 
 def product_list7(request):
-    # Retrieve all Letter objects with required fields
-    letters = Letter.objects.select_related('lab_name').prefetch_related('subproducts__product__main_item', 'subproducts__product__department').all()
+        # Retrieve all Letter objects with required fields
+    letters = Letter.objects.select_related('lab_name').prefetch_related(
+        'subproducts__product__main_item', 'subproducts__product__department'
+    ).all()
 
     # Get letter numbers where is_done is True
     done_letters = PrintTrack.objects.filter(is_done=True).values_list('letter_no', flat=True)
@@ -650,20 +648,16 @@ def product_list7(request):
     # Exclude letters with letter_no in done_letters
     letters = letters.exclude(letter_no__in=done_letters)
 
-    # Filter letters where Quotation does not exist
-    letters_without_quotation = []
-    for letter in letters:
-        if not Quotation.objects.filter(letter=letter).exists():
-            letters_without_quotation.append(letter)
+    # Filter letters where Quotation exists
+    letters_with_quotation = letters.filter(quotation__isnull=False).distinct()
 
     # Pass the data to the template
     context = {
-        'letters': letters_without_quotation
+        'letters': letters_with_quotation
     }
 
     # Render the template with the provided context
-    return render(request, 'table7.html', context)
-   
+    return render(request, 'table7.html', context)       
 
 
 def letter_detail7(request, letter_id):
