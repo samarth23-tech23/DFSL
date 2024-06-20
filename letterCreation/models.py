@@ -1,5 +1,5 @@
 from django.db import models
-
+from decimal import Decimal
 class Lab(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField()
@@ -51,14 +51,14 @@ class MainItem(models.Model):
 
     def __str__(self):
         return f"{self.name}-{self.manufacturer.name}"
-
 class Product(models.Model):
-    main_item = models.ForeignKey(MainItem, on_delete=models.CASCADE)
+    main_item = models.ForeignKey('MainItem', on_delete=models.CASCADE)
     sr_no = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     buying_date = models.DateField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    lab_name = models.ForeignKey(Lab, on_delete=models.CASCADE)
+    installation_date = models.DateField(null=True, blank=True)  # New field
+    department = models.ForeignKey('Department', on_delete=models.CASCADE)
+    lab_name = models.ForeignKey('Lab', on_delete=models.CASCADE)
     amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
     amc_period = models.CharField(max_length=255)
     expenditure_cost = models.DecimalField(max_digits=10, decimal_places=2)
@@ -69,10 +69,15 @@ class Product(models.Model):
         return self.sr_no
 
     def save(self, *args, **kwargs):
+        # Calculate expenditure_cost if it's not set
+        if not self.expenditure_cost:
+            self.expenditure_cost = self.price * Decimal('0.20')
+
         if self.pk:  # Check if the instance has already been saved
             original_product = Product.objects.get(pk=self.pk)  # Get the original instance from the database
             if original_product.service_report_date != self.service_report_date:
                 ServiceReportTrack.objects.create(product=self, service_date=original_product.service_report_date)
+
         super().save(*args, **kwargs)
 
 class ServiceReportTrack(models.Model):

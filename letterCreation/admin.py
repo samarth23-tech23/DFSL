@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Lab, Department, Manufacturer, Letter, MainItem, Product, Subproduct, Quotation, AMCProvider, QuotationItem, PrintTrack, ServiceReportTrack
-
+from decimal import Decimal
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'address']
@@ -35,7 +35,14 @@ class MainItemAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_mainitem_name', 'sr_no', 'price', 'buying_date', 'get_department_name', 'get_lab_name', 'get_amc_provider_name', 'service_report_date', 'amc_period', 'expenditure_cost', 'manufacturer_warranty_period']
+    readonly_fields = ['expenditure_cost']
+
+    list_display = ['id', 'get_mainitem_name', 'sr_no', 'price', 'buying_date', 'installation_date', 'get_department_name', 'get_lab_name', 'get_amc_provider_name', 'service_report_date', 'amc_period', 'expenditure_cost', 'manufacturer_warranty_period']
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Check if the object is being created
+            obj.expenditure_cost = obj.price * Decimal('0.20')  # Calculate expenditure_cost only on creation
+        super().save_model(request, obj, form, change)
 
     def get_department_name(self, obj):
         return obj.department.name if obj.department else ''
@@ -54,7 +61,7 @@ class ProductAdmin(admin.ModelAdmin):
     def get_amc_provider_name(self, obj):
         return obj.amc_provider.name if obj.amc_provider else ''
     get_amc_provider_name.short_description = 'AMC Provider'
-
+    
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):
     list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity', 'amc_provider']

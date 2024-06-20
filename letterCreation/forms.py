@@ -21,12 +21,14 @@ class MainItemForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = '__all__'
+        exclude = ['expenditure_cost']
         widgets = {
             'field_name': forms.TextInput(attrs={'class': 'form-control'}),
             'another_field_name': forms.Select(attrs={'class': 'form-select'}),
             # Add more fields and their respective widgets as needed
+            'expenditure_cost': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
         }
+
 
 
 class ManufacturerForm(forms.ModelForm):
