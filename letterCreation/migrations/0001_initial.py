@@ -10,10 +10,13 @@ class Migration(migrations.Migration):
 
     dependencies = [
     ]
+    dependencies = [
+    ]
 
     operations = [
         migrations.CreateModel(
             name='AMCProvider',
+          
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255)),
@@ -121,6 +124,7 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='ServiceReportTrack',
+          
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('service_date', models.DateField()),

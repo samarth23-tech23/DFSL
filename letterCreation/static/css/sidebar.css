@@ -1,0 +1,179 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #fff;
+            display: flex;
+        }
+
+        .navigation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            border-left: 5px solid #01a1df;
+            background-color: #3ab1df;
+            padding-top: 40px;
+            transition: width 0.3s, transform 0.3s;
+            align-items: center; 
+        }
+        .sidebar-header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .sidebar-header img {
+                width: 100%;
+                height: 70px;
+            }
+
+            .sidebar-header .sidebar-title {
+                font-size: 30px;
+                font-weight: bold;
+                color: #fff;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+            }
+
+            .sidebar-header a {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+            }
+
+        /* .sidebar-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            padding: 10px 0;
+            background-color: #01a1df;
+        } */
+
+        .navigation ul {
+            list-style-type: none;
+        }
+
+        .navigation a {
+            font-size: 15px;
+            color: #F5F5F5;
+            text-decoration: none;
+            display: block;
+            padding: 7px 20px;
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        .navigation .dropdown {
+            position: relative;
+        }
+
+        .navigation .dropdown > a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navigation .dropdown-content {
+            display: none;
+            flex-direction: column;
+            padding-left: 20px;
+        }
+
+        .navigation .dropdown.active .dropdown-content {
+            display: flex;
+        }
+
+        .navigation ul li {
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .navigation ul li.active {
+            background: #F5F5F5;
+        }
+
+        .navigation ul li.active a {
+            color: #333;
+        }
+
+        .toggle {
+            display: none;
+        }
+
+        main.content {
+            margin-left: 300px;
+            padding: 20px;
+            width: calc(100% - 300px);
+            transition: margin-left 0.3s, width 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                width: 70px;
+                padding-top: 0;
+                transform: translateX(-100%);
+            }
+
+            .sidebar-title {
+                display: none;
+            }
+
+            .navigation a {
+                padding: 10px;
+            }
+
+            .navigation .dropdown > a .title {
+                display: none;
+            }
+
+            main.content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+
+            .toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: #3ab1df;
+                border-radius: 10px;
+                cursor: pointer;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            .toggle ion-icon {
+                font-size: 34px;
+                color: #fff;
+            }
+
+            .navigation.active {
+                transform: translateX(0);
+            }
+
+            .navigation.active .sidebar-title,
+            .navigation.active a .title {
+                display: inline;
+            }
+
+            main.content.active {
+                margin-left: 300px;
+                width: calc(100% - 300px);
+            }
+
+          
+            }
+        

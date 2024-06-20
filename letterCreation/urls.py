@@ -2,8 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
     
+
+    path('tracking_table/', views.tracking_table, name='tracking_table'),
+
     path('',views.index),
     path('update-print-date/', views.update_print_date, name='update_print_date'),
     path('track-letter/<int:letter_id>/', views.track_letter, name='track_letter'),

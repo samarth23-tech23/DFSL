@@ -1,4 +1,4 @@
-  {% load custom_tags %}
+{% load form_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +29,7 @@
       <h2 class="text-xl font-semibold">Edit AMC Provider</h2>
     </div>
     <div class="p-4">
-      <form id="edit-form" method="post" action="{% url 'edit_amc_provider' provider.id %}">
+      <form id="edit-form" method="post" action="{% url 'letterGenerate:edit_amc_provider' provider.id %}">
         {% csrf_token %}
         {% for field in form %}
           <div class="mb-4">

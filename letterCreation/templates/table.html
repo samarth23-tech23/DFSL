@@ -1,6 +1,7 @@
 {% extends 'sidebar.html' %}
 {% load custom_tags %}
 {% block content %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+
     <style>
         * {
             font-family: 'Poppins', sans-serif;
@@ -96,7 +99,7 @@
                 opacity: 1;
             }
         }
-    </style>
+    </style> 
 </head>
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">

@@ -1,7 +1,5 @@
 from django import forms
-from .models import AMCProvider, Manufacturer
-from .models import MainItem
-from .models import Product
+from .models import AMCProvider, Manufacturer, MainItem, Product
 
 class ManufacturerForm(forms.ModelForm):
     class Meta:
@@ -48,6 +46,23 @@ class ManufacturerForm(forms.ModelForm):
             'contact_no': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+class MainItemForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
+
+    class Meta:
+        model = MainItem
+        fields = ['name', 'manufacturer']
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__'  # Corrected to use the tuple
+        widgets = {
+            'field_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'another_field_name': forms.Select(attrs={'class': 'form-select'}),
+            # Add more fields and their respective widgets as needed
+        }
+
 class ItemForm(forms.ModelForm):
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), empty_label="Select Manufacturer")
 
@@ -60,9 +75,7 @@ class AddItemForm(forms.ModelForm):
         model = MainItem
         fields = ['name', 'manufacturer']
 
-
 class AMCProviderForm(forms.ModelForm):
     class Meta:
         model = AMCProvider
         fields = ['name', 'ac_no', 'ifsc_code', 'ac_name', 'bank_name', 'pan_no', 'state', 'pincode', 'address', 'email_id', 'contact_no']
-

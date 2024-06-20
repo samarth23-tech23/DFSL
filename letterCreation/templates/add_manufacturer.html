@@ -10,18 +10,27 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
+
 </head>
 <body class="bg-gray-100 p-3">
+    {% if messages %}
+    {% for message in messages %}
+        <script>
+            alert("{{ message }}");
+        </script>
+    {% endfor %}
+{% endif %}
 <div class="container bg-white rounded-lg shadow-md">
     <div class="bg-light px-4 py-3 border-bottom">
         <h2 class="text-lg font-semibold">Add Manufacturer</h2>
     </div>
     <div class="p-4">
-        <form id="add-form" method="post" onsubmit="showSuccessPopup()">
+        <form id="add-form" method="post" onsubmit="return validateForm()" novalidate>
             {% csrf_token %}
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
-                <input type="text" id="name" name="name" class="form-control">
+                <input type="text" id="name" name="name" class="form-control" pattern="[A-Za-z\s]+" title="Only alphabets are allowed" required>
+                <div class="invalid-feedback">Please enter a valid name (only alphabets).</div>
             </div>
             <div class="mb-3">
                 <label for="ac_no" class="form-label">AC No</label>
@@ -45,7 +54,8 @@
             </div>
             <div class="mb-3">
                 <label for="pincode" class="form-label">Pincode</label>
-                <input type="text" id="pincode" name="pincode" class="form-control">
+                <input type="text" id="pincode" name="pincode" class="form-control" pattern="[0-9]{6}" title="Please enter a 6-digit numeric pincode" required>
+                <div class="invalid-feedback">Please enter a valid pincode (6 digits).</div>
             </div>
             <div class="mb-3">
                 <label for="address" class="form-label">Address</label>
@@ -53,11 +63,13 @@
             </div>
             <div class="mb-3">
                 <label for="email_id" class="form-label">Email ID</label>
-                <input type="email" id="email_id" name="email_id" class="form-control">
+                <input type="email" id="email_id" name="email_id" class="form-control" required>
+                <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
                 <label for="contact_no" class="form-label">Contact No</label>
-                <input type="text" id="contact_no" name="contact_no" class="form-control">
+                <input type="text" id="contact_no" name="contact_no" class="form-control" pattern="[0-9]{10}" title="Please enter a 10-digit numeric contact number" required>
+                <div class="invalid-feedback">Please enter a valid 10-digit contact number.</div>
             </div>
             <div class="text-end">
                 <button type="submit" class="btn btn-primary">Add Manufacturer</button>
@@ -79,10 +91,67 @@
     function showSuccessPopup() {
         const popup = document.getElementById('success-popup');
         popup.style.display = 'flex';
-        // Hide the popup after 1 minute
+        // Hide the popup after 3 seconds
         setTimeout(function() {
             popup.style.display = 'none';
-        }, 1000); // 1 minute
+            alert('Manufacturer added successfully!');
+        }, 3000);
+    }
+
+    // Function to validate form inputs
+    function validateForm() {
+        // Reset all inputs' validity before rechecking
+        var inputs = document.querySelectorAll('input');
+        inputs.forEach(function(input) {
+            input.classList.remove('is-invalid');
+        });
+
+        // Validate each input field
+        var isValid = true;
+
+        // Check if any required field is empty
+        var requiredInputs = document.querySelectorAll('input[required]');
+        requiredInputs.forEach(function(input) {
+            if (input.value.trim() === '') {
+                input.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+
+        // Name validation (only alphabets)
+        var nameInput = document.getElementById('name');
+        if (!/^[A-Za-z\s]+$/.test(nameInput.value)) {
+            nameInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Pincode validation (6-digit numeric)
+        var pincodeInput = document.getElementById('pincode');
+        if (!/^\d{6}$/.test(pincodeInput.value)) {
+            pincodeInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Email validation (basic check for @)
+        var emailInput = document.getElementById('email_id');
+        if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Contact number validation (10-digit numeric)
+        var contactInput = document.getElementById('contact_no');
+        if (!/^\d{10}$/.test(contactInput.value)) {
+            contactInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Show success popup if form is valid
+        if (isValid) {
+            showSuccessPopup();
+        }
+
+        return isValid;
     }
 </script>
 </body>

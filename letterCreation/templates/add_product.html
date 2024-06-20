@@ -1,6 +1,7 @@
 {% extends 'sidebar.html' %}
-{% load static %}
 {% block content %}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,29 +27,129 @@
             border-color: #359fce;
         }
         .form-control {
-            border: 1px solid #3ab1df;
+            display: block;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #3ab1df; /* Add border color here */
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
         .form-control:focus {
+            color: #495057;
+            background-color: #fff;
             border-color: #359fce;
-            box-shadow: 0 0 5px rgba(58, 177, 223, 0.5);
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(58, 177, 223, 0.25);
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 80%;
         }
     </style>
 </head>
 <body class="bg-gray-100 p-3">
-    <div class="container bg-white rounded-lg shadow-md">
-        <div class="bg-light px-4 py-3 border-bottom">
-            <h2 class="text-lg font-semibold">Add Product</h2>
-        </div>
-        <div class="p-4">
-            <form method="post" class="space-y-3">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Add Product</button>
-                </div>
-            </form>
-        </div>
+<div class="container bg-white rounded-lg shadow-md">
+    <div class="bg-light px-4 py-3 border-bottom">
+        <h2 class="text-lg font-semibold">Add Product</h2>
     </div>
+    <div class="p-4">
+        <form method="post" class="space-y-3" id="productForm">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {% if field.field.widget.input_type != 'checkbox' %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="form-check">
+                            {{ field }}
+                            {{ field.label_tag }}
+                        </div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for client-side validation and alert display -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('productForm');
+        form.addEventListener('submit', function(event) {
+            // Replace 'id_price' and 'id_expenditure_cost' with the actual IDs of your form fields
+            const priceField = form.querySelector('#id_price'); 
+            const expenditureCostField = form.querySelector('#id_expenditure_cost'); 
+
+            let isValid = true;
+
+            if (priceField && priceField.value < 0) {
+                isValid = false;
+                priceField.classList.add('is-invalid');
+                if (!priceField.parentNode.querySelector('.invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.classList.add('invalid-feedback');
+                    errorDiv.textContent = 'Negative numbers are not allowed for price.';
+                    priceField.parentNode.appendChild(errorDiv);
+                }
+            } else {
+                priceField.classList.remove('is-invalid');
+                const errorDiv = priceField.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+
+            if (expenditureCostField && expenditureCostField.value < 0) {
+                isValid = false;
+                expenditureCostField.classList.add('is-invalid');
+                if (!expenditureCostField.parentNode.querySelector('.invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.classList.add('invalid-feedback');
+                    errorDiv.textContent = 'Negative numbers are not allowed for expenditure cost.';
+                    expenditureCostField.parentNode.appendChild(errorDiv);
+                }
+            } else {
+                expenditureCostField.classList.remove('is-invalid');
+                const errorDiv = expenditureCostField.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+
+            if (isValid) {
+                // Show alert on successful form submission
+                alert('Product added successfully.');
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                alert('Negative numbers are not allowed.');
+            }
+        });
+    });
+</script>
 </body>
 </html>
 {% endblock %}
