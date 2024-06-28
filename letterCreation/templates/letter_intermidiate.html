@@ -1,7 +1,7 @@
 {% extends 'sidebar.html' %}
 {% load custom_tags %}
 {% block content %}
-{% load static  %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +10,6 @@
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/table.css' %}">
-
-
 </head>
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">
@@ -59,9 +57,14 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-2">
-                            <form action="{% url 'quotation_page' letter.id %}" method="get" target="_blank">
-                                <button type="submit" class="print-button">Add info</button>
-                            </form>
+                            {% if letter.subproducts.exists %}
+                                {% for amc_provider, grouped_subproducts in letter.subproducts.all|groupby_amc %}
+                                    <form action="{% url 'quotation_page' letter.id %}?amc_provider_id={{ amc_provider }}" method="get" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter2')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="print-button" data-letter-id="{{ letter.id }}" data-amc-provider-id="{{ amc_provider }}">Print for AMC Provider {{ amc_provider }}</button>
+                                    </form>
+                                {% endfor %}
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -94,6 +97,29 @@
             });
         });
     });
+
+    function handlePrint(event, letterNo, letterField) {
+        event.preventDefault();
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'update_print_date' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                letter_no: letterNo,
+                letter_field: letterField  // Pass the specific letter field to update
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Always proceed to print the letter after updating the date
+            window.open(event.target.action, '_blank');
+        })
+        .catch(error => console.error('Error:', error));
+    }
 </script>
 </html>
 {% endblock %}

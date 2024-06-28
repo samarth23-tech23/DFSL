@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.db.models import Exists, OuterRef,Q
+from collections import defaultdict
 from django.http import Http404
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
@@ -421,6 +422,11 @@ def letter_detail(request, letter_id):
     # Get all subproducts associated with the letter
     subproducts = Subproduct.objects.filter(letters=letter).distinct()
     
+    # Group subproducts by amc_provider
+    grouped_subproducts = defaultdict(list)
+    for subproduct in subproducts:
+        grouped_subproducts[subproduct.amc_provider].append(subproduct)
+    
     # Get the product associated with the first subproduct (assuming all subproducts have the same product)
     product = subproducts.first().product if subproducts.exists() else None
 
@@ -430,9 +436,11 @@ def letter_detail(request, letter_id):
     return render(request, 'letter1.html', {
         'product': product,
         'letters': [letter],  # Wrap the single letter in a list to maintain template structure
-        'subproducts': subproducts,
+        'subproducts':subproducts,
+        'grouped_subproducts': grouped_subproducts,
         'current_date': current_date
     })
+
 
 
 def quotation_form(request):
@@ -460,20 +468,33 @@ def quotation_form(request):
     return render(request, 'letter_intermidiate.html', context)
 
 
-
 def quotation_page(request, letter_id):
+    # Fetch the letter
     letter = get_object_or_404(Letter, pk=letter_id)
-    subproducts = letter.subproducts.all()
-    
-    # Find the product associated with the subproduct
-    product = None
-    for subproduct in subproducts:
-        if subproduct.product:
-            product = subproduct.product
-            break
-    
+
+    # Get the AMC provider ID from the query parameters
+    amc_provider_id = request.GET.get('amc_provider_id')
+
+    # Filter subproducts based on AMCProvider if amc_provider_id is provided
+    if amc_provider_id:
+        amc_provider = get_object_or_404(AMCProvider, pk=amc_provider_id)
+        subproducts = letter.subproducts.filter(amc_provider=amc_provider)
+    else:
+        subproducts = letter.subproducts.all()
+
+    # Filter products associated with the filtered subproducts
+    products = Product.objects.filter(subproducts__in=subproducts).distinct()
+
+    # Get existing AMC providers
     amc_providers_exist = set(AMCProvider.objects.values_list('name', flat=True))
-    return render(request, 'quotation_info.html', {'letter': letter, 'product': product, 'subproducts': subproducts, 'amc_providers_exist': amc_providers_exist})
+
+    return render(request, 'quotation_info.html', {
+        'letter': letter,
+        'products': products,
+        'subproducts': subproducts,
+        'amc_providers_exist': amc_providers_exist,
+        'amc_provider_id': amc_provider_id  # Pass amc_provider_id to template if needed
+    })
 
 
 
@@ -501,33 +522,35 @@ def letter_detail4(request, letter_id):
     # Fetch the letter
     letter = get_object_or_404(Letter, id=letter_id)
     subproducts = letter.subproducts.all()
-    # Get the product associated with the first subproduct (assuming all subproducts have the same product)
-    product = None
-    for subproduct in subproducts:
-        if subproduct.product:
-            product = subproduct.product
-            break
-    
 
-    # Get the AMC provider for the first subproduct
-    amc_provider = letter.subproducts.first().amc_provider if letter.subproducts.exists() else None
+    # Get the AMC provider ID from the query parameters
+    amc_provider_id = request.GET.get('amc_provider_id')
 
-    # Get all related subproducts for the product and AMC provider
-    related_subproducts = Subproduct.objects.filter(product=product, amc_provider=amc_provider)
+    # Get the specific AMC provider and filter subproducts
+    if amc_provider_id:
+        amc_provider = get_object_or_404(AMCProvider, id=amc_provider_id)
+        related_subproducts = subproducts.filter(amc_provider=amc_provider)
+    else:
+        amc_provider = None
+        related_subproducts = subproducts
+
+    # Get the single product associated with the subproducts
+    product = related_subproducts.first().product if related_subproducts.exists() else None
 
     # Accessing service report date from the product's service reports
-    service_report_date = None
-    if product and product.service_reports.exists():
-        service_report_date = product.service_reports.latest('service_date').service_date
+    service_report_date = product.service_reports.latest('service_date').service_date if product and product.service_reports.exists() else None
+
+    # Collect the product serial number
+    product_serial_number = str(product.sr_no) if product else ''
 
     return render(request, 'letter4.html', {
         'product': product,
         'amc_provider': amc_provider,
         'related_subproducts': related_subproducts,
         'service_report_date': service_report_date,
-        'letter': letter
+        'letter': letter,
+        'product_serial_number': product_serial_number
     })
-
 
 
 
@@ -536,9 +559,9 @@ def letter_detail6(request, letter_id):
     subproducts = letter.subproducts.select_related('amc_provider', 'product')
     product = subproducts.first().product if subproducts else None
     main_item = product.main_item if product else None
-    quotations = Quotation.objects.filter(
-        quotationitem__subproduct__in=subproducts
-    ).distinct() if product else []
+
+    # Ensure all quotations related to the letter are fetched
+    quotations = Quotation.objects.filter(letter=letter).distinct()
 
     # Calculate global variables
     global_total_basic_price = Decimal('0')
@@ -606,6 +629,7 @@ def letter_detail6(request, letter_id):
         'unique_amc_providers': amc_providers,  # Pass the set of unique AMC providers
         'print_track': print_track,  # Pass PrintTrack instance to the template
     })
+
     
 def product_list6(request):
     # Retrieve all Letter objects with required fields
@@ -682,8 +706,18 @@ def letter_detail7(request, letter_id):
     # Convert the set of quotations to a list (if needed)
     quotations = list(quotations)  # Assuming there's only one unique quotation
 
-    # Group the subproducts by their AMC providers and collect necessary information
+    # Initialize grouped subproducts dictionary
     grouped_subproducts = {}
+
+    # Get the AMC provider ID from the query parameters
+    amc_provider_id = request.GET.get('amc_provider_id')
+
+    # Filter subproducts by the specified AMC provider if provided
+    if amc_provider_id:
+        amc_provider = get_object_or_404(AMCProvider, id=amc_provider_id)
+        subproducts = subproducts.filter(amc_provider=amc_provider)
+
+    # Group the subproducts by their AMC providers and collect necessary information
     for subproduct in subproducts:
         provider_name = subproduct.amc_provider.name
         if provider_name not in grouped_subproducts:
@@ -712,9 +746,9 @@ def letter_detail7(request, letter_id):
     return render(request, 'letter.html', {
         'letter': letter,
         'grouped_subproducts': grouped_subproducts,
-        'quotation': quotations[0] if quotations else None  # Pass the first (and only) quotation if available
+        'quotation': quotations[0] if quotations else None,  # Pass the first (and only) quotation if available
+        'amc_provider_id': amc_provider_id  # Pass the AMC provider ID to the template for rendering
     })
-
 
 def get_service_report_dates(request, product_id):
     try:
@@ -827,7 +861,7 @@ def submit_form(request):
     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 
 
-@csrf_exempt
+
 def submit_quotation_info(request):
     if request.method == 'POST':
         letter_id = request.POST.get('letter_id')
@@ -835,19 +869,11 @@ def submit_quotation_info(request):
         ref_no = request.POST.get('ref_no')
         quotation_expense_criteria = request.POST.get('quotation_criteria')
 
-        try:
-            letter = Letter.objects.get(pk=letter_id)
-        except Letter.DoesNotExist:
-            return JsonResponse({'message': 'Letter not found'}, status=404)
-
-        total_price = Decimal(0)
+        letter = get_object_or_404(Letter, pk=letter_id)
 
         subproduct_ids = [key.split('_')[-1] for key in request.POST.keys() if key.startswith('subproduct_id')]
         for subproduct_id in subproduct_ids:
-            try:
-                subproduct = Subproduct.objects.get(pk=subproduct_id)
-            except Subproduct.DoesNotExist:
-                return JsonResponse({'message': f'Subproduct with ID {subproduct_id} not found'}, status=404)
+            subproduct = get_object_or_404(Subproduct, pk=subproduct_id)
 
             unit_price = Decimal(request.POST.get(f'unit_price_{subproduct_id}', '0'))
             quantity = subproduct.quantity
@@ -855,20 +881,16 @@ def submit_quotation_info(request):
             gst_value = price_without_gst * Decimal('0.18')
             price_with_gst = price_without_gst + gst_value
 
-            total_price += price_with_gst
+            total_price = price_with_gst
 
-            # Check if a Quotation already exists for this Letter
-            try:
-                quotation = Quotation.objects.get(letter=letter)
-            except Quotation.DoesNotExist:
-                # If Quotation does not exist, create a new one
-                quotation = Quotation.objects.create(
-                    letter=letter,
-                    quotation_date=date,
-                    ref_no=ref_no,
-                    quotation_expense_criteria=quotation_expense_criteria,
-                    total_price=0  # Initialize with 0, will be updated later
-                )
+            # Create a new Quotation for the Letter and ref_no
+            quotation = Quotation.objects.create(
+                letter=letter,
+                ref_no=ref_no,
+                quotation_date=date,
+                quotation_expense_criteria=quotation_expense_criteria,
+                total_price=0  # Initialize with 0, will be updated later
+            )
 
             # Create the QuotationItem associated with the Quotation
             QuotationItem.objects.create(
@@ -883,9 +905,9 @@ def submit_quotation_info(request):
                 amc_provider=subproduct.amc_provider
             )
 
-        # Update the total price of the quotation
-        quotation.total_price = total_price
-        quotation.save()
+            # Update the total price of the quotation
+            quotation.total_price += total_price
+            quotation.save()
 
         return JsonResponse({'message': 'Quotation information submitted successfully'})
     else:

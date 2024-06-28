@@ -1,4 +1,5 @@
 # yourapp/templatetags/custom_tags.py
+from collections import defaultdict
 from django import template
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
@@ -10,6 +11,11 @@ def multiply(value, arg):
         return value * arg
     except (ValueError, TypeError):
         return None
+    
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 
 @register.filter
 def map(value, attr):
@@ -211,3 +217,21 @@ def remove_duplicates(subproducts):
             unique_subproducts.append(subproduct)
 
     return unique_subproducts
+
+@register.filter
+def unique(values, key):
+    seen = set()
+    unique_values = []
+    for value in values:
+        attr = getattr(value, key)
+        if attr not in seen:
+            unique_values.append(value)
+            seen.add(attr)
+    return unique_values
+
+@register.filter
+def groupby_amc(subproducts):
+    grouped = defaultdict(list)
+    for subproduct in subproducts:
+        grouped[subproduct.amc_provider.id].append(subproduct)
+    return grouped.items()

@@ -1,3 +1,4 @@
+{% load custom_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,23 +6,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-    <title>Supplier quotation request</title>
+    <title>Supplier Quotation Request</title>
     <style>
-
+        body {
+            font-family: 'Times New Roman';
+            font-size: 14px;
+        }
     </style>
 </head>
-<body class="font-times text-xmlns ">
+<body class="font-times text-xmlns m-12">
 
     <div class="relative">
         <div class="img">
             {% load static %}
-            <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-64 rounded-lg" />
+            <img src="{% static 'images/header1.jpg' %}" alt="Description of the image" class="w-full h-36 rounded-lg" />
         </div>
+        <hr class="border border-black">
         <div class="float-left">
-            <p id="javakNoDisplay" class="font-bold mt-4 p-4 ml-4">जावक क्र./No. :</p>
+            <p id="javakNoDisplay" class="font-bold mt-2 p-2 ml-4">जावक क्र./No. :</p>
         </div>
         <div class="float-right">
-            <p id="dateDisplay" class="font-bold float-right m-8 pr-20 mr-12">दिनांक/Date:</p>
+            <p id="dateDisplay" class="font-bold float-right m-4 pr-20 mr-12">दिनांक/Date:</p>
         </div>
         <br><br><br>
         <div class="text-1xl text-left ml-4 p-4">
@@ -34,40 +39,38 @@
             <div>
                 <div class="flex justify-center p-4">
                     <p>
-                        <b>Sub:-</b> Quotation for supply of
-                        {% for subproduct in letter.subproducts.all %}
-                            {{ subproduct.type_of_part }}
-                        {% endfor %}
+                        <b>Sub:- Quotation for supply of 
+                            {% for subproduct in related_subproducts|unique:'type_of_part' %}
+                                {{ subproduct.type_of_part }},
+                            {% endfor %}
                         for {{ product.name }} Instrument. <br />
-                        <b>Ref:-</b> Your Service report dated {{ service_report_date }} .
+                        <b>Ref:-</b> Your Service report dated {{ service_report_date|default:None }}.</b>
                     </p>
                 </div>
                 <div class="w-[600] text-justify">
-                    &nbsp &nbsp &nbsp It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for {{ product.name }}- instrument Sr.no{{ product.sr_no }} located at  
+                    &nbsp; &nbsp; &nbsp; It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for <b>- instruments Sr.no {{ product_serial_number }}</b> located at  
                     {% if letter.lab_name.name == "Mumbai" %}
-                        Directorate of forensic Science Laboratories, Mumbai
+                        Directorate of Forensic Science Laboratories, Mumbai
                     {% else %}
                         Regional Forensic Science Laboratory, {{ letter.lab_name.name }}
-                    {% endif %}. 
+                    {% endif %}.
                 </div>
-            </div>
+                </div>
             <div class="flex justify-center p-6">
-                <table class="table-auto" style="page-break-inside: avoid;  border: 1px solid black;">
+                <table class="" style="page-break-inside: avoid; border: 1px solid black;">
                     <thead>
                         <tr>
-                            <th class="border border-black px-4 py-2">Sr.No</th>
-                            <th class="border border-black px-4 py-2">Description</th>
-                            <th class="border border-black px-4 py-2">Type of Part</th>
-                            <th class="border border-black px-4 py-2">Req Qty</th>
+                            <th class="border border-black px-2 py-2">Sr.No</th>
+                            <th class="border border-black px-2 py-2 text-center">Description</th>
+                            <th class="border border-black px-2 py-2">Type of Part</th>
+                            <th class="border border-black px-2 py-2">Req Qty</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for subproduct in letter.subproducts.all %}
+                        {% for subproduct in related_subproducts %}
                         <tr>
                             <td class="border border-black px-4 py-2 text-left">{{ forloop.counter }}</td>
-                            <td class="border border-black px-4 py-2 text-left">
-                                {{ subproduct.part_name }}<p> Specification {{ subproduct.specification }}</p>
-                            </td>
+                            <td class="border border-black px-4 py-2 text-left">{{ subproduct.part_name }} Specification {{ subproduct.specification }}</td>
                             <td class="border border-black px-4 py-2">{{ subproduct.type_of_part }}</td>
                             <td class="border border-black px-4 py-2">{{ subproduct.quantity }}</td>
                         </tr>
@@ -75,14 +78,14 @@
                     </tbody>
                 </table>
             </div>
-            <p class="mt-2">Thanking You</p><br>
+            <p class="mt-[3]">Thanking You</p><br>
             <br><br><br><br><br>
         </div><br>
         <div class="ml-12 mt-8 bottom-0 right-0 absolute">
-            <b><p class="text-center">Yours, <br></p><br><br>
-            <b><p class="text-center">(Dr. S.V. Ghumatkar) <br>Director.</p>
+            <p class="text-center">Yours, <br></p><br><br>
+            <p class="text-center">(Dr. S.V. Ghumatkar) <br>Director.</p>
             <p>Directorate of Forensic Science Laboratories,</p>
-            <p>M.S..and Chemical Analyser to Government.</p></b>
+            <p>M.S..and Chemical Analyser to Government.</p>
         </div>
     </div>
     

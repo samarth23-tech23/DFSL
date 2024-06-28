@@ -1,5 +1,6 @@
 from django.db import models
 from decimal import Decimal
+
 class Lab(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField()
@@ -28,7 +29,7 @@ class Manufacturer(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 class AMCProvider(models.Model):
     name = models.CharField(max_length=255)
     ac_no = models.CharField(max_length=255)
@@ -51,6 +52,7 @@ class MainItem(models.Model):
 
     def __str__(self):
         return f"{self.name}-{self.manufacturer.name}"
+
 class Product(models.Model):
     main_item = models.ForeignKey('MainItem', on_delete=models.CASCADE)
     sr_no = models.CharField(max_length=255)
@@ -108,7 +110,7 @@ class Letter(models.Model):
         return self.letter_no
 
 class Quotation(models.Model):
-    letter = models.ForeignKey(Letter, on_delete=models.CASCADE, default=0)
+    letter = models.ForeignKey(Letter, on_delete=models.CASCADE)
     quotation_date = models.DateField()
     ref_no = models.CharField(max_length=255)
     QUOTATION_EXPENSE_CHOICES = [
@@ -135,8 +137,6 @@ class QuotationItem(models.Model):
     def __str__(self):
         return self.subproduct.part_name
 
-
-
 class PrintTrack(models.Model):
     printed_date1 = models.DateField(null=True, blank=True)
     printed_date2 = models.DateField(null=True, blank=True)
@@ -153,6 +153,5 @@ class PrintTrack(models.Model):
             self.is_done = False
         super().save(*args, **kwargs)
 
-        
     def __str__(self):
         return self.letter_no

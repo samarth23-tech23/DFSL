@@ -147,7 +147,7 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-2">
-                            <form action="{% url 'letter_detail' letter.id %}" method="get" target="_blank" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter1')">
+                            <form action="{% url 'letter_detail' letter.id %}" method="get" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter1')">
                                 {% csrf_token %}
                                 <button type="submit" class="print-button" data-letter-id="{{ letter.id }}">Print</button>
                             </form>
