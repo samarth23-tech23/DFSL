@@ -10,96 +10,6 @@
     <title>Product Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/table.css' %}">
-
-    <style>
-        * {
-            font-family: 'Poppins', sans-serif;
-        }
-        .content-wrapper {
-            margin: 25px auto;
-            width: 100%;
-            max-width: 900px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #fff;
-            animation: fadeIn 1s ease-in-out;
-        }
-        .search-bar {
-            position: relative;
-            margin-top: 20px;
-        }
-        .search-input {
-            float: right;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .search-input:focus {
-            border-color: #3ab1df;
-        }
-        .search-icon {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            color: #ccc;
-            cursor: pointer;
-        }
-        .print-button {
-            border: 1px solid #3ab1df;
-            background-color: transparent;
-            color: #3ab1df;
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-            font-weight: bold;
-        }
-        .print-button:hover {
-            background-color: #3ab1df;
-            color: #fff;
-        }
-        .shadow-text {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            color: #3ab1df;
-        }
-        .content-table {
-            border-collapse: collapse;
-            margin: auto;
-            font-size: 17px;
-            width: 100%;
-        }
-        .content-table thead tr {
-            background-color: #3ab1df;
-            color: #ffffff;
-            text-align: left;
-            font-weight: bold;
-        }
-        .content-table th,
-        .content-table td {
-            padding: 12px 15px;
-            border: 1px solid #dddddd;
-        }
-        .content-table tbody tr {
-            border-bottom: 1px solid #dddddd;
-        }
-        .content-table tbody tr:nth-of-type(even) {
-            background-color: #f3f3f3;
-        }
-        .content-table tbody tr:last-of-type {
-            border-bottom: 2px solid #009879;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-    </style> 
 </head>
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">
@@ -147,10 +57,14 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-2">
-                            <form action="{% url 'letter_detail' letter.id %}" method="get" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter1')">
-                                {% csrf_token %}
-                                <button type="submit" class="print-button" data-letter-id="{{ letter.id }}">Print</button>
-                            </form>
+                            {% if letter.subproducts.exists %}
+                                {% for amc_provider, grouped_subproducts in letter.subproducts.all|groupby_amc %}
+                                    <form action="{% url 'letter_detail' letter.id %}?amc_provider_id={{ amc_provider }}" method="get" onsubmit="handlePrint(event, '{{ letter.letter_no }}', 'letter1')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="print-button" data-letter-id="{{ letter.id }}" data-amc-provider-id="{{ amc_provider }}">Print for AMC Provider {{ amc_provider }}</button>
+                                    </form>
+                                {% endfor %}
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

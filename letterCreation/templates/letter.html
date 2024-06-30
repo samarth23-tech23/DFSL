@@ -14,34 +14,73 @@
             font-family: 'Times New Roman';
             font-size: 14px;
         }
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        @media print {
+            .print {
+                display: none;
+            }
+
+            .header, .subject-section {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: calc(100% - 10mm);
+                background: white;
+                z-index: 10;
+                padding-right: 10mm;
+            }
+        }
+        
     </style>
     <title>Letter 7</title>
 </head>
 
-<body class="font-times text-xmlns m-16">
+<body class="font-times text-xmlns">
     <div class="img">
         <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-40 rounded-lg" />
     </div><br>
     <hr class="border border-black">
     <div class="float-left">
-        <p class="font-bold ml-6 mt-4">जावक क्र./No. :</p>
+        <p class="font-bold ml-20 mt-4">जावक क्र./No. :</p>
     </div>
     <div class="float-right">
-        <p class="font-bold float-right mt-2 pr-20 mr-12">दिनांक/Date:</p>
+        <p class="font-bold float-right mt-2 pr-20 mr-20">दिनांक/Date:</p>
     </div>
+   
     <br><br>
-    <div class="text-1xl text-left m-2 p-2">
+    <b><p class="text-center text-xl">Purchase Order</p></b>
+    <div class="text-1xl text-left m-2 p-2 ml-16">
         {% for provider_name, details in grouped_subproducts.items %}
-        <p class="m-2">
-            To. <br />
-            {{ provider_name }} <br />
-            {{ details.address }} <br />
-            {{ details.state }}, {{ details.pincode }}
-        </p>
+        <div class="clearfix">
+            <div class="float-left w-1/2">
+            <p class="m-2">
+                To. <br />
+                {{ provider_name }} <br />
+                {{ details.address }} <br />
+                {{ details.state }}, {{ details.pincode }}
+            </p>
+            </div>
+        
+        
+            <div class="float-right w-1/2 text-right">
+                <p class="mr-44">
+                    <p class="mr-29">Email: {{ details.email_id }}</p>
+                    <p class="mr-30">Contact Number: {{ details.contact_no }}</p>
+                </p>
+            </div>
+        </div>
+
+        
         <div class="flex justify-center p-4">
             <p style="text-align: center;">
                 <b>Sub:- Supply of {{ details.types_of_part }} for {{ details.products }}<br>
-                Ref:- Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b>
+               &nbsp;&nbsp; Ref:- Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b>
             </p>
         </div>
 
@@ -57,7 +96,7 @@
                 & submit your invoice along with delivery challan & installation report to this department immediately.</p>
         </div>
 
-        <div class="flex justify-center p-10 text-sm">
+        <div class="flex justify-center p-10 text-sm page-break">
             <div class="flex justify-center">
                 <table class="border border-collapse w-auto" style="page-break-inside: avoid;">
                     <thead>
@@ -128,7 +167,7 @@
     </div>
     <div>
         <br><br><br><br>
-        <p class="mt-10 ml-10"><b> Copy to:-</b><br>
+        <p class="mt-10 ml-24"><b> Copy to:-</b><br>
             {% if letter.lab_name == "Mumbai" %}
             <p>The Deputy Director, Directorate of forensic Science Laboratories, Mumbai </p><br><br>
             <p>For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
@@ -140,41 +179,6 @@
     </div>
     </div>
 </body>
-<script>
-    // Show modal on page load
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('inputModal');
-        const closeModal = document.getElementById('closeModal');
-        const inputForm = document.getElementById('inputForm');
-        const javakNoDisplay = document.getElementById('javakNoDisplay');
-        const dateDisplay = document.getElementById('dateDisplay');
 
-        modal.style.display = 'block';
-
-        // Close modal on clicking the close button
-        closeModal.onclick = function () {
-            modal.style.display = 'none';
-        }
-
-        // Close modal on clicking outside the modal content
-        window.onclick = function (event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Handle form submission
-        inputForm.onsubmit = function (event) {
-            event.preventDefault();
-            const javakNo = document.getElementById('javakNo').value;
-            const date = document.getElementById('date').value;
-
-            javakNoDisplay.textContent = 'जावक क्र./No. : ' + javakNo;
-            dateDisplay.textContent = 'दिनांक/Date: ' + date;
-
-            modal.style.display = 'none';
-        }
-    });
-</script>
 
 </html>

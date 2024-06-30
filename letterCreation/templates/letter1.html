@@ -1,107 +1,187 @@
-{% load custom_tags %}
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <title>Office Quotation request</title>
+    <title>Office Quotation Request</title>
     <style>
-        body{
+        body {
             font-family: 'Times New Roman';
             font-size: 12px;
+            margin: 0;
+            padding: 0;
         }
-       
+
+        @media print {
+            .print {
+                display: none;
+            }
+
+            .header,
+            .subject-section {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: calc(100% - 10mm);
+                background: white;
+                z-index: 10;
+                padding-right: 10mm;
+            }
+
+            .content {
+                margin-top: 140px;
+            }
+
+            .next-page-content {
+                margin-top: 100px;
+            }
+
+            .content p {
+                text-align: justify;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            @page {
+                size: A4;
+                margin: 10mm 5mm 5mm 5mm;
+            }
+
+            .content::after {
+                content: '';
+                display: block;
+                margin-top: 100px;
+            }
+        }
+
+        p {
+            text-align: justify;
+        }
+
+        p:first-child {
+            margin-top: 0;
+        }
+
+        .header {
+            width: 100%;
+        }
+
+        .subject-section {
+            padding-top: 10mm;
+        }
     </style>
 </head>
-<body class="font-times text-sm">
-    <div>
-        <div class="grid grid-cols-1 float-right">
-            <p class="font-bold m-4">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. {{ current_date|date:"d-m-Y" }}</p>
-        </div>
-        <br>
-        <div class="text-1xl text-left m-8">
-            <p class="m-28"></p>
-            <p>&emsp;सादर,<br><br>&emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ product.lab_name.name }} यांनी त्याचे पत्र क्र. {{ letters.0.letter_no }} , दिनांक {{ letters.0.letter_date|date:"d-m-Y"}} अन्वये {{ product.department.name }} विभागात कार्यरत असलेले {{ product.main_item.name }} या उपकरणासाठी खालील वर्णनाच्या
-                {% if subproducts.count > 1 %}
-                {% for subproduct in subproducts %}
-                    {% if not forloop.first %}
-                        {% if subproduct.type_of_part != subproducts.first.type_of_part %}
-                            व {{ subproduct.type_of_part }}
-                        {% endif %}
-                    {% else %}
-                        {{ subproduct.type_of_part }}
-                    {% endif %}
-                {% endfor %}
-                {% else %}
-                    {{ subproducts.first.type_of_part }}
-                {% endif %}
-                ची आवश्यकता असल्याचे सादर केले आहे.(सोबत मागणीपत्र व सर्विस रिपोर्ट प्रत)
-            
-        </div>
 
-        <div>
-            <div class="flex justify-center p-6">
-                <table class="" style="page-break-inside: avoid; border: 1px solid black; width:40%; text-align: center;">
-                    <thead>
-                        <tr>
-                            <th class="border border-black px-4 py-2">Sr.No</th>
-                            <th class="border border-black px-4 py-2">Description</th>
-                            <th class="border border-black px-4 py-2">Type of part</th>
-                            <th class="border border-black px-4 py-2">Req Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for subproduct in subproducts %}
-                        <tr>
-                            <td class="border border-black px-4 py-2 text-left">{{ forloop.counter }}</td>
-                            <td class="border border-black px-4 py-2 text-left">{{ subproduct.part_name }} <br>Specification: {{ subproduct.specification }}</td>
-                            <td class="border border-black px-4 py-2">{{ subproduct.type_of_part }}</td>
-                            <td class="border border-black px-4 py-2">{{ subproduct.quantity }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<body class="page font-times text-sm">
 
-  {% for amc_provider, subproducts in grouped_subproducts.items %}
-    <div class="w-[600] ml-20 text-left">
-        <ul class="list-disc text-left mx-4">
-            <li>{{ product.main_item.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y"}} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
-            <li>तसेच सदर उपकरणाचा 
-                {% if product.amc_period == '12' %}
-                    वार्षिक
-                {% elif product.amc_period == '24' %}
-                    द्वैवार्षिक
-                {% elif product.amc_period == '36' %}
-                    त्रैवार्षिक
-                {% else %}
-                    {{ product.amc_period }} महिन्यांसाठी
-                {% endif %}
-                देखभाल सेवा करार करण्यात आलेला आहे.</li>
-            <li>तरी वरील 
-                {% for subproduct in subproducts %}
-                    {{ subproduct.type_of_part }}{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-                खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
-        </ul>
+    <div class="header">
+        <table style="width: 100%;">
+            <tr>
+                <td class="float-right">
+                    <p class="font-bold">न्या. वै. प्र. शाळा, मुंबई.<br>भांडार विभाग,<br>दि. {{ current_date|date:"d-m-Y" }}</p><br>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <div class="text-center">
+                        <p style="text-align: center;"><b>विषय -{{ product.amc_provider.name }} या सेवा पुरवठादार कंपनीकडून उपकरणासाठी लागणारे Consumables/Spares खरेदी करणेबाबत.</b></p>
+                        <p style="text-align: center;"><b>संदर्भ - प्रा. वै. प्र.शाळा पुणे प्रयोगशाळेचे, उपसंचालक यांचे पत्र क्र. {{ letters.0.letter_no }} व सोबत सर्व्हिस रिपोर्ट दि. {{ product.service_report_date|date:"d-m-Y"  }}</b></p>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
-{% endfor %}
 
-    
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="page">
+                        <div class="content m-4">
+                            <p>&emsp;सादर,<br><br></p>
+                            <div>
+                                <p class="m-2">
+                                    &emsp;&emsp;&emsp;सविनय सादर करण्यात येते की, या संचालनालयाच्या अधिपत्याखालील उपसंचालक, प्रादेशिक न्यायसहायक वैज्ञानिक प्रयोगशाळा, {{ product.lab_name.name }} यांनी त्याचे पत्र क्र. {{ letters.0.letter_no }} , दिनांक {{ letters.0.letter_date|date:"d-m-Y"  }} अन्वये {{ product.department.name }} विभागात कार्यरत असलेले {{ product.main_item.name }} या उपकरणासाठी खालील वर्णनाच्या 
+                                    {% if subproducts.count > 1 %}
+                                        {% for subproduct in subproducts %}
+                                            {% if not forloop.first %}
+                                                {% if subproduct.type_of_part != subproducts.first.type_of_part %}
+                                                    व {{ subproduct.type_of_part }}
+                                                {% endif %}
+                                            {% else %}
+                                                {{ subproduct.type_of_part }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ subproducts.first.type_of_part }}
+                                    {% endif %}
+                                    ची आवश्यकता असल्याचे सादर केले आहे.(सोबत मागणीपत्र व सर्विस रिपोर्ट प्रत)
+                                </p>
+                            </div>
+                            <div class="flex justify-center p-6">
+                                <table style="page-break-inside: avoid; border: 1px solid black; text-align: center;">
+                                    <thead>
+                                        <tr>
+                                            <th class="border border-black px-2 py-2 text-center">Sr.No</th>
+                                            <th class="border border-black px-2 py-2">Description</th>
+                                            <th class="border border-black px-2 py-2">Type of part</th>
+                                            <th class="border border-black px-2 py-2">Req Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for subproduct in subproducts %}
+                                        <tr>
+                                            <td class="border border-black">{{ forloop.counter }}</td>
+                                            <td class="border border-black text-left px-2 py-2">{{ subproduct.part_name }} Specification: {{ subproduct.specification }}</td>
+                                            <td class="border border-black px-2 py-2">{{ subproduct.type_of_part }}</td>
+                                            <td class="border border-black px-2 py-2">{{ subproduct.quantity }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="w-full ml-6 text-left">
+                                <ul class="list-disc text-left mx-4">
+                                    <li>{{ product.main_item.name }} या उपकरणांची खरेदी सन {{ product.buying_date|date:"Y" }} मध्ये झाली असून खरेदी किंमत रु.{{ product.price }}/- इतकी आहे.</li>
+                                    <li>तसेच सदर उपकरणाचा 
+                                        {% if product.amc_period == 12 %}
+                                            वार्षिक
+                                        {% elif product.amc_period == 24 %}
+                                            द्वैवार्षिक
+                                        {% elif product.amc_period == 36 %}
+                                            त्रैवार्षिक
+                                        {% else %}
+                                            {{ product.amc_period }} महिन्यांसाठी
+                                        {% endif %}
+                                        देखभाल सेवा करार करण्यात आलेला आहे.</li>
+                                    <li>तरी वरील {{ subproduct.type_of_part }} खरेदीसाठी अधिकृत देखभाल सेवा करार पुरवठादार कंपनी {{ subproduct.amc_provider.name }} याचेकडून दरपत्रक मागविण्यास प्रदान करावी ही विनंती.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <br><br><br><br><br><br><br>
+                        <div class="sign-content ml-8 font-bold">
+                            <p>श्री  वि . ग .विरकर : <br>वरिष्ठ लिपीक(भांडार)</p><br><br>
+                            <p>श्री. र. वि. गावीत : <br> सहायक अधिक्षक (भांडार),</p><br><br>
+                            <p>श्री. प्र. ज. कदम : <br> प्रशासकिय अधिकारी (भांडार)</p><br><br>
+                            <p>श्री. सं. शा. प्रभावळे : <br> सहायक संचालक तथा भांडार विभाग नियंत्रक</p><br><br>
+                            <p>डॉ. सं. औ. चेट्टी : <br> उपसंचालक तथा सदस्य सचिव <br><br><br>
+                                <p>डॉ. सं. वि. घुमटकर, <br> 
+                                    संचालक 
+                                </p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-        <br><br><br><br><br><br>
-    
-        <div class="ml-16 font-bold">
-            <p>श्री  वि . ग .विरकर : <br>वरिष्ठ लिपीक(भांडार)</p><br><br>
-            <p>श्री. र. वि. गावीत : <br> सहायक अधिक्षक (भांडार),</p><br><br>
-            <p>श्री. प्र. ज. कदम : <br> प्रशासकिय अधिकारी (भांडार)</p><br><br>
-            <p>श्री. सं. शा. प्रभावळे : <br> सहायक संचालक तथा भांडार विभाग नियंत्रक</p><br><br>
-            <p>डॉ. सं. औ. चेट्टी : <br> उपसंचालक तथा
-        </div>
-    </div>
 </body>
+
 </html>
