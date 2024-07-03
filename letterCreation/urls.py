@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     
-
+   
     path('tracking_table/', views.tracking_table, name='tracking_table'),
 
     path('',views.index),
@@ -34,13 +35,13 @@ urlpatterns = [
 
 #manufacturer
     path('manufacturer/', views.manufacturer_view, name='manufacturer'), 
-    path('edit/<int:manufacturer_id>/', views.edit_manufacturer, name='edit_manufacturer'),
+    path('edit_manufacturer/<int:manufacturer_id>/', views.edit_manufacturer, name='edit_manufacturer'),
      path('get_manufacturers/', views.get_manufacturers, name='get_manufacturers'),
     path('manufacturer/', views.manufacturer_list, name='manufacturer_list'),
     
     path('get_manufacturer_names/', views.get_manufacturer_names, name='get_manufacturer_names'),
    
-    path('edit/<int:id>/', views.edit_manufacturer, name='edit_manufacturer'),
+    # path('edit/<int:id>/', views.edit_manufacturer, name='edit_manufacturer'),
 
     # add manufacturer
     path('add_manufacturer/', views.add_manufacturer, name='add_manufacturer'),

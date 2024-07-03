@@ -20,7 +20,7 @@ services:
   db:
     image: postgres:latest
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - dfsl_postgres_data:/var/lib/postgresql/data  # Persistent storage for database
     env_file:
