@@ -3,6 +3,9 @@ from . import views
 
 urlpatterns = [
     
+    path('letterGenerate/products7/', views.provider_detail, name='provider_detail'),
+
+
 
     path('tracking_table/', views.tracking_table, name='tracking_table'),
 
@@ -92,6 +95,7 @@ urlpatterns = [
 #letter 7
     path('products7/', views.product_list7, name='product_list7'),
     path('products7/<int:letter_id>/', views.letter_detail7, name='letter_detail7'),
+    path('provider_detail/', views.provider_detail, name='provider_detail'),
 
 
 

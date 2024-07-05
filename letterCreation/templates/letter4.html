@@ -12,30 +12,32 @@
             font-family: 'Times New Roman';
             font-size: 14px;
         }
+        
     </style>
 </head>
-<body class="font-times text-xmlns m-12">
+<body class="font-times text-xmlns">
 
     <div class="relative">
         <div class="img">
             {% load static %}
             <img src="{% static 'images/header1.jpg' %}" alt="Description of the image" class="w-full h-36 rounded-lg" />
-        </div>
+        </div><br>
         <hr class="border border-black">
         <div class="float-left">
-            <p id="javakNoDisplay" class="font-bold mt-2 p-2 ml-4">जावक क्र./No. :</p>
+            <p id="javakNoDisplay" class="font-bold mt-2 p-2 ml-14">जावक क्र./No. :</p>
         </div>
         <div class="float-right">
             <p id="dateDisplay" class="font-bold float-right m-4 pr-20 mr-12">दिनांक/Date:</p>
         </div>
         <br><br><br>
-        <div class="text-1xl text-left ml-4 p-4">
+        <div class="text-1xl text-left ml-14 p-4">
             <p>
                 To, <br />
                 {{ amc_provider.name }} <br />
                 {{ amc_provider.address }}<br />
                 {{ amc_provider.state }}- {{ amc_provider.pincode }}.
-            </p>
+        
+            
             <div>
                 <div class="flex justify-center p-4">
                     <p>

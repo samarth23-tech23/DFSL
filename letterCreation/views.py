@@ -23,7 +23,11 @@ from .forms import AMCProviderForm
 from django.urls import reverse
 from django.utils.text import slugify
 
-
+def provider_detail(request):
+    amc_provider_id = request.GET.get('amc_provider_id')
+    provider = get_object_or_404(AMCProvider, id=amc_provider_id)
+    return render(request, 'letter.html', {'provider': provider})
+    
 #mainitems
 def items_list(request):
     items = MainItem.objects.all()
@@ -683,7 +687,6 @@ def product_list7(request):
     # Render the template with the provided context
     return render(request, 'table7.html', context)       
 
-
 def letter_detail7(request, letter_id):
     # Fetch the letter using letter_id
     letter = get_object_or_404(Letter, pk=letter_id)
@@ -719,12 +722,15 @@ def letter_detail7(request, letter_id):
 
     # Group the subproducts by their AMC providers and collect necessary information
     for subproduct in subproducts:
-        provider_name = subproduct.amc_provider.name
+        provider = subproduct.amc_provider
+        provider_name = provider.name
         if provider_name not in grouped_subproducts:
             grouped_subproducts[provider_name] = {
-                'address': subproduct.amc_provider.address,
-                'state': subproduct.amc_provider.state,
-                'pincode': subproduct.amc_provider.pincode,
+                'address': provider.address,
+                'state': provider.state,
+                'pincode': provider.pincode,
+                'email_id': provider.email_id,  # Add email_id
+                'contact_no': provider.contact_no,  # Add contact_no
                 'types_of_part': set(),
                 'products': set(),
                 'parts_and_dates': [],
@@ -933,3 +939,5 @@ def add_amc_provider(request):
         provider.save()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
