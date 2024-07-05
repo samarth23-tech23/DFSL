@@ -1,10 +1,9 @@
-# yourapp/templatetags/custom_tags.py
 from collections import defaultdict
 from django import template
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
-from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
 register = template.Library()
+
 @register.simple_tag
 def multiply(value, arg):
     try:
@@ -15,7 +14,6 @@ def multiply(value, arg):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
-
 
 @register.filter
 def map(value, attr):
@@ -29,18 +27,10 @@ def multiply_and_sum(subproducts, attr):
         if unit_price is not None:
             total += unit_price * sub.quantity
     return total
-    
-# /*@register.simple_tag
-# def sum_of_products(subproducts, unit_price_attr, quantity_attr):
-#     total = 0
-#     for subproduct in subproducts:
-#         total += getattr(subproduct, str(unit_price_attr)) * getattr(subproduct, str(quantity_attr))
-#     return total
-    
+
 @register.filter
 def sum_of_products(queryset, field_name):
     return sum(getattr(obj, field_name) for obj in queryset)
-
 
 @register.simple_tag
 def multiply_and_add(unit_price, quantity, gst_value):
@@ -54,24 +44,12 @@ def multiply_and_add(unit_price, quantity, gst_value):
 def calc(value, arg):
     return value * arg
 
-
-
-# @register.filter
-# def multiply_and_add_total_basic_price(subproducts_group):
-#     total_basic_price = 0
-#     for subproduct in subproducts_group:
-#         quotationitem = subproduct.quotationitem_set.first()
-#         if quotationitem:
-#             total_basic_price += quotationitem.unit_price * subproduct.quantity
-#     return total_basic_price
-
 @register.filter
 def multiply_and_add_total_basic_price(subproducts):
     total_price = 0
     for subproduct in subproducts:
         total_price += subproduct.quotationitem_set.first().unit_price * subproduct.quantity
     return total_price
-
 
 @register.filter
 def total_basic_price(subproducts):
@@ -95,8 +73,7 @@ def group_by_amc_provider(subproducts):
 
 @register.filter(name='add_class')
 def add_class(field, css_class):
-    return field.as_widget(attrs={"class":css_class})
-
+    return field.as_widget(attrs={"class": css_class})
 
 @register.filter
 def unique_amc_providers(subproducts):
@@ -114,14 +91,11 @@ def calc(value, arg):
     try:
         value_decimal = Decimal(value)
         arg_decimal = Decimal(arg)
-        # Multiply the values
         result = value_decimal * arg_decimal
-        # Round the result to the nearest integer
         result_rounded = result.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         return result_rounded
     except (InvalidOperation, TypeError):
         return None
-
 
 @register.filter
 def multiply_and_add(value, arg):
@@ -141,13 +115,12 @@ def calculate_total_price(unit_price, quantity):
 def unique_values(queryset, field_name):
     return queryset.values_list(field_name, flat=True).distinct()
 
-
 @register.filter
 def group_parts_and_dates(parts_and_dates):
     grouped_parts = {}
 
     if not isinstance(parts_and_dates, list):
-        return parts_and_dates  # Return as-is if not a list
+        return parts_and_dates
 
     for item in parts_and_dates:
         if isinstance(item, tuple) and len(item) == 2:
@@ -157,14 +130,13 @@ def group_parts_and_dates(parts_and_dates):
             else:
                 grouped_parts[date] = [part]
         else:
-            grouped_parts[item] = [item]  # Handle single items
+            grouped_parts[item] = [item]
 
     formatted_parts_and_dates = []
     for date, parts in grouped_parts.items():
         formatted_parts_and_dates.append(f"{', '.join(parts)} - {date}")
 
     return ', '.join(formatted_parts_and_dates)
-
 
 @register.filter(name='group_by_amc_provider')
 def group_by_amc_provider(subproducts):
@@ -179,15 +151,13 @@ def group_by_amc_provider(subproducts):
         groups[amc_provider_name].append(subproduct)
     return groups.items()
 
-
 @register.filter(name='get_item')
 def get_item(dictionary, key):
     return dictionary.get(key)
 
 @register.filter
 def get_last(value, arg):
-    return value[arg-1] if value else None
-
+    return value[arg - 1] if value else None
 
 @register.simple_tag
 def empty_list():
@@ -199,7 +169,6 @@ def check_amc_provider(amc_provider, processed_providers):
         processed_providers.append(amc_provider.id)
         return True
     return False
-
 
 @register.filter
 def remove_duplicates(subproducts):
@@ -235,3 +204,10 @@ def groupby_amc(subproducts):
     for subproduct in subproducts:
         grouped[subproduct.amc_provider.id].append(subproduct)
     return grouped.items()
+
+@register.filter
+def multiply_total_basic_price(subproduct):
+    try:
+        return subproduct.quotationitem_set.first().unit_price * subproduct.quantity
+    except AttributeError:
+        return None
