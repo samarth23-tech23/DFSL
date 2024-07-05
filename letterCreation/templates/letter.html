@@ -58,7 +58,7 @@
     <div class="text-1xl text-left m-2 p-2 ml-16">
         {% for provider_name, details in grouped_subproducts.items %}
         <div class="clearfix">
-            <div class="float-left w-1/2">
+            <div class="float-left w-1/4">
             <p class="m-2">
                 To. <br />
                 {{ provider_name }} <br />
@@ -70,8 +70,8 @@
         
             <div class="float-right w-1/2 text-right">
                 <p class="mr-44">
-                    <p class="mr-16">Email: {{ details.email_id }}</p>
-                    <p class="mr-16">Contact Number: {{ details.contact_no }}</p>
+                    <p class="mr-24">Email: {{ details.email_id }}</p>
+                    <p class="mr-24">Contact Number: {{ details.contact_no }}</p>
                 </p>
             </div>
         </div>
@@ -179,6 +179,41 @@
     </div>
     </div>
 </body>
+<script>
+    // Show modal on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('inputModal');
+        const closeModal = document.getElementById('closeModal');
+        const inputForm = document.getElementById('inputForm');
+        const javakNoDisplay = document.getElementById('javakNoDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
 
+        modal.style.display = 'block';
+
+        // Close modal on clicking the close button
+        closeModal.onclick = function () {
+            modal.style.display = 'none';
+        }
+
+        // Close modal on clicking outside the modal content
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Handle form submission
+        inputForm.onsubmit = function (event) {
+            event.preventDefault();
+            const javakNo = document.getElementById('javakNo').value;
+            const date = document.getElementById('date').value;
+
+            javakNoDisplay.textContent = 'जावक क्र./No. : ' + javakNo;
+            dateDisplay.textContent = 'दिनांक/Date: ' + date;
+
+            modal.style.display = 'none';
+        }
+    });
+</script>
 
 </html>

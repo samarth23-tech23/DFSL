@@ -423,8 +423,18 @@ def letter_detail(request, letter_id):
     # Fetch the letter
     letter = get_object_or_404(Letter, id=letter_id)
     
+    # Get the AMC provider ID from the query parameters
+    amc_provider_id = request.GET.get('amc_provider_id')
+    
     # Get all subproducts associated with the letter
     subproducts = Subproduct.objects.filter(letters=letter).distinct()
+    
+    # Filter subproducts by the specific AMC provider if provided
+    if amc_provider_id:
+        amc_provider = get_object_or_404(AMCProvider, id=amc_provider_id)
+        subproducts = subproducts.filter(amc_provider=amc_provider)
+    else:
+        amc_provider = None
     
     # Group subproducts by amc_provider
     grouped_subproducts = defaultdict(list)
@@ -434,17 +444,25 @@ def letter_detail(request, letter_id):
     # Get the product associated with the first subproduct (assuming all subproducts have the same product)
     product = subproducts.first().product if subproducts.exists() else None
 
+    # Accessing service report date from the product's service reports
+    service_report_date = product.service_reports.latest('service_date').service_date if product and product.service_reports.exists() else None
+
+    # Collect the product serial number
+    product_serial_number = str(product.sr_no) if product else ''
+
     # Get the current date
     current_date = timezone.now()
 
     return render(request, 'letter1.html', {
         'product': product,
+        'amc_provider': amc_provider,
         'letters': [letter],  # Wrap the single letter in a list to maintain template structure
-        'subproducts':subproducts,
+        'subproducts': subproducts,
         'grouped_subproducts': grouped_subproducts,
-        'current_date': current_date
+        'current_date': current_date,
+        'service_report_date': service_report_date,
+        'product_serial_number': product_serial_number
     })
-
 
 
 def quotation_form(request):
@@ -572,6 +590,8 @@ def letter_detail6(request, letter_id):
     global_gst_value = Decimal('0')
     global_total_price_inclusive = Decimal('0')
 
+    current_date = timezone.now()
+
     # Group subproducts by amc_provider name
     grouped_subproducts = {}
     amc_providers = set()
@@ -624,6 +644,7 @@ def letter_detail6(request, letter_id):
         'letter': letter,
         'main_item': main_item,  # Pass main_item to the template
         'product': product,
+        'current date':current_date,
         'grouped_subproducts': grouped_subproducts,
         'global_total_basic_price': global_total_basic_price,
         'quotations': quotations,
@@ -755,6 +776,7 @@ def letter_detail7(request, letter_id):
         'quotation': quotations[0] if quotations else None,  # Pass the first (and only) quotation if available
         'amc_provider_id': amc_provider_id  # Pass the AMC provider ID to the template for rendering
     })
+
 
 def get_service_report_dates(request, product_id):
     try:
