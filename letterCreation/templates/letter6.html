@@ -34,22 +34,6 @@
             font-family: 'Times New Roman';
             font-size: 14px;
         }
-
-        @media print {
-            .no-break {
-                page-break-inside: avoid;
-            }
-        }
-        .page {
-            width: 21cm;
-            height: 29.7cm;
-            padding: 2cm;
-            margin: 1cm auto;
-            border: 1px solid #D3D3D3;
-            border-radius: 5px;
-            background: white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
     </style>
     <title>Letter Format</title>
 </head>
@@ -267,7 +251,7 @@
     {% endwith %}
 </div>
 </ol>
-<div class="no-break">
+
 <ol class="list-decimal" start="5">
 {% if quotation_expense_criteria_text %}
     <li>{{ quotation_expense_criteria_text }}</li><br>
@@ -316,7 +300,6 @@
         
   </div>
     </div>
-</div>
     
 </body>
 </html> 
