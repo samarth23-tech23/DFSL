@@ -35,8 +35,8 @@
             color: #495057;
             background-color: #fff;
             background-clip: padding-box;
-            border: 1px solid #3ab1df; /* Add border color here */
-            border-radius: 0.25rem;
+            border: 1px solid #3ab1df; /* Custom border color */
+            border-radius: 0.25rem; /* Border radius */
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
         .form-control:focus {
@@ -55,9 +55,12 @@
             margin-top: 0.25rem;
             font-size: 80%;
         }
+        .custom-border {
+            border: 1px solid #3ab1df;
+        }
     </style>
 </head>
-<body class="bg-gray-100 p-3">
+<body class="bg-gray-100">
 <div class="container bg-white rounded-lg shadow-md">
     <div class="bg-light px-4 py-3 border-bottom">
         <h2 class="text-lg font-semibold">Add Product</h2>
@@ -73,6 +76,7 @@
                     {% endif %}
                     {% if field.field.widget.input_type == 'checkbox' %}
                         <div class="form-check">
+
                             {{ field }}
                             {{ field.label_tag }}
                         </div>
@@ -87,7 +91,7 @@
                 </div>
             {% endfor %}
             <div class="text-end">
-                <button type="submit" class="btn btn-primary">Add Product</button>
+                <button type="submit" class="btn btn-primary">Add Product</button><br><br>
             </div>
         </form>
     </div>

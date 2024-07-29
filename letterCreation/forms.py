@@ -25,6 +25,9 @@ class ProductForm(forms.ModelForm):
             'another_field_name': forms.Select(attrs={'class': 'form-select'}),
             # Add more fields and their respective widgets as needed
             'expenditure_cost': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'buying_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'installation_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'service_report_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
 
 
@@ -58,9 +61,20 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = '__all__'  # Corrected to use the tuple
         widgets = {
-            'field_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'another_field_name': forms.Select(attrs={'class': 'form-select'}),
-            # Add more fields and their respective widgets as needed
+            'field_name': forms.TextInput(attrs={'class': 'form-control custom-border'}),
+            'another_field_name': forms.Select(attrs={'class': 'form-select custom-border'}),
+            'sr_no': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter SR.NO'}),
+            'name': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Name'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Price'}),
+            'department': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Department'}),
+            'lab_name': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Lab Name'}),
+            'amc_provider': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter AMC Provider'}),
+            'amc_period': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter AMC Period'}),
+            'expenditure_cost': forms.NumberInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Expenditure Cost'}),
+            'buying_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control custom-border', 'placeholder': 'Enter Buying Date'}),
+            'installation_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control custom-border', 'placeholder': 'Enter Installation Date'}),
+            'manufacturer_warranty_period': forms.TextInput(attrs={'class': 'form-control custom-border', 'placeholder': 'Enter Warranty Period'}),
+            'service_report_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control custom-border', 'placeholder': 'Enter Service Report Date'}),
         }
 
 class ItemForm(forms.ModelForm):

@@ -543,100 +543,113 @@
               });
             }
                          // Function to add subproduct sections
-                   function addSubproduct(event) {
-          event.preventDefault();
-
-          const parentProductSection = event.target.closest('.product-section');
-          const productId = parentProductSection.dataset.productId;
-
-          const subproductSection = document.createElement('div');
-          subproductSection.classList.add('mb-4', 'subproduct-section');
-
-          // Count the existing subproduct sections
-          const existingSubproductSections = parentProductSection.querySelectorAll('.subproduct-section').length;
-
-          // Title for the subproduct section
-          const subproductTitle = document.createElement('h4');
-          subproductTitle.textContent = `Part ${existingSubproductSections + 1}`;
-          subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2', 'title-custom-color');
-          subproductSection.appendChild(subproductTitle);
-
-          const partNameLabel = document.createElement('label');
-          partNameLabel.textContent = 'Part Name';
-          partNameLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-          subproductSection.appendChild(partNameLabel);
-
-          const partNameInput = document.createElement('input');
-          partNameInput.type = 'text';
-          partNameInput.placeholder = 'Enter part name';
-          partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-          subproductSection.appendChild(partNameInput);
-
-          const partTypeLabel = document.createElement('label');
-          partTypeLabel.textContent = 'Part Type';
-          partTypeLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-          subproductSection.appendChild(partTypeLabel);
-
-          const partTypeSelect = document.createElement('select');
-          partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-
-          const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
-          partTypes.forEach(type => {
-              const option = document.createElement('option');
-              option.value = type;
-              option.textContent = type;
-              partTypeSelect.appendChild(option);
-          });
-
-          subproductSection.appendChild(partTypeSelect);
-
-          const partSpecLabel = document.createElement('label');
-          partSpecLabel.textContent = 'Part Specification';
-          partSpecLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-          subproductSection.appendChild(partSpecLabel);
-
-          const partSpecInput = document.createElement('input');
-          partSpecInput.type = 'text';
-          partSpecInput.placeholder = 'Enter Part Specification';
-          partSpecInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-          subproductSection.appendChild(partSpecInput);
-
-          const partQtyLabel = document.createElement('label');
-          partQtyLabel.textContent = 'Part Quantity';
-          partQtyLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
-          subproductSection.appendChild(partQtyLabel);
-
-          const partQtyInput = document.createElement('input');
-          partQtyInput.type = 'number';
-          partQtyInput.placeholder = 'Enter Quantity Part';
-          partQtyInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
-          subproductSection.appendChild(partQtyInput);
-
-          // Delete Subproduct Button
-          const deleteSubproductBtn = document.createElement('button');
-          deleteSubproductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Subproduct';
-          deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
-          deleteSubproductBtn.addEventListener('click', () => {
-              subproductSection.remove();
-              // After deleting, update part numbers
-              updatePartNumbers();
-          });
-          subproductSection.appendChild(deleteSubproductBtn);
-
-          parentProductSection.appendChild(subproductSection);
-
-          // Function to update part numbers after adding or deleting
-          function updatePartNumbers() {
-              const subproductSections = parentProductSection.querySelectorAll('.subproduct-section');
-              subproductSections.forEach((section, index) => {
-                  const partNumber = index + 1;
-                  section.querySelector('h4').textContent = `Part ${partNumber}`;
-              });
-          }
-
-          // Update part numbers immediately after adding
-          updatePartNumbers();
-      }
+                         function addSubproduct(event) {
+                          event.preventDefault();
+                      
+                          const parentProductSection = event.target.closest('.product-section');
+                          const productId = parentProductSection.dataset.productId;
+                      
+                          // Check if there's any open subproduct section with empty fields
+                          const openSubproductSections = parentProductSection.querySelectorAll('.subproduct-section');
+                          for (const section of openSubproductSections) {
+                              const inputs = section.querySelectorAll('input');
+                              const isEmpty = Array.from(inputs).some(input => input.value.trim() === '');
+                      
+                              if (isEmpty) {
+                                  alert('Fill the existing section');
+                                  return; // Stop execution if any section is incomplete
+                              }
+                          }
+                      
+                          const subproductSection = document.createElement('div');
+                          subproductSection.classList.add('mb-4', 'subproduct-section');
+                      
+                          // Count the existing subproduct sections
+                          const existingSubproductSections = parentProductSection.querySelectorAll('.subproduct-section').length;
+                      
+                          // Title for the subproduct section
+                          const subproductTitle = document.createElement('h4');
+                          subproductTitle.textContent = `Part ${existingSubproductSections + 1}`;
+                          subproductTitle.classList.add('text-lg', 'font-semibold', 'mb-2', 'title-custom-color');
+                          subproductSection.appendChild(subproductTitle);
+                      
+                          const partNameLabel = document.createElement('label');
+                          partNameLabel.textContent = 'Part Name';
+                          partNameLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+                          subproductSection.appendChild(partNameLabel);
+                      
+                          const partNameInput = document.createElement('input');
+                          partNameInput.type = 'text';
+                          partNameInput.placeholder = 'Enter part name';
+                          partNameInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                          subproductSection.appendChild(partNameInput);
+                      
+                          const partTypeLabel = document.createElement('label');
+                          partTypeLabel.textContent = 'Part Type';
+                          partTypeLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+                          subproductSection.appendChild(partTypeLabel);
+                      
+                          const partTypeSelect = document.createElement('select');
+                          partTypeSelect.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                      
+                          const partTypes = ['Spare', 'Wear-n-Tear', 'Consumables'];
+                          partTypes.forEach(type => {
+                              const option = document.createElement('option');
+                              option.value = type;
+                              option.textContent = type;
+                              partTypeSelect.appendChild(option);
+                          });
+                      
+                          subproductSection.appendChild(partTypeSelect);
+                      
+                          const partSpecLabel = document.createElement('label');
+                          partSpecLabel.textContent = 'Part Specification';
+                          partSpecLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+                          subproductSection.appendChild(partSpecLabel);
+                      
+                          const partSpecInput = document.createElement('input');
+                          partSpecInput.type = 'text';
+                          partSpecInput.placeholder = 'Enter Part Specification';
+                          partSpecInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                          subproductSection.appendChild(partSpecInput);
+                      
+                          const partQtyLabel = document.createElement('label');
+                          partQtyLabel.textContent = 'Part Quantity';
+                          partQtyLabel.classList.add('block', 'text-gray-500', 'text-sm', 'font-bold', 'mb-2');
+                          subproductSection.appendChild(partQtyLabel);
+                      
+                          const partQtyInput = document.createElement('input');
+                          partQtyInput.type = 'number';
+                          partQtyInput.placeholder = 'Enter Quantity Part';
+                          partQtyInput.classList.add('border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-2', 'w-full');
+                          subproductSection.appendChild(partQtyInput);
+                      
+                          // Delete Subproduct Button
+                          const deleteSubproductBtn = document.createElement('button');
+                          deleteSubproductBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Subproduct';
+                          deleteSubproductBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'font-bold', 'py-2', 'px-4', 'rounded', 'mt-4');
+                          deleteSubproductBtn.addEventListener('click', () => {
+                              subproductSection.remove();
+                              // After deleting, update part numbers
+                              updatePartNumbers();
+                          });
+                          subproductSection.appendChild(deleteSubproductBtn);
+                      
+                          parentProductSection.appendChild(subproductSection);
+                      
+                          // Function to update part numbers after adding or deleting
+                          function updatePartNumbers() {
+                              const subproductSections = parentProductSection.querySelectorAll('.subproduct-section');
+                              subproductSections.forEach((section, index) => {
+                                  const partNumber = index + 1;
+                                  section.querySelector('h4').textContent = `Part ${partNumber}`;
+                              });
+                          }
+                      
+                          // Update part numbers immediately after adding
+                          updatePartNumbers();
+                      }
+                      
 
                           // Initial call to add first product section
                           document.addEventListener('DOMContentLoaded', function() {
