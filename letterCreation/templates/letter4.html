@@ -31,6 +31,7 @@
         <br><br><br>
         <div class="text-1xl text-left ml-4 p-4">
             <p>
+                Email: {{amc_provider.email_id}}<br>
                 To, <br />
                 {{ amc_provider.name }} <br />
                 {{ amc_provider.address }}<br />
@@ -39,23 +40,35 @@
             <div>
                 <div class="flex justify-center p-4">
                     <p>
-                        <b>Sub:- Quotation for supply of 
+                        <b>Sub:- Supply of 
                             {% for subproduct in related_subproducts|unique:'type_of_part' %}
                                 {{ subproduct.type_of_part }},
                             {% endfor %}
-                        for {{ product.name }} Instrument. <br />
-                        <b>Ref:-</b> Your Service report dated {{ service_report_date|default:None }}.</b>
+                        required for the following forensic instruments: 
+                        {% for product in products %}
+                            <b>{{ product.main_item.name }}</b>
+                        {% endfor %}<br />
+
+                        <b>Ref:-</b> Your Service report(s) dated 
+                        {% for product in products %}
+                            {{ service_report_dates|get_item:product.id|default:None }},
+                        {% endfor %}.
                     </p>
+                </b>
                 </div>
                 <div class="w-[600] text-justify">
-                    &nbsp; &nbsp; &nbsp; It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of following spares/consumables required for <b>- instruments Sr.no {{ product_serial_number }}</b> located at  
+                    &nbsp; &nbsp; &nbsp; It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of the following spares/consumables required for 
+                    {% for product in products %}
+                        <b>Instrument Sr.no {{ product_serial_numbers|get_item:product.id }}</b><br>
+                    {% endfor %}
+                    located at  
                     {% if letter.lab_name.name == "Mumbai" %}
                         Directorate of Forensic Science Laboratories, Mumbai
                     {% else %}
-                        Regional Forensic Science Laboratory, {{ letter.lab_name.name }}
+                        Regional Forensic Science Laboratory, {{ letter.lab_name }}
                     {% endif %}.
                 </div>
-                </div>
+            </div>
             <div class="flex justify-center p-6">
                 <table class="" style="page-break-inside: avoid; border: 1px solid black;">
                     <thead>
@@ -72,7 +85,7 @@
                             <td class="border border-black px-4 py-2 text-left">{{ forloop.counter }}</td>
                             <td class="border border-black px-4 py-2 text-left">{{ subproduct.part_name }} Specification {{ subproduct.specification }}</td>
                             <td class="border border-black px-4 py-2">{{ subproduct.type_of_part }}</td>
-                            <td class="border border-black px-4 py-2">{{ subproduct.quantity }}</td>
+                            <td class="border border-black px-4 py-2">{{ subproduct.quantity }} {{subproduct.unit_of_measure}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

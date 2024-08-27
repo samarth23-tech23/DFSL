@@ -21,7 +21,7 @@ from .forms import ProductForm
 from django.core.serializers.json import DjangoJSONEncoder
 from .forms import AMCProviderForm
 from django.urls import reverse
-from django.utils.text import slugify
+from django.db import transaction
 
 
 #mainitems
@@ -552,28 +552,38 @@ def letter_detail4(request, letter_id):
         amc_provider = None
         related_subproducts = subproducts
 
-    # Get the single product associated with the subproducts
-    product = related_subproducts.first().product if related_subproducts.exists() else None
+    # Get the products associated with the subproducts
+    products = related_subproducts.values_list('product', flat=True).distinct()
+    products = Product.objects.filter(id__in=products)
 
-    # Accessing service report date from the product's service reports
-    service_report_date = product.service_reports.latest('service_date').service_date if product and product.service_reports.exists() else None
+    # Accessing service report dates for all products
+    service_report_dates = {}
+    for product in products:
+        if product.service_reports.exists():
+            service_report_dates[product.id] = product.service_reports.latest('service_date').service_date
+        else:
+            service_report_dates[product.id] = None
 
-    # Collect the product serial number
-    product_serial_number = str(product.sr_no) if product else ''
+    # Collect the product serial numbers
+    product_serial_numbers = {product.id: str(product.sr_no) for product in products}
 
     return render(request, 'letter4.html', {
-        'product': product,
+        'products': products,
         'amc_provider': amc_provider,
         'related_subproducts': related_subproducts,
-        'service_report_date': service_report_date,
+        'service_report_dates': service_report_dates,
         'letter': letter,
-        'product_serial_number': product_serial_number
+        'product_serial_numbers': product_serial_numbers
     })
 
 
 
+
 def letter_detail6(request, letter_id):
+    # Fetch the letter object or return a 404 if not found
     letter = get_object_or_404(Letter, pk=letter_id)
+    
+    # Fetch subproducts related to the letter and their related amc_provider and product
     subproducts = letter.subproducts.select_related('amc_provider', 'product')
     product = subproducts.first().product if subproducts else None
     main_item = product.main_item if product else None
@@ -581,26 +591,26 @@ def letter_detail6(request, letter_id):
     # Ensure all quotations related to the letter are fetched
     quotations = Quotation.objects.filter(letter=letter).distinct()
 
-    # Calculate global variables
+    # Initialize global variables
     global_total_basic_price = Decimal('0')
     global_gst_value = Decimal('0')
     global_total_price_inclusive = Decimal('0')
 
     current_date = timezone.now()
 
-    # Group subproducts by amc_provider name
+    # Group subproducts by AMC provider name
     grouped_subproducts = {}
-    amc_providers = set()
+    unique_amc_providers = set()
     for sub in subproducts:
         provider_name = sub.amc_provider.name if sub.amc_provider else 'Unknown'
         if provider_name not in grouped_subproducts:
             grouped_subproducts[provider_name] = []
         grouped_subproducts[provider_name].append(sub)
 
-        # Collect unique AMC providers
-        amc_providers.add(sub.amc_provider)
+        # Collect unique AMC providers by name
+        unique_amc_providers.add(provider_name)
 
-        # Fetch the related QuotationItem
+        # Fetch the related QuotationItem and compute costs
         quotation_item = QuotationItem.objects.filter(subproduct=sub).first()
         if quotation_item:
             total_basic_price = quotation_item.unit_price * sub.quantity
@@ -627,7 +637,7 @@ def letter_detail6(request, letter_id):
             quotation_expense_criteria_text = (
                 "शासन निर्णय, वित्त विभाग, क्रमांकः विअप्र-२०१३/प्र.क.३०/२०१३/विनियम, दिनांक १७ एप्रिल , २०१५ "
                 "अन्वये भाग पहिला उपविभाग. २ अनुक्रमांक. ५ नियम क्र.७ यंत्राच्या कार्यसज्जतेसाठी लागणारे सुटे "
-                "भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणे करितासंयत्रे , यंत्रसामग्री आणि "
+                "भाग, उपसाधने व इतर वस्तू साधनसामग्री विकत घेण्यासाठी मंजूरी देणेसंयत्रे , यंत्रसामग्री आणि "
                 "साधनसामग्री इत्यादीच्या दुरुस्ती करिता वार्षिक खर्च यंत्रसामग्रीच्या पुस्तकी किंमतीच्या 25% "
                 "मर्यादेपर्यंत विभाग प्रमुख व प्रादेशिक कार्यालय प्रमुख यांना दरपत्रक मागून सुट्ट्या भागांची खरेदी "
                 "करण्याबाबत अधिकार आहेत."
@@ -640,16 +650,17 @@ def letter_detail6(request, letter_id):
         'letter': letter,
         'main_item': main_item,  # Pass main_item to the template
         'product': product,
-        'current date':current_date,
+        'current_date': current_date,  # Corrected variable name
         'grouped_subproducts': grouped_subproducts,
         'global_total_basic_price': global_total_basic_price,
         'quotations': quotations,
         'global_gst_value': global_gst_value,
         'global_total_price_inclusive': global_total_price_inclusive,
         'quotation_expense_criteria_text': quotation_expense_criteria_text,
-        'unique_amc_providers': amc_providers,  # Pass the set of unique AMC providers
+        'unique_amc_providers': unique_amc_providers,  # Pass the list of unique AMC provider names
         'print_track': print_track,  # Pass PrintTrack instance to the template
     })
+
 
     
 def product_list6(request):
@@ -705,6 +716,7 @@ def product_list7(request):
     return render(request, 'table7.html', context)       
 
 
+
 def letter_detail7(request, letter_id):
     # Fetch the letter using letter_id
     letter = get_object_or_404(Letter, pk=letter_id)
@@ -747,31 +759,44 @@ def letter_detail7(request, letter_id):
                 'address': provider.address,
                 'state': provider.state,
                 'pincode': provider.pincode,
-                'email_id': provider.email_id,  # Add email_id
-                'contact_no': provider.contact_no,  # Add contact_no
+                'email_id': provider.email_id,
+                'contact_no': provider.contact_no,
                 'types_of_part': set(),
                 'products': set(),
-                'parts_and_dates': [],
+                'parts_and_dates': {},
                 'subproducts': []
             }
         grouped_subproducts[provider_name]['types_of_part'].add(subproduct.type_of_part)
         grouped_subproducts[provider_name]['products'].add((subproduct.product.main_item.name, subproduct.product.sr_no))
-        grouped_subproducts[provider_name]['parts_and_dates'].append(
-            (subproduct.part_name, subproduct.product.service_report_date)
-        )
+        
+        # Group parts and dates by service date
+        service_date = subproduct.product.service_report_date
+        if service_date:
+            if service_date not in grouped_subproducts[provider_name]['parts_and_dates']:
+                grouped_subproducts[provider_name]['parts_and_dates'][service_date] = []
+            grouped_subproducts[provider_name]['parts_and_dates'][service_date].append(subproduct.part_name)
+        
         grouped_subproducts[provider_name]['subproducts'].append(subproduct)
+
+    print_track = PrintTrack.objects.filter(letter_no=letter.letter_no).first()
 
     # Convert sets to lists for easier template rendering
     for provider in grouped_subproducts.values():
         provider['types_of_part'] = ', '.join(provider['types_of_part'])
         provider['products'] = ', '.join([f"{name} (Sr. No. {sr_no})" for name, sr_no in provider['products']])
-        provider['parts_and_dates'] = ', '.join([f"{part} - {date}" for part, date in provider['parts_and_dates']])
+        
+        # Format parts and dates, ensuring each date is only listed once
+        provider['parts_and_dates'] = ', '.join(
+            [f"{date} - {', '.join(parts)}" for date, parts in provider['parts_and_dates'].items()]
+        )
 
     return render(request, 'letter.html', {
         'letter': letter,
         'grouped_subproducts': grouped_subproducts,
-        'quotation': quotations[0] if quotations else None,  # Pass the first (and only) quotation if available
-        'amc_provider_id': amc_provider_id  # Pass the AMC provider ID to the template for rendering
+        'quotation': quotations[0] if quotations else None,
+        'amc_provider_id': amc_provider_id,
+        'print_track': print_track  # Include PrintTrack object in the context
+
     })
 
 
@@ -796,6 +821,7 @@ def get_service_report_dates(request, product_id):
 
 
 @csrf_exempt
+@transaction.atomic  # Ensures that the database remains consistent
 def submit_form(request):
     if request.method == 'POST':
         try:
@@ -807,7 +833,7 @@ def submit_form(request):
             if not lab_name_id.isdigit():
                 raise ValueError(f"lab_name_id is not a digit: {lab_name_id}")
 
-            # Validate and parse the date
+            # Validate and parse the letter date
             try:
                 letter_date = datetime.datetime.strptime(letter_date, '%Y-%m-%d').date()
             except ValueError:
@@ -820,7 +846,7 @@ def submit_form(request):
                 letter_date=letter_date
             )
 
-            # Process products and their subproducts
+            # Process products and subproducts
             product_index = 0
             while True:
                 sr_no = request.POST.get(f'products[{product_index}][sr_no]')
@@ -832,20 +858,22 @@ def submit_form(request):
                 # Find the product by SR No
                 try:
                     product = Product.objects.get(sr_no=sr_no)
-                    amc_provider = product.amc_provider  # Assume AMC provider is a field in the Product model
+                    amc_provider = product.amc_provider  # Use AMC provider from Product model
                 except Product.DoesNotExist:
                     raise ValueError(f"Product with SR No {sr_no} does not exist")
 
-                # Validate and parse the service report date if provided
+                # Validate and update the service report date if provided
                 if service_report_date:
                     try:
                         service_report_date = datetime.datetime.strptime(service_report_date, '%Y-%m-%d').date()
                     except ValueError:
                         raise ValueError(f"Service report date {service_report_date} is not in the correct format YYYY-MM-DD")
 
-                    # Update service report date
-                    product.service_report_date = service_report_date
-                    product.save()
+                    # Update service report date and track changes
+                    if product.service_report_date != service_report_date:
+                        ServiceReportTrack.objects.create(product=product, service_date=product.service_report_date)
+                        product.service_report_date = service_report_date
+                        product.save()
 
                 # Process subproducts
                 subproduct_index = 0
@@ -857,6 +885,7 @@ def submit_form(request):
                     part_type = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_type]')
                     part_specification = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_specification]')
                     part_quantity = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][part_quantity]')
+                    unit_of_measure = request.POST.get(f'products[{product_index}][subproducts][{subproduct_index}][unit_of_measurement]')
 
                     if not part_quantity.isdigit():
                         raise ValueError(f"Part quantity is not a digit: {part_quantity}")
@@ -868,23 +897,25 @@ def submit_form(request):
                         type_of_part=part_type,
                         specification=part_specification,
                         quantity=int(part_quantity),
-                        amc_provider=amc_provider  # Use AMC provider from the Product model
+                        unit_of_measure=unit_of_measure,
+                        amc_provider=amc_provider  # Link AMC provider from the Product model
                     )
 
-                    # Add subproduct to the letter
+                    # Link subproduct to the letter
                     letter.subproducts.add(subproduct)
 
                     subproduct_index += 1
 
                 product_index += 1
 
+            # If everything is successful, commit the transaction and return success
             return JsonResponse({'success': True})
 
         except Exception as e:
+            # If an error occurs, return the error as a JSON response
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
-
 
 
 def submit_quotation_info(request):

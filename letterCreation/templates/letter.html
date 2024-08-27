@@ -78,15 +78,21 @@
 
         
         <div class="flex justify-center p-4">
-            <p style="text-align: center;">
-                <b>Sub:- Supply of {{ details.types_of_part }} for {{ details.products }}<br>
-               &nbsp;&nbsp; Ref:- Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b>
-            </p>
+         
+                <b>Sub:- Supply of {{ details.types_of_part }} for {{ details.products }}</b></div>
+                <div class="flex justify-center ">
+                Ref:-&nbsp; &nbsp;&nbsp;&nbsp;
+            <ol class="list-decimal"  start="1">
+             
+                <li><b>Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b></li>
+                <li><b>Our inquiry No. _____________ dated {{ print_track.printed_date2 }}</b></li>
+                <li><b>Your Quotation No.{{quotation.ref_no}} dated {{quotation.quotation_date}}</b>
+              
+            </ol>
         </div>
 
         <div class="w-[600] text-left">
-            <p class="m-2">&nbsp; Sir,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; With reference to your quotation No
-                {{ quotation.ref_no }} at Reference above, it is requested to supply & install the following items for the
+            <p class="m-2">&nbsp; Sir,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; With above reference no.3 , it is requested to supply & install the following items for the
                 best performance of the equipment at
                 {% if letter.lab_name == "Mumbai" %}
                 Directorate of Forensic Science Laboratories, Mumbai
@@ -112,7 +118,7 @@
                         {% with subproduct.quotationitem_set.first as quotationitem %}
                         <tr>
                             <td class="border border-black px-4">{{ subproduct.part_name }} Specification- {{ subproduct.specification }}</td>
-                            <td class="border border-black text-center">{{ subproduct.quantity }}</td>
+                            <td class="border border-black text-center">{{ subproduct.quantity }} {{subproduct.unit_of_measure}}</td>
                             {% if quotationitem %}
                             <td class="border border-black text-center">{{ quotationitem.unit_price }} /-</td>
                             <td class="border border-black text-center">{% multiply quotationitem.unit_price subproduct.quantity %}/-</td>

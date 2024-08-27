@@ -64,7 +64,7 @@ class ProductAdmin(admin.ModelAdmin):
     
 @admin.register(Subproduct)
 class SubproductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity', 'amc_provider']
+    list_display = ['id', 'product', 'type_of_part', 'part_name', 'specification', 'quantity','unit_of_measure',    'amc_provider']
 
 @admin.register(Quotation)
 class QuotationAdmin(admin.ModelAdmin):

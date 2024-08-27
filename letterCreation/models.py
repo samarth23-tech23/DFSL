@@ -95,6 +95,7 @@ class Subproduct(models.Model):
     part_name = models.CharField(max_length=255)
     specification = models.TextField()
     quantity = models.IntegerField()
+    unit_of_measure = models.CharField(max_length=50)  # New field for unit of measure
     amc_provider = models.ForeignKey('AMCProvider', on_delete=models.CASCADE)
 
     def __str__(self):
