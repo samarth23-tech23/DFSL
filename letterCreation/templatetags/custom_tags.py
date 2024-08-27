@@ -235,3 +235,13 @@ def groupby_amc(subproducts):
     for subproduct in subproducts:
         grouped[subproduct.amc_provider.id].append(subproduct)
     return grouped.items()
+
+@register.filter
+def get_lab_description(lab):
+    if lab and hasattr(lab, 'name'):
+        lab_name = lab.name.strip().lower()
+        if lab_name == "Mumbai" or lab_name == "mumbai":
+            return "Directorate of Forensic Science Laboratories, Mumbai"
+        else:
+            return f"Regional Forensic Science Laboratory, {lab_name}"
+    return "Unknown Lab"

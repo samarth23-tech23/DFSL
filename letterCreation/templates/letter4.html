@@ -10,16 +10,16 @@
     <style>
         body {
             font-family: 'Times New Roman';
-            font-size: 14px;
+           
         }
     </style>
 </head>
-<body class="font-times text-xmlns m-12">
+<body class="font-times text-base m-12">
 
     <div class="relative">
         <div class="img">
             {% load static %}
-            <img src="{% static 'images/header1.jpg' %}" alt="Description of the image" class="w-full h-36 rounded-lg" />
+            <img src="{% static 'images/header1.jpg' %}" alt="Description of the image" class="w-full h-44 rounded-lg" />
         </div>
         <hr class="border border-black">
         <div class="float-left">
@@ -31,11 +31,12 @@
         <br><br><br>
         <div class="text-1xl text-left ml-4 p-4">
             <p>
-                Email: {{amc_provider.email_id}}<br>
+                
                 To, <br />
                 {{ amc_provider.name }} <br />
-                {{ amc_provider.address }}<br />
-                {{ amc_provider.state }}- {{ amc_provider.pincode }}.
+                <p class="w-48">{{ amc_provider.address }}<br /></p>
+                {{ amc_provider.state }}- {{ amc_provider.pincode }}.<br>
+                Email: {{amc_provider.email_id}}<br>
             </p>
             <div>
                 <div class="flex justify-center p-4">

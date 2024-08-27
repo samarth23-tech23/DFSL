@@ -12,7 +12,7 @@
     <style>
         body {
             font-family: 'Times New Roman';
-            font-size: 14px;
+            {% comment %} font-size: 14px; {% endcomment %}
         }
 
         .clearfix::after {
@@ -41,7 +41,7 @@
     <title>Letter 7</title>
 </head>
 
-<body class="font-times text-xmlns">
+<body class="font-times text-base">
     <div class="img">
         <img src="{% static '/images/header1.jpg' %}" alt="Description of the image" class="w-full h-40 rounded-lg" />
     </div><br>
@@ -54,11 +54,11 @@
     </div>
    
     <br><br>
-    <b><p class="text-center text-xl">Purchase Order</p></b>
+    <b><p class="text-center text-xl">PURCHASE ORDER</p></b>
     <div class="text-1xl text-left m-2 p-2 ml-16">
         {% for provider_name, details in grouped_subproducts.items %}
         <div class="clearfix">
-            <div class="float-left w-1/2">
+            <div class="float-left w-40">
             <p class="m-2">
                 To. <br />
                 {{ provider_name }} <br />
@@ -70,7 +70,7 @@
         
             <div class="float-right w-1/2 text-right">
                 <p class="mr-44">
-                    <p class="mr-29">Email: {{ details.email_id }}</p>
+                    <p class="mr-30">Email Id: {{ details.email_id }}</p>
                     <p class="mr-30">Contact Number: {{ details.contact_no }}</p>
                 </p>
             </div>
@@ -81,7 +81,7 @@
          
                 <b>Sub:- Supply of {{ details.types_of_part }} for {{ details.products }}</b></div>
                 <div class="flex justify-center ">
-                Ref:-&nbsp; &nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;<b>Ref:-</b>&nbsp; &nbsp;&nbsp;&nbsp;
             <ol class="list-decimal"  start="1">
              
                 <li><b>Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b></li>
@@ -94,11 +94,8 @@
         <div class="w-[600] text-left">
             <p class="m-2">&nbsp; Sir,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; With above reference no.3 , it is requested to supply & install the following items for the
                 best performance of the equipment at
-                {% if letter.lab_name == "Mumbai" %}
-                Directorate of Forensic Science Laboratories, Mumbai
-                {% else %}
-                Regional Forensic Science Laboratory, {{ letter.lab_name }}
-                {% endif %}
+             
+                {{ letter.lab_name|get_lab_description }}         
                 & submit your invoice along with delivery challan & installation report to this department immediately.</p>
         </div>
 
@@ -174,14 +171,9 @@
     <div>
         <br><br><br><br>
         <p class="mt-10 ml-24"><b> Copy to:-</b><br>
-            {% if letter.lab_name == "Mumbai" %}
-            <p>The Deputy Director, Directorate of forensic Science Laboratories, Mumbai </p><br><br>
+            <p>{{ letter.lab_name|get_lab_description }} </p>
             <p>For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
-            {% else %}
-            The Deputy Director Regional Forensic Science Laboratory, {{ letter.lab_name }}<br>
-            For information w.r.t to your Letter no:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}
-
-            {% endif %}
+           
     </div>
     </div>
 </body>
