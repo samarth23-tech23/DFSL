@@ -2,15 +2,20 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMC Providers Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/kTc9mH2H7EFx9V1w5ysIFCnDf6A9o1w+Lj2wNF5ZpiB/C0ke5P2V3Y4FbDF5ZfVEX4FlhDgSN0Nxw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             font-family: 'Poppins', sans-serif;
         }
+
         .content-wrapper {
             margin: 25px auto;
             width: 100%;
@@ -21,18 +26,13 @@
             background-color: #fff;
             animation: fadeIn 1s ease-in-out;
         }
-        .search-bar-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
+
         .search-bar {
             position: relative;
             margin-top: 10px;
             margin-bottom: 20px;
         }
+
         .search-input {
             padding: 10px;
             border: 1px solid #ccc;
@@ -42,17 +42,24 @@
             width: 100%;
             max-width: 300px;
         }
+
         .search-input:focus {
-            border-color: #3ab1df;
+            border-color: #2b6cb0;
         }
+
         .search-icon {
             position: absolute;
             top: 50%;
             right: 10px;
             transform: translateY(-50%);
-            color: #ccc;
-            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s ease;
         }
+
+        .search-input:focus+.search-icon {
+            color: #2b6cb0;
+        }
+
         .add-btn {
             background-color: #4caf50;
             color: white;
@@ -62,11 +69,14 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
             margin-bottom: 20px;
+            float: right;
         }
+
         .add-btn:hover {
             background-color: #45a049;
             transform: scale(1.05);
         }
+
         .can-btn {
             background-color: #d6493e;
             color: white;
@@ -77,326 +87,305 @@
             transition: background-color 0.3s ease, transform 0.3s ease;
             margin-bottom: 20px;
         }
+
         .can-btn:hover {
             background-color: #d6493e;
             transform: scale(1.05);
         }
-        .shadow-text {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            color: #3ab1df;
-        }
-        .add-btn {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            margin-bottom: 20px;
-        }
-        .add-btn:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-        .can-btn {
-            background-color: #d6493e;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            margin-bottom: 20px;
-        }
-        .can-btn:hover {
-            background-color: #d6493e;
-            transform: scale(1.05);
-        }
+
         .content-wrapper table {
-            width: 100%;
             border-collapse: collapse;
             margin: auto;
             font-size: 17px;
             width: 100%;
         }
-        .content-table thead tr {
+
+        .content-wrapper thead tr {
             background-color: #3ab1df;
             color: #ffffff;
             text-align: left;
             font-weight: bold;
         }
-        .content-table th, .content-table td {
+
+        .content-wrapper th,
+        .content-wrapper td {
             padding: 12px 15px;
-            border: 1px solid #dddddd;
+            border: none;
+            /* Remove inner borders */
         }
+
+        .content-wrapper th {
+            background-color: #3ab1df;
+            font-weight: bold;
+        }
+
+        .content-wrapper tr:last-child td {
+            border-bottom: 1px solid #3ab1df;
+        }
+
+        .content-wrapper tbody tr {
+            border-bottom: 1px solid #3ab1df;
+            /* Only bottom border */
+        }
+
+        .content-wrapper tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .content-wrapper tbody tr:last-of-type {
+            border-bottom: 2px solid #3ab1df;
+        }
+
+        .content-wrapper tbody tr.active-row {
+            font-weight: bold;
+            color: #3ab1df;
+        }
+
         .icon-btn {
             border: none;
             background: none;
             cursor: pointer;
             padding: 0;
         }
+
         .icon-btn.edit svg {
             fill: #4caf50;
             width: 24px;
             height: 24px;
         }
+
         .icon-btn.delete svg {
             fill: #f44336;
             width: 24px;
             height: 24px;
         }
-        .icon-btn.view svg {
-            fill: #2196f3;
-            width: 24px;
-            height: 24px;
-        }
+
         .table-container {
             max-height: 400px;
             overflow-y: auto;
+            overflow-x: auto;
         }
+
+        .shadow-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            /* Shadow effect */
+            color: #3ab1df;
+            /* Text color */
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
+                transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
+
 <body class="bg-gray-100 dark:bg-gray-900">
-<div class="content-wrapper">
-    <h1 class="text-2xl font-bold mb-5 text-center text-gray-900 dark:text-gray-100">AMC Providers Information</h1>
+    <button  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right" onclick="openAddModal()">Add AMC Provider</button>
+    <br>
+    <br>
 
-    <button class="add-btn" onclick="openAddModal()">Add AMC Provider</button>
+    <div class="content-wrapper">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-bold mb-8 shadow-text ">AMC Providers Information</h1>
 
-    <div class="search-bar">
-        <input type="text" id="searchInput" onkeyup="search()" class="search-input" placeholder="Search by provider name">
-        <i class="fas fa-search search-icon"></i>
+
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" onkeyup="search()" class="search-input"
+                    placeholder="Search by provider name">
+                <div class="search-icon">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m4-5a8 8 0 11-16 0 8 8 0 0116 0zm-8 0a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="data-table" class="table-auto">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Account No</th>
+                        <th>IFSC Code</th>
+                        <th>Account Name</th>
+                        <th>Bank Name</th>
+                        <th>PAN No</th>
+                        <th>State</th>
+                        <th>Pincode</th>
+                        <th>Address</th>
+                        <th>Email ID</th>
+                        <th>Contact No</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    {% for provider in providers %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.ac_no }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.ifsc_code }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.ac_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.bank_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.pan_no }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.state }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.pincode }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.address }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.email_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">{{ provider.contact_no }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-100">
+                            <a href="{% url 'edit_amc_provider' provider.id %}" class="icon-btn edit" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+                                </svg>
+                            </a>
+                            <a href="{% url 'confirm_delete_amc_provider' provider.id %}" class="icon-btn delete"
+                                title="Delete">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z"
+                                        fill="#f44336" />
+                                </svg>
+                            </a>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="table-container">
-        <table id="data-table" class="table-auto">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Account No</th>
-                    <th>IFSC Code</th>
-                    <th>Account Name</th>
-                    <th>Bank Name</th>
-                    <th>PAN No</th>
-                    <th>State</th>
-                    <th>Pincode</th>
-                    <th>Address</th>
-                    <th>Email ID</th>
-                    <th>Contact No</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for provider in providers %}
-                <tr>
-                    <td>{{ provider.name }}</td>
-                    <td>{{ provider.ac_no }}</td>
-                    <td>{{ provider.ifsc_code }}</td>
-                    <td>{{ provider.ac_name }}</td>
-                    <td>{{ provider.bank_name }}</td>
-                    <td>{{ provider.pan_no }}</td>
-                    <td>{{ provider.state }}</td>
-                    <td>{{ provider.pincode }}</td>
-                    <td>{{ provider.address }}</td>
-                    <td>{{ provider.email_id }}</td>
-                    <td>{{ provider.contact_no }}</td>
-                    <td>
-                        <a href="{% url 'edit_amc_provider' provider.id %}" class="icon-btn edit" title="Edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
-                            </svg>
-                        </a>
-                        <a href="{% url 'confirm_delete_amc_provider' provider.id %}" class="icon-btn delete" title="Delete">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z" fill="#f44336"/>
-                            </svg>
-                        </a>
-                        <button class="icon-btn view view-button" data-provider-id="{{ provider.id }}" title="View">
-                            <svg fill="#000000" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21.92,11.6C19.9,6.91,16.1,4,12,4S4.1,6.91,2.08,11.6a1,1,0,0,0,0,.8C4.1,17.09,7.9,20,12,20s7.9-2.91,9.92-7.6A1,1,0,0,0,21.92,11.6ZM12,18c-3.17,0-6.17-2.29-7.9-6C5.83,8.29,8.83,6,12,6s6.17,2.29,7.9,6C18.17,15.71,15.17,18,12,18ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Zm0,6a2,2,0,1,1,2-2A2,2,0,0,1,12,14Z"/>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+
 
     <!-- Modal for Adding Provider Details -->
-    <div id="add-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="add-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div class="sm:flex sm:items-start">
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New AMC Provider</h3>
-                  <div class="mt-2">
-                    <form id="add-provider-form">
-                      <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                        <input type="text" name="name" id="name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="ac_no" class="block text-sm font-medium text-gray-700">Account No</label>
-                        <input type="number" name="ac_no" id="ac_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="ifsc_code" class="block text-sm font-medium text-gray-700">IFSC Code</label>
-                        <input type="text" name="ifsc_code" id="ifsc_code" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="ac_name" class="block text-sm font-medium text-gray-700">Account Name</label>
-                        <input type="text" name="ac_name" id="ac_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank Name</label>
-                        <input type="text" name="bank_name" id="bank_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="pan_no" class="block text-sm font-medium text-gray-700">PAN No</label>
-                        <input type="text" name="pan_no" id="pan_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                        <input type="text" name="state" id="state" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
-                        <input type="number" name="pincode" id="pincode" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                        <textarea name="address" id="address" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required></textarea>
-                      </div>
-                      <div>
-                        <label for="email_id" class="block text-sm font-medium text-gray-700">Email ID</label>
-                        <input type="email" name="email_id" id="email_id" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div>
-                        <label for="contact_no" class="block text-sm font-medium text-gray-700">Contact No</label>
-                        <input type="number" name="contact_no" id="contact_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                      </div>
-                      <div class="mt-4">
-                        <button type="submit" class="add-btn">Add Provider</button>
-                        <button type="button" class="can-btn" onclick="closeAddModal()">Cancel</button>
-                      </div>
-                    </form>
-                  </div>
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New AMC
+                                Provider</h3>
+                            <div class="mt-2">
+                                <form id="add-provider-form">
+                                    <div>
+                                        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                        <input type="text" name="name" id="name"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="ac_no" class="block text-sm font-medium text-gray-700">Account
+                                            No</label>
+                                        <input type="number" name="ac_no" id="ac_no"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="ifsc_code" class="block text-sm font-medium text-gray-700">IFSC
+                                            Code</label>
+                                        <input type="text" name="ifsc_code" id="ifsc_code"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="ac_name" class="block text-sm font-medium text-gray-700">Account
+                                            Name</label>
+                                        <input type="text" name="ac_name" id="ac_name"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank
+                                            Name</label>
+                                        <input type="text" name="bank_name" id="bank_name"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="pan_no" class="block text-sm font-medium text-gray-700">PAN
+                                            No</label>
+                                        <input type="text" name="pan_no" id="pan_no"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                                        <input type="text" name="state" id="state"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="pincode"
+                                            class="block text-sm font-medium text-gray-700">Pincode</label>
+                                        <input type="number" name="pincode" id="pincode"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="address"
+                                            class="block text-sm font-medium text-gray-700">Address</label>
+                                        <textarea name="address" id="address"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                                            required></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="email_id" class="block text-sm font-medium text-gray-700">Email
+                                            ID</label>
+                                        <input type="email" name="email_id" id="email_id"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="contact_no" class="block text-sm font-medium text-gray-700">Contact
+                                            No</label>
+                                        <input type="number" name="contact_no" id="contact_no"
+                                            class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="submit" class="add-btn">Add Provider</button>
+                                        <button type="button" class="can-btn" onclick="closeAddModal()">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm" onclick="closeModal()">Close</button>
-      </div>
     </div>
-  </div>
-</div>
 
-<!-- Modal for Adding Provider Details -->
-<div id="add-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <div class="sm:flex sm:items-start">
-          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New AMC Provider</h3>
-            <div class="mt-2">
-              <form id="add-provider-form">
-                <div>
-                  <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                  <input type="text" name="name" id="name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="ac_no" class="block text-sm font-medium text-gray-700">Account No</label>
-                  <input type="number" name="ac_no" id="ac_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="ifsc_code" class="block text-sm font-medium text-gray-700">IFSC Code</label>
-                  <input type="text" name="ifsc_code" id="ifsc_code" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="ac_name" class="block text-sm font-medium text-gray-700">Account Name</label>
-                  <input type="text" name="ac_name" id="ac_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank Name</label>
-                  <input type="text" name="bank_name" id="bank_name" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="pan_no" class="block text-sm font-medium text-gray-700">PAN No</label>
-                  <input type="text" name="pan_no" id="pan_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                  <input type="text" name="state" id="state" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
-                  <input type="number" name="pincode" id="pincode" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                  <textarea name="address" id="address" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required></textarea>
-                </div>
-                <div>
-                  <label for="email_id" class="block text-sm font-medium text-gray-700">Email ID</label>
-                  <input type="email" name="email_id" id="email_id" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div>
-                  <label for="contact_no" class="block text-sm font-medium text-gray-700">Contact No</label>
-                  <input type="number" name="contact_no" id="contact_no" class="mt-1 p-2 w-full border border-gray-300 rounded-md" required>
-                </div>
-                <div class="mt-4">
-                  <button type="submit" class="add-btn">Add Provider</button>
-                  <button type="button" class="can-btn" onclick="closeAddModal()">Cancel</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+    <script>
+        function search() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("data-table");
+            const trs = table.getElementsByTagName("tr");
 
-<script>
-    function search() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById("data-table");
-        const trs = table.getElementsByTagName("tr");
+            for (let i = 1; i < trs.length; i++) {
+                let tds = trs[i].getElementsByTagName("td");
+                let match = false;
 
-        for (let i = 1; i < trs.length; i++) {
-            let tds = trs[i].getElementsByTagName("td");
-            let match = false;
-
-            for (let j = 0; j < tds.length - 1; j++) {
-                if (tds[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
-                    match = true;
-                    break;
+                for (let j = 0; j < tds.length - 1; j++) {
+                    if (tds[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
                 }
+
+                trs[i].style.display = match ? "" : "none";
             }
         }
-    }
 
-    function openModal(provider) {
-        const details = `
+        function openModal(provider) {
+            const details = `
             <strong>Name:</strong> ${provider.name}<br>
             <strong>Account No:</strong> ${provider.ac_no}<br>
             <strong>IFSC Code:</strong> ${provider.ifsc_code}<br>
@@ -409,23 +398,83 @@
             <strong>Email ID:</strong> ${provider.email_id}<br>
             <strong>Contact No:</strong> ${provider.contact_no}<br>
         `;
-        document.getElementById("provider-details").innerHTML = details;
-        document.getElementById("view-modal").classList.remove("hidden");
-    }
+            document.getElementById("provider-details").innerHTML = details;
+            document.getElementById("view-modal").classList.remove("hidden");
+        }
 
-    function closeModal() {
-        document.getElementById("view-modal").classList.add("hidden");
-    }
+        function closeModal() {
+            document.getElementById("view-modal").classList.add("hidden");
+        }
 
-    document.querySelectorAll(".view-button").forEach(button => {
-        button.addEventListener("click", () => {
-            const providerId = button.getAttribute("data-provider-id");
-            const providers = {{ serialized_providers|safe }};
-            const provider = providers.find(p => p.id == providerId);
-            openModal(provider);
+        document.querySelectorAll('.view-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const providerId = this.getAttribute('data-provider-id');
+                fetch(`letterGenerate/amc_provider/${providerId}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => openModal(data))
+                    .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                        alert("Failed to load provider details.");
+                    });
+            });
         });
-    });
-</script>
+
+        function openAddModal() {
+            document.getElementById("add-modal").classList.remove("hidden");
+        }
+
+        function closeAddModal() {
+            document.getElementById("add-modal").classList.add("hidden");
+        }
+
+        document.getElementById("add-provider-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/letterGenerate/add_amc_provider/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert("Error adding provider: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Error adding provider:", error);
+                    alert("There was an error adding the provider. Please try again later.");
+                });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
 </body>
+
 </html>
 {% endblock %}
