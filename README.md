@@ -10,6 +10,7 @@ Output will be available on **http://127.0.0.1:8000/letterCreation/form**
 Pages are avilable on letterGenerate/templates_ folder
 
 ***Create a .env file and add below contents***
+```
 POSTGRES_HOST=db
 POSTGRES_USER=DFSL_users
 POSTGRES_PASSWORD=admin
@@ -20,3 +21,4 @@ DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
 DJANGO_SUPERUSER_USERNAME=DFSL_users
 DJANGO_SUPERUSER_EMAIL=admin@example.com
 DJANGO_SUPERUSER_PASSWORD=admin
+```
