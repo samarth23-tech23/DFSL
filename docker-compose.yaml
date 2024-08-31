@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  web-app:
+    build: .
+    command: /bin/bash -c "chown -R appuser:appuser /app && chmod -R u+rw /app && python3 manage.py runserver 0.0.0.0:8000"
+    user: root
+    expose:
+      - 8000
+    env_file:
+      - ./.env
+    volumes:
+      - static_volume:/app/static
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5435:5432"
+    volumes:
+      - dfsl_postgres_data:/var/lib/postgresql/data  # Persistent storage for database
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s  # Check every 10 seconds
+      timeout: 5s  # Wait up to 5 seconds for response
+      retries: 3  # Retry up to 3 times before declaring unhealthy
+
+  proxy:
+    build: ./nginx
+    ports:
+      - 8086:80
+    volumes:
+      - static_volume:/app/static
+    depends_on:
+      - web-app
+
+volumes:
+  dfsl_postgres_data:
+  static_volume:
+
