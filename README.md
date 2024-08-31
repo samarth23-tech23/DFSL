@@ -22,3 +22,7 @@ DJANGO_SUPERUSER_USERNAME=DFSL_users
 DJANGO_SUPERUSER_EMAIL=admin@example.com
 DJANGO_SUPERUSER_PASSWORD=admin
 ```
+***To build the docker image***
+```
+docker-compose up -d --build
+```
