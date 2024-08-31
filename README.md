@@ -1,6 +1,6 @@
 # Command to execute project
 
-#Using Liveserver
+#*Using Liveserver*
 
 Make sure you are in root directory of your project folder
  ```python manage.py runserver```
@@ -11,7 +11,7 @@ Output will be available on **http://127.0.0.1:8000/letterCreation/form**
 
 Pages are avilable on letterGenerate/templates_ folder
 
-#Using Docker
+#*Using Docker*
 
 ***Create a .env file and add below contents***
 ```
