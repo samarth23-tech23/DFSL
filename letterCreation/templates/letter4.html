@@ -50,7 +50,7 @@
                             <b>{{ product.main_item.name }}</b>
                         {% endfor %}<br />
 
-                        <b>Ref:-</b> Your Service report(s) dated 
+                        <b>Ref:-</b> Your Service report dated 
                         {% for product in products %}
                             {{ service_report_dates|get_item:product.id|default:None }},
                         {% endfor %}.
@@ -60,7 +60,7 @@
                 <div class="w-[600] text-justify">
                     &nbsp; &nbsp; &nbsp; It is requested to submit your lowest quotation immediately to the Mumbai office for the supply and successful installation of the following spares/consumables required for 
                     {% for product in products %}
-                        <b>Instrument Sr.no {{ product_serial_numbers|get_item:product.id }}</b><br>
+                        <b>Instrument Sr.no {{ product_serial_numbers|get_item:product.id }}</b>
                     {% endfor %}
                     located at  
                     {% if letter.lab_name.name == "Mumbai" %}
