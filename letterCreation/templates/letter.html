@@ -77,11 +77,11 @@
         </div>
 
         
-        <div class="flex justify-center p-4">
+        <div class="flex justify-center">
          
                 <b>Sub:- Supply of {{ details.types_of_part }} for {{ details.products }}</b></div>
                 <div class="flex justify-center ">
-                    &nbsp;&nbsp;&nbsp;<b>Ref:-</b>&nbsp; &nbsp;&nbsp;&nbsp;
+                    <b class="ml-32">Ref:-</b>&nbsp; &nbsp;&nbsp;&nbsp;
             <ol class="list-decimal"  start="1">
              
                 <li><b>Service report dated for item {{ details.parts_and_dates|group_parts_and_dates }}</b></li>
@@ -171,8 +171,8 @@
     <div>
         <br><br><br><br>
         <p class="mt-10 ml-24"><b> Copy to:-</b><br>
-            <p>{{ letter.lab_name|get_lab_description }} </p>
-            <p>For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
+            <p class="ml-24">{{ letter.lab_name|get_lab_description }} </p>
+            <p class="ml-24">For information w.r.t to your Letter No:- {{ letter.letter_no }} Dated :- {{ letter.letter_date }}</p>
            
     </div>
     </div>
